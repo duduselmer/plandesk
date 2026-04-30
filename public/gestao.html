@@ -8,188 +8,83 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0a0d0f;
-      --surface: #111418;
-      --surface2: #181c24;
-      --surface3: #1e2330;
-      --border: #212736;
-      --accent: #4ff7a0;
-      --accent-dim: rgba(79,247,160,0.1);
-      --blue: #4f8ef7;
-      --yellow: #f7c94f;
-      --danger: #f74f4f;
-      --text: #e8ecf5;
-      --muted: #5e6678;
-      --font-display: 'Syne', sans-serif;
-      --font-mono: 'DM Mono', monospace;
+      --bg: #0a0d0f; --surface: #111418; --surface2: #181c24; --surface3: #1e2330;
+      --border: #212736; --accent: #4ff7a0; --accent-dim: rgba(79,247,160,0.1);
+      --blue: #4f8ef7; --yellow: #f7c94f; --danger: #f74f4f;
+      --text: #e8ecf5; --muted: #5e6678;
+      --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
     }
-
     html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); overflow-x: hidden; }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 48px 48px;
-      opacity: 0.3;
-      z-index: 0;
-      pointer-events: none;
-    }
-
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.3; z-index: 0; pointer-events: none; }
     .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
-
-    nav {
-      background: rgba(17,20,24,0.97);
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px);
-      padding: 0 2rem;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-    }
-
+    nav { background: rgba(17,20,24,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
     .nav-brand { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #e8ecf5 30%, #4ff7a0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
     .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-user { font-size: 0.75rem; color: var(--text); }
     .nav-badge { background: var(--accent-dim); border: 1px solid rgba(79,247,160,0.25); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
-    .nav-home { color: var(--muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
-    .nav-home:hover { color: var(--text); }
-
+    .nav-logout { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); padding: 0.3rem 0.75rem; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
+    .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
     .btn-refresh { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.35rem 1rem; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer; transition: all 0.2s; }
     .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* Dashboard */
     .dashboard { flex: 1; padding: 2rem; display: flex; flex-direction: column; gap: 2rem; overflow-y: auto; }
-
     .section-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.25rem; }
     .section-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
     .section-sub { font-size: 0.72rem; color: var(--muted); }
-
-    /* KPI Cards */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-
-    .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      position: relative;
-      overflow: hidden;
-      animation: fadeUp 0.4s ease both;
-    }
-
-    .kpi-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-    }
-
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative; overflow: hidden; animation: fadeUp 0.4s ease both; }
+    .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
     .kpi-card.k-total::after { background: var(--blue); }
     .kpi-card.k-aberto::after { background: var(--blue); }
     .kpi-card.k-andamento::after { background: var(--yellow); }
     .kpi-card.k-concluido::after { background: var(--accent); }
     .kpi-card.k-sla::after { background: var(--danger); }
     .kpi-card.k-reaberto::after { background: var(--danger); }
-
     .kpi-label { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-
-    .kpi-value {
-      font-family: var(--font-display);
-      font-size: 2.8rem;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.03em;
-    }
-
+    .kpi-value { font-family: var(--font-display); font-size: 2.8rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
     .kpi-card.k-total .kpi-value { color: var(--text); }
     .kpi-card.k-aberto .kpi-value { color: var(--blue); }
     .kpi-card.k-andamento .kpi-value { color: var(--yellow); }
     .kpi-card.k-concluido .kpi-value { color: var(--accent); }
     .kpi-card.k-sla .kpi-value { color: var(--danger); }
     .kpi-card.k-reaberto .kpi-value { color: var(--danger); }
-
     .kpi-desc { font-size: 0.72rem; color: var(--muted); }
-
-    /* Status bar */
     .status-section { display: flex; flex-direction: column; gap: 1rem; }
-
     .status-bar-row { display: flex; flex-direction: column; gap: 0.4rem; }
     .status-bar-label { display: flex; justify-content: space-between; font-size: 0.72rem; }
     .status-bar-label span:first-child { color: var(--muted); }
     .status-bar-label span:last-child { color: var(--text); }
     .status-bar { height: 6px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
     .status-bar-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
-
     .fill-blue { background: var(--blue); }
     .fill-yellow { background: var(--yellow); }
     .fill-green { background: var(--accent); }
     .fill-red { background: var(--danger); }
-
-    /* Setor grid */
     .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      animation: fadeUp 0.4s ease both;
-    }
-
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; animation: fadeUp 0.4s ease both; }
     .panel-title { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; }
-
-    /* Tabela SLA por prioridade */
     .sla-table { width: 100%; border-collapse: collapse; }
     .sla-table th { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
     .sla-table td { font-size: 0.8rem; padding: 0.75rem; border-bottom: 1px solid var(--border); }
     .sla-table tr:last-child td { border-bottom: none; }
-
     .prio-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
     .prio-critica { background: var(--danger); }
     .prio-alta { background: var(--yellow); }
     .prio-media { background: var(--blue); }
     .prio-baixa { background: var(--muted); }
-
-    /* Ticket list gestão */
-    .ticket-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.75rem;
-      border-radius: 8px;
-      font-size: 0.78rem;
-      transition: background 0.2s;
-      cursor: default;
-    }
+    .ticket-row { display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-radius: 8px; font-size: 0.78rem; transition: background 0.2s; cursor: default; }
     .ticket-row:hover { background: var(--surface2); }
-
     .ticket-row .id { color: var(--muted); min-width: 40px; }
     .ticket-row .desc { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ticket-row .setor-tag { font-size: 0.65rem; color: var(--muted); white-space: nowrap; }
-
     .badge { padding: 0.18rem 0.55rem; border-radius: 99px; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
     .badge-aberto { background: rgba(79,142,247,0.15); color: var(--blue); }
     .badge-andamento { background: rgba(247,201,79,0.15); color: var(--yellow); }
     .badge-concluido { background: rgba(79,247,160,0.15); color: var(--accent); }
     .badge-reaberto { background: rgba(247,79,79,0.15); color: var(--danger); }
     .badge-sla { background: rgba(247,79,79,0.15); color: var(--danger); }
-
     .empty { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.78rem; }
-
-    /* Atualização */
     .updated-at { font-size: 0.68rem; color: var(--muted); }
-
     @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes countUp { from { opacity: 0; } to { opacity: 1; } }
   </style>
@@ -201,8 +96,9 @@
     <div class="nav-right">
       <span class="updated-at" id="updated-at"></span>
       <button class="btn-refresh" onclick="carregar()">⟳ Atualizar</button>
-      <div class="nav-badge">📊 Gestão</div>
-      <a href="/" class="nav-home">← Início</a>
+      <span class="nav-user" id="user-name"></span>
+      <span class="nav-badge">📊 Gestão</span>
+      <button class="nav-logout" onclick="logout()">Sair</button>
     </div>
   </nav>
 
@@ -220,7 +116,7 @@
         <div class="kpi-card k-andamento" style="animation-delay:0.12s"><div class="kpi-label">Em Andamento</div><div class="kpi-value" id="k-andamento">—</div><div class="kpi-desc">sendo atendidos agora</div></div>
         <div class="kpi-card k-concluido" style="animation-delay:0.18s"><div class="kpi-label">Concluídos</div><div class="kpi-value" id="k-concluido">—</div><div class="kpi-desc">finalizados com sucesso</div></div>
         <div class="kpi-card k-sla" style="animation-delay:0.24s"><div class="kpi-label">SLA Estourados</div><div class="kpi-value" id="k-sla">—</div><div class="kpi-desc">ultrapassaram o prazo</div></div>
-        <div class="kpi-card k-reaberto" style="animation-delay:0.3s"><div class="kpi-label">Reabertos</div><div class="kpi-value" id="k-reaberto">—</div><div class="kpi-desc">pendentes de revisão</div></div>
+        <div class="kpi-card k-reaberto" style="animation-delay:0.3s"><div class="kpi-label">Reaberturas</div><div class="kpi-value" id="k-reaberto">—</div><div class="kpi-desc">ciclos adicionais</div></div>
       </div>
     </div>
 
@@ -238,12 +134,7 @@
         <div class="panel-title">⏱ Tempo Médio por Prioridade</div>
         <table class="sla-table" id="sla-table">
           <thead>
-            <tr>
-              <th>Prioridade</th>
-              <th>SLA Limite</th>
-              <th>Tempo Médio</th>
-              <th>Total</th>
-            </tr>
+            <tr><th>Prioridade</th><th>SLA Limite</th><th>Tempo Médio</th><th>Total</th></tr>
           </thead>
           <tbody id="sla-tbody">
             <tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--muted)">Carregando...</td></tr>
@@ -271,219 +162,228 @@
 </div>
 
 <script>
-  const API = '/api/ticket';
-  const HEADERS = { 'Content-Type': 'application/json', 'x-perfil': 'gestao', 'x-usuario': 'gestao' };
-  const SLA_LIMITES = { 'Crítica': 30, 'Alta': 60, 'Média': 120, 'Baixa': 240 };
-  const PRIO_CLASS = { 'Crítica': 'prio-critica', 'Alta': 'prio-alta', 'Média': 'prio-media', 'Baixa': 'prio-baixa' };
+const TOKEN = localStorage.getItem('plandesk_token');
+const PERFIL = localStorage.getItem('plandesk_perfil');
+const NOME = localStorage.getItem('plandesk_nome');
 
-  let allTickets = [];
-  let filtroSetor = '';
+if (!TOKEN || (PERFIL !== 'gestao' && PERFIL !== 'analista')) { window.location.href = '/login'; }
 
-  async function carregar() {
-    try {
-      const [resStats, resTickets] = await Promise.all([
-        fetch(`${API}/stats/geral`, { headers: HEADERS }),
-        fetch(API, { headers: HEADERS })
-      ]);
+document.getElementById('user-name').textContent = NOME || 'Gestão';
 
-      const stats = await resStats.json();
-      allTickets = await resTickets.json();
+function getAuthHeaders() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN }; }
+function logout() { localStorage.clear(); window.location.href = '/login'; }
 
-      renderKPIs(stats, allTickets);
-      renderBars(stats, allTickets);
-      renderSLATable(stats);
-      renderCriticos(allTickets);
-      renderFiltrosSetor(allTickets);
-      renderAllTickets(allTickets);
+const API = '/api/ticket';
+const SLA_LIMITES = { 'Crítica': 30, 'Alta': 60, 'Média': 120, 'Baixa': 240 };
+const PRIO_CLASS = { 'Crítica': 'prio-critica', 'Alta': 'prio-alta', 'Média': 'prio-media', 'Baixa': 'prio-baixa' };
 
-      document.getElementById('updated-at').textContent = `Atualizado: ${new Date().toLocaleTimeString('pt-BR')}`;
-    } catch (err) {
-      console.error(err);
-    }
-  }
+let allTickets = [];
+let filtroSetor = '';
 
-  function renderKPIs(stats, tickets) {
-    const statusMap = {};
-    (stats.por_status || []).forEach(s => { statusMap[s.status] = s.count; });
+async function carregar() {
+  try {
+    const [resStats, resTickets] = await Promise.all([
+      fetch(`${API}/stats/geral`, { headers: getAuthHeaders() }),
+      fetch(API, { headers: getAuthHeaders() })
+    ]);
 
-    const total = stats.total || 0;
-    const aberto = statusMap['aberto'] || 0;
-    const andamento = statusMap['em andamento'] || 0;
-    const concluido = statusMap['concluído'] || 0;
-    const reaberto = statusMap['reaberto'] || 0;
-    const sla = stats.sla_estourados || 0;
+    const stats = await resStats.json();
+    allTickets = await resTickets.json();
 
-    animCount('k-total', total);
-    animCount('k-aberto', aberto);
-    animCount('k-andamento', andamento);
-    animCount('k-concluido', concluido);
-    animCount('k-sla', sla);
-    animCount('k-reaberto', reaberto);
-  }
-
-  function animCount(id, target) {
-    const el = document.getElementById(id);
-    let cur = 0;
-    const step = Math.max(1, Math.round(target / 20));
-    const timer = setInterval(() => {
-      cur = Math.min(cur + step, target);
-      el.textContent = cur;
-      if (cur >= target) clearInterval(timer);
-    }, 40);
-  }
-
-  function renderBars(stats, tickets) {
-    const total = stats.total || 1;
-    const statusMap = {};
-    (stats.por_status || []).forEach(s => { statusMap[s.status] = s.count; });
-
-    const itens = [
-      { label: 'Abertos', key: 'aberto', cls: 'fill-blue' },
-      { label: 'Em Andamento', key: 'em andamento', cls: 'fill-yellow' },
-      { label: 'Concluídos', key: 'concluído', cls: 'fill-green' },
-      { label: 'Reabertos', key: 'reaberto', cls: 'fill-red' },
-    ];
-
-    document.getElementById('status-bars').innerHTML = itens.map(({ label, key, cls }) => {
-      const count = statusMap[key] || 0;
-      const pct = Math.round(count / total * 100);
-      return `
-        <div class="status-bar-row">
-          <div class="status-bar-label">
-            <span>${label}</span>
-            <span>${count} (${pct}%)</span>
-          </div>
-          <div class="status-bar">
-            <div class="status-bar-fill ${cls}" style="width:0%" data-target="${pct}"></div>
-          </div>
-        </div>`;
-    }).join('');
-
-    // Animar barras
-    setTimeout(() => {
-      document.querySelectorAll('.status-bar-fill[data-target]').forEach(el => {
-        el.style.width = el.dataset.target + '%';
-      });
-    }, 100);
-  }
-
-  function renderSLATable(stats) {
-    const rows = stats.tempo_medio_prioridade || [];
-    const tbody = document.getElementById('sla-tbody');
-
-    if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--muted)">Sem dados de tickets concluídos</td></tr>';
-      return;
-    }
-
-    const ordem = ['Crítica', 'Alta', 'Média', 'Baixa'];
-    const sorted = [...rows].sort((a, b) => ordem.indexOf(a.prioridade) - ordem.indexOf(b.prioridade));
-
-    tbody.innerHTML = sorted.map(r => {
-      const media = Math.round(r.tempo_medio || 0);
-      const limite = SLA_LIMITES[r.prioridade] || 60;
-      const dentro = media <= limite;
-      return `
-        <tr>
-          <td><span class="prio-dot ${PRIO_CLASS[r.prioridade] || ''}"></span>${r.prioridade}</td>
-          <td style="color:var(--muted)">${limite} min</td>
-          <td style="color:${dentro ? 'var(--accent)' : 'var(--danger)'}">${media} min ${dentro ? '✓' : '⚠'}</td>
-          <td style="color:var(--muted)">${r.total}</td>
-        </tr>`;
-    }).join('');
-  }
-
-  function renderCriticos(tickets) {
-    const el = document.getElementById('criticos-list');
-    const criticos = tickets.filter(t =>
-      t.prioridade === 'Crítica' ||
-      t.sla_status === 'estourado' ||
-      t.sla_status === 'proximo' ||
-      t.sla_estourado
-    );
-
-    if (!criticos.length) {
-      el.innerHTML = '<div class="empty">✓ Nenhum ticket em risco no momento</div>';
-      return;
-    }
-
-    const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido', 'reaberto': 'badge-reaberto' };
-
-    el.innerHTML = criticos.map(t => `
-      <div class="ticket-row">
-        <span class="id">#${t.id}</span>
-        <span class="desc" title="${t.descricao}">${t.descricao}</span>
-        <span class="setor-tag">${t.setor}</span>
-        ${t.sla_estourado || t.sla_status === 'estourado' ? '<span class="badge badge-sla">SLA</span>' : ''}
-        <span class="badge ${statusBadge[t.status] || ''}">${t.status}</span>
-      </div>`).join('');
-  }
-
-  function renderFiltrosSetor(tickets) {
-    const setores = [...new Set(tickets.map(t => t.setor))];
-    const el = document.getElementById('filtro-setor');
-    el.innerHTML = `
-      <button onclick="setFiltro('')" class="filtro-s ${!filtroSetor ? 'ativo' : ''}" style="background:${!filtroSetor ? 'var(--accent-dim)' : 'var(--surface2)'};border:1px solid ${!filtroSetor ? 'rgba(79,247,160,0.3)' : 'var(--border)'};border-radius:8px;color:${!filtroSetor ? 'var(--accent)' : 'var(--muted)'};padding:0.3rem 0.8rem;font-size:0.7rem;cursor:pointer;font-family:var(--font-mono);transition:all 0.2s;">Todos</button>
-      ${setores.map(s => `<button onclick="setFiltro('${s}')" style="background:${filtroSetor===s ? 'var(--accent-dim)' : 'var(--surface2)'};border:1px solid ${filtroSetor===s ? 'rgba(79,247,160,0.3)' : 'var(--border)'};border-radius:8px;color:${filtroSetor===s ? 'var(--accent)' : 'var(--muted)'};padding:0.3rem 0.8rem;font-size:0.7rem;cursor:pointer;font-family:var(--font-mono);transition:all 0.2s;">${s}</button>`).join('')}
-    `;
-  }
-
-  function setFiltro(setor) {
-    filtroSetor = setor;
+    renderKPIs(stats, allTickets);
+    renderBars(stats, allTickets);
+    renderSLATable(stats);
+    renderCriticos(allTickets);
     renderFiltrosSetor(allTickets);
     renderAllTickets(allTickets);
+
+    document.getElementById('updated-at').textContent = `Atualizado: ${new Date().toLocaleTimeString('pt-BR')}`;
+  } catch (err) {
+    console.error(err);
   }
+}
 
-  function renderAllTickets(tickets) {
-    const filtered = filtroSetor ? tickets.filter(t => t.setor === filtroSetor) : tickets;
-    const el = document.getElementById('all-tickets');
+function renderKPIs(stats, tickets) {
+  const statusMap = {};
+  (stats.por_status || []).forEach(s => { statusMap[s.status] = s.count; });
 
-    if (!filtered.length) { el.innerHTML = '<div class="empty">Nenhum ticket encontrado</div>'; return; }
+  const total = stats.total || 0;
+  const aberto = statusMap['aberto'] || 0;
+  const andamento = statusMap['em andamento'] || 0;
+  const concluido = statusMap['concluído'] || 0;
+  const sla = stats.sla_estourados || 0;
 
-    const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido', 'reaberto': 'badge-reaberto' };
-    const prioBadge = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
+  // Contar reaberturas (ciclos > 1)
+  const reaberto = tickets.filter(t => t.ciclo_atual > 1 || t.reaberturas_aceitas > 0).length;
 
-    // Mini "tabela"
-    el.innerHTML = `
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
-          <thead>
-            <tr style="border-bottom:1px solid var(--border);">
-              <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">#</th>
-              <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Setor</th>
-              <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Descrição</th>
-              <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Status</th>
-              <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Prioridade</th>
-              <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">SLA</th>
-              <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Analista</th>
-              <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Criado em</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filtered.map(t => {
-              const slaStatus = t.sla_status || (t.sla_estourado ? 'estourado' : 'ok');
-              const cons = t.sla_consumido_atual ?? t.sla_consumido_min ?? 0;
-              const slaText = t.sla_total_min ? `${cons}/${t.sla_total_min}` : '—';
-              const slaColor = slaStatus === 'estourado' ? 'var(--danger)' : slaStatus === 'proximo' ? 'var(--yellow)' : 'var(--muted)';
-              return `
-                <tr style="border-bottom:1px solid var(--border);">
-                  <td style="padding:0.75rem;color:var(--muted);">#${t.id}</td>
-                  <td style="padding:0.75rem;color:var(--muted);font-size:0.73rem;">${t.setor}</td>
-                  <td style="padding:0.75rem;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${t.descricao}">${t.descricao}</td>
-                  <td style="padding:0.75rem;"><span class="badge ${statusBadge[t.status] || ''}">${t.status}</span></td>
-                  <td style="padding:0.75rem;">${t.prioridade ? `<span class="badge ${prioBadge[t.prioridade]}">${t.prioridade}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
-                  <td style="padding:0.75rem;color:${slaColor};font-size:0.73rem;">${slaText} min</td>
-                  <td style="padding:0.75rem;color:var(--muted);font-size:0.73rem;">${t.analista_responsavel || '—'}</td>
-                  <td style="padding:0.75rem;color:var(--muted);font-size:0.72rem;">${new Date(t.criado_em).toLocaleString('pt-BR')}</td>
-                </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
+  animCount('k-total', total);
+  animCount('k-aberto', aberto);
+  animCount('k-andamento', andamento);
+  animCount('k-concluido', concluido);
+  animCount('k-sla', sla);
+  animCount('k-reaberto', reaberto);
+}
+
+function animCount(id, target) {
+  const el = document.getElementById(id);
+  let cur = 0;
+  const step = Math.max(1, Math.round(target / 20));
+  const timer = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    el.textContent = cur;
+    if (cur >= target) clearInterval(timer);
+  }, 40);
+}
+
+function renderBars(stats, tickets) {
+  const total = stats.total || 1;
+  const statusMap = {};
+  (stats.por_status || []).forEach(s => { statusMap[s.status] = s.count; });
+
+  const itens = [
+    { label: 'Abertos', key: 'aberto', cls: 'fill-blue' },
+    { label: 'Em Andamento', key: 'em andamento', cls: 'fill-yellow' },
+    { label: 'Concluídos', key: 'concluído', cls: 'fill-green' }
+  ];
+
+  document.getElementById('status-bars').innerHTML = itens.map(({ label, key, cls }) => {
+    const count = statusMap[key] || 0;
+    const pct = Math.round(count / total * 100);
+    return `
+      <div class="status-bar-row">
+        <div class="status-bar-label">
+          <span>${label}</span>
+          <span>${count} (${pct}%)</span>
+        </div>
+        <div class="status-bar">
+          <div class="status-bar-fill ${cls}" style="width:0%" data-target="${pct}"></div>
+        </div>
       </div>`;
+  }).join('');
+
+  setTimeout(() => {
+    document.querySelectorAll('.status-bar-fill[data-target]').forEach(el => {
+      el.style.width = el.dataset.target + '%';
+    });
+  }, 100);
+}
+
+function renderSLATable(stats) {
+  const rows = stats.tempo_medio_prioridade || [];
+  const tbody = document.getElementById('sla-tbody');
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--muted)">Sem dados de tickets concluídos</td></tr>';
+    return;
   }
 
-  carregar();
-  setInterval(carregar, 60000);
+  const ordem = ['Crítica', 'Alta', 'Média', 'Baixa'];
+  const sorted = [...rows].sort((a, b) => ordem.indexOf(a.prioridade) - ordem.indexOf(b.prioridade));
+
+  tbody.innerHTML = sorted.map(r => {
+    const media = Math.round(r.tempo_medio || 0);
+    const limite = SLA_LIMITES[r.prioridade] || 60;
+    const dentro = media <= limite;
+    return `
+      <tr>
+        <td><span class="prio-dot ${PRIO_CLASS[r.prioridade] || ''}"></span>${r.prioridade}</td>
+        <td style="color:var(--muted)">${limite} min</td>
+        <td style="color:${dentro ? 'var(--accent)' : 'var(--danger)'}">${media} min ${dentro ? '✓' : '⚠'}</td>
+        <td style="color:var(--muted)">${r.total}</td>
+      </tr>`;
+  }).join('');
+}
+
+function renderCriticos(tickets) {
+  const el = document.getElementById('criticos-list');
+  const criticos = tickets.filter(t =>
+    t.prioridade === 'Crítica' ||
+    t.sla_status === 'estourado' ||
+    t.sla_status === 'proximo' ||
+    t.sla_estourado
+  );
+
+  if (!criticos.length) {
+    el.innerHTML = '<div class="empty">✓ Nenhum ticket em risco no momento</div>';
+    return;
+  }
+
+  const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido' };
+
+  el.innerHTML = criticos.map(t => `
+    <div class="ticket-row">
+      <span class="id">#${t.id}</span>
+      <span class="desc" title="${t.descricao}">${t.descricao}</span>
+      <span class="setor-tag">${t.setor}</span>
+      ${t.sla_estourado || t.sla_status === 'estourado' ? '<span class="badge badge-sla">SLA</span>' : ''}
+      <span class="badge ${statusBadge[t.status] || ''}">${t.status}</span>
+    </div>`).join('');
+}
+
+function renderFiltrosSetor(tickets) {
+  const setores = [...new Set(tickets.map(t => t.setor))];
+  const el = document.getElementById('filtro-setor');
+  el.innerHTML = `
+    <button onclick="setFiltro('')" class="filtro-s" style="background:${!filtroSetor ? 'var(--accent-dim)' : 'var(--surface2)'};border:1px solid ${!filtroSetor ? 'rgba(79,247,160,0.3)' : 'var(--border)'};border-radius:8px;color:${!filtroSetor ? 'var(--accent)' : 'var(--muted)'};padding:0.3rem 0.8rem;font-size:0.7rem;cursor:pointer;font-family:var(--font-mono);transition:all 0.2s;">Todos</button>
+    ${setores.map(s => `<button onclick="setFiltro('${s}')" style="background:${filtroSetor===s ? 'var(--accent-dim)' : 'var(--surface2)'};border:1px solid ${filtroSetor===s ? 'rgba(79,247,160,0.3)' : 'var(--border)'};border-radius:8px;color:${filtroSetor===s ? 'var(--accent)' : 'var(--muted)'};padding:0.3rem 0.8rem;font-size:0.7rem;cursor:pointer;font-family:var(--font-mono);transition:all 0.2s;">${s}</button>`).join('')}
+  `;
+}
+
+function setFiltro(setor) {
+  filtroSetor = setor;
+  renderFiltrosSetor(allTickets);
+  renderAllTickets(allTickets);
+}
+
+function renderAllTickets(tickets) {
+  const filtered = filtroSetor ? tickets.filter(t => t.setor === filtroSetor) : tickets;
+  const el = document.getElementById('all-tickets');
+
+  if (!filtered.length) { el.innerHTML = '<div class="empty">Nenhum ticket encontrado</div>'; return; }
+
+  const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido' };
+  const prioBadge = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
+
+  el.innerHTML = `
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">#</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Setor</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Descrição</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Status</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Prioridade</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">SLA</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Analista</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:400;">Criado em</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(t => {
+            const slaStatus = t.sla_status || (t.sla_estourado ? 'estourado' : 'ok');
+            const cons = t.sla_consumido_atual ?? t.sla_consumido_min ?? 0;
+            const slaText = t.sla_total_min ? `${cons}/${t.sla_total_min}` : '—';
+            const slaColor = slaStatus === 'estourado' ? 'var(--danger)' : slaStatus === 'proximo' ? 'var(--yellow)' : 'var(--muted)';
+            return `
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:0.75rem;color:var(--muted);">#${t.id}</td>
+                <td style="padding:0.75rem;color:var(--muted);font-size:0.73rem;">${t.setor}</td>
+                <td style="padding:0.75rem;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${t.descricao}">${t.descricao}</td>
+                <td style="padding:0.75rem;"><span class="badge ${statusBadge[t.status] || ''}">${t.status}</span></td>
+                <td style="padding:0.75rem;">${t.prioridade ? `<span class="badge ${prioBadge[t.prioridade]}">${t.prioridade}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+                <td style="padding:0.75rem;color:${slaColor};font-size:0.73rem;">${slaText} min</td>
+                <td style="padding:0.75rem;color:var(--muted);font-size:0.73rem;">${t.analista_responsavel || '—'}</td>
+                <td style="padding:0.75rem;color:var(--muted);font-size:0.72rem;">${new Date(t.criado_em).toLocaleString('pt-BR')}</td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+carregar();
+setInterval(carregar, 60000);
 </script>
 </body>
 </html>

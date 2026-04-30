@@ -2,13 +2,13 @@ const db = require('../db/connection');
 const SLAService = require('./slaService');
 
 class TicketService {
-  static criarTicket(setor, nome, descricao) {
+  static criarTicket(setor, nome, descricao, criadoPor) {
     return new Promise((resolve, reject) => {
       const sql = `
-        INSERT INTO tickets (setor, nome, descricao, status, criado_em)
-        VALUES (?, ?, ?, 'aberto', datetime('now', 'localtime'))
+        INSERT INTO tickets (setor, nome, descricao, status, criado_em, criado_por)
+        VALUES (?, ?, ?, 'aberto', datetime('now', 'localtime'), ?)
       `;
-      db.run(sql, [setor, nome || null, descricao], function(err) {
+      db.run(sql, [setor, nome || null, descricao, criadoPor || null], function(err) {
         if (err) return reject(new Error('Erro ao criar ticket'));
         resolve({ id: this.lastID, message: 'Ticket criado com sucesso' });
       });

@@ -118,9 +118,10 @@ class TicketService {
   static listarTickets(filtros = {}) {
     return new Promise((resolve, reject) => {
       let sql = `
-        SELECT id, setor, nome, descricao, status, prioridade, criado_em, iniciado_em, concluido_em,
-        sla_total_min, sla_consumido_min, sla_estourado, sla_justificativa, analista_responsavel,
-        descricao_final, link_referencia, ciclo_atual, reaberturas_aceitas, max_reaberturas_atingido
+        SELECT id, setor, nome, descricao, status, prioridade, criado_em, criado_por,
+        iniciado_em, concluido_em, sla_total_min, sla_consumido_min, sla_estourado,
+        sla_justificativa, analista_responsavel, descricao_final, link_referencia,
+        ciclo_atual, reaberturas_aceitas, max_reaberturas_atingido
         FROM tickets WHERE deletado = 0
       `;
       const params = [];

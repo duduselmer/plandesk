@@ -127,6 +127,7 @@ class TicketService {
       if (filtros.status) { sql += ' AND status = ?'; params.push(filtros.status); }
       if (filtros.setor) { sql += ' AND setor = ?'; params.push(filtros.setor); }
       if (filtros.prioridade) { sql += ' AND prioridade = ?'; params.push(filtros.prioridade); }
+      if (filtros.criado_por) { sql += ' AND criado_por = ?'; params.push(filtros.criado_por); }
       sql += `
         ORDER BY CASE prioridade WHEN 'Crítica' THEN 1 WHEN 'Alta' THEN 2 WHEN 'Média' THEN 3 WHEN 'Baixa' THEN 4 ELSE 5 END, criado_em ASC
       `;

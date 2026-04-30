@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const bcrypt = require('bcryptjs');
 
 const dbPath = path.resolve(__dirname, '..', 'database.db');
 const db = new sqlite3.Database(dbPath);
@@ -8,7 +9,39 @@ db.run('PRAGMA journal_mode=WAL');
 db.run('PRAGMA foreign_keys=ON');
 
 db.serialize(() => {
-  // Tabela principal de tickets
+  // ==========================================
+  // Tabela de usuários
+  // ==========================================
+  db.run(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      senha_hash TEXT NOT NULL,
+      perfil TEXT NOT NULL CHECK(perfil IN ('solicitante', 'analista', 'gestao')),
+      ativo INTEGER DEFAULT 1,
+      criado_em TEXT DEFAULT (datetime('now', 'localtime'))
+    )
+  `);
+
+  // Seed: criar usuários padrão se não existirem
+  const usuariosPadrao = [
+    { nome: 'Supervisor', email: 'supervisor@iaf.com', perfil: 'solicitante', senha: '123456' },
+    { nome: 'Analista', email: 'analista@iaf.com', perfil: 'analista', senha: '123456' },
+    { nome: 'Gestor', email: 'gestor@iaf.com', perfil: 'gestao', senha: '123456' }
+  ];
+
+  usuariosPadrao.forEach(u => {
+    const hash = bcrypt.hashSync(u.senha, 10);
+    db.run(
+      'INSERT OR IGNORE INTO usuarios (nome, email, senha_hash, perfil) VALUES (?, ?, ?, ?)',
+      [u.nome, u.email, hash, u.perfil]
+    );
+  });
+
+  // ==========================================
+  // Tabela de tickets
+  // ==========================================
   db.run(`
     CREATE TABLE IF NOT EXISTS tickets (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +66,6 @@ db.serialize(() => {
       descricao_final TEXT,
       link_referencia TEXT,
       
-      -- Controle de reaberturas
       ciclo_atual INTEGER NOT NULL DEFAULT 1,
       reaberturas_aceitas INTEGER NOT NULL DEFAULT 0,
       max_reaberturas_atingido INTEGER DEFAULT 0,
@@ -47,7 +79,9 @@ db.serialize(() => {
     )
   `);
 
+  // ==========================================
   // Tabela de reaberturas
+  // ==========================================
   db.run(`
     CREATE TABLE IF NOT EXISTS reaberturas (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,7 +100,7 @@ db.serialize(() => {
       decidido_em TEXT,
       justificativa_recusa TEXT,
       
-      iniciado_em TEXT,
+      iniziado_em TEXT,
       sla_total_min INTEGER,
       sla_consumido_min INTEGER DEFAULT 0,
       sla_estourado INTEGER DEFAULT 0,
@@ -81,6 +115,7 @@ db.serialize(() => {
   `);
 
   // Índices
+  db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_prioridade ON tickets(prioridade)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_deletado ON tickets(deletado)');

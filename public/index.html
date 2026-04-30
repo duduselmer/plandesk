@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlanDesk — Gestão de Demandas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f12;
+      --surface: #141720;
+      --surface2: #1c2030;
+      --border: #252a3a;
+      --accent: #4f8ef7;
+      --accent2: #f7c94f;
+      --accent3: #4ff7a0;
+      --danger: #f74f4f;
+      --text: #e8ecf5;
+      --muted: #6b738a;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
+      overflow-x: hidden;
+    }
+
+    /* Grid de fundo animado */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: 0.35;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Brilho central */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80vw;
+      height: 60vh;
+      background: radial-gradient(ellipse, rgba(79,142,247,0.08) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    /* Header */
+    .brand {
+      text-align: center;
+      margin-bottom: 4rem;
+      animation: fadeDown 0.7s ease both;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 0.3rem 1rem;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .brand-badge span {
+      width: 6px; height: 6px;
+      background: var(--accent3);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand-subtitle {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* Cards de perfil */
+    .profiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .card:nth-child(2) { animation-delay: 0.08s; }
+    .card:nth-child(3) { animation-delay: 0.16s; }
+    .card:nth-child(4) { animation-delay: 0.24s; }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-solicitante { border-top: 3px solid var(--accent); }
+    .card-solicitante::before { background: radial-gradient(ellipse at top, rgba(79,142,247,0.07) 0%, transparent 70%); }
+    .card-solicitante:hover { border-color: var(--accent); box-shadow: 0 20px 60px rgba(79,142,247,0.15); }
+
+    .card-analista { border-top: 3px solid var(--accent2); }
+    .card-analista::before { background: radial-gradient(ellipse at top, rgba(247,201,79,0.07) 0%, transparent 70%); }
+    .card-analista:hover { border-color: var(--accent2); box-shadow: 0 20px 60px rgba(247,201,79,0.15); }
+
+    .card-gestao { border-top: 3px solid var(--accent3); }
+    .card-gestao::before { background: radial-gradient(ellipse at top, rgba(79,247,160,0.07) 0%, transparent 70%); }
+    .card-gestao:hover { border-color: var(--accent3); box-shadow: 0 20px 60px rgba(79,247,160,0.15); }
+
+    .card-lixeira { border-top: 3px solid var(--danger); }
+    .card-lixeira::before { background: radial-gradient(ellipse at top, rgba(247,79,79,0.07) 0%, transparent 70%); }
+    .card-lixeira:hover { border-color: var(--danger); box-shadow: 0 20px 60px rgba(247,79,79,0.15); }
+
+    .card-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .card-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .card-name {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .card-arrow {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      transition: color 0.2s, gap 0.2s;
+    }
+
+    .card:hover .card-arrow { gap: 0.75rem; }
+    .card-solicitante:hover .card-arrow { color: var(--accent); }
+    .card-analista:hover .card-arrow { color: var(--accent2); }
+    .card-gestao:hover .card-arrow { color: var(--accent3); }
+    .card-lixeira:hover .card-arrow { color: var(--danger); }
+
+    /* Footer */
+    .footer {
+      margin-top: 4rem;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-align: center;
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+
+    /* Animações */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="brand">
+      <div class="brand-badge">
+        <span></span>
+        Sistema Operacional · v1.0
+      </div>
+      <h1 class="brand-title">PlanDesk</h1>
+      <p class="brand-subtitle">Gestão de Demandas Operacionais · Selecione seu perfil de acesso</p>
+    </div>
+
+    <div class="profiles">
+      <a href="/solicitante" class="card card-solicitante">
+        <div class="card-icon">📋</div>
+        <div>
+          <div class="card-label">Perfil 01</div>
+          <div class="card-name">Solicitante</div>
+        </div>
+        <p class="card-desc">Abra novos tickets, acompanhe suas demandas e solicite reabertura de chamados concluídos.</p>
+        <div class="card-arrow">Acessar painel →</div>
+      </a>
+
+      <a href="/analista" class="card card-analista">
+        <div class="card-icon">🎯</div>
+        <div>
+          <div class="card-label">Perfil 02</div>
+          <div class="card-name">Analista</div>
+        </div>
+        <p class="card-desc">Gerencie tickets, defina prioridades, controle SLA e registre as soluções entregues.</p>
+        <div class="card-arrow">Acessar painel →</div>
+      </a>
+
+      <a href="/gestao" class="card card-gestao">
+        <div class="card-icon">📊</div>
+        <div>
+          <div class="card-label">Perfil 03</div>
+          <div class="card-name">Gestão</div>
+        </div>
+        <p class="card-desc">Visualize métricas, indicadores de SLA, tempo médio de atendimento e relatórios consolidados.</p>
+        <div class="card-arrow">Acessar painel →</div>
+      </a>
+
+      <a href="/historico" class="card card-lixeira">
+        <div class="card-icon">🗑</div>
+        <div>
+          <div class="card-label">Auditoria</div>
+          <div class="card-name">Histórico</div>
+        </div>
+        <p class="card-desc">Audite tickets excluídos com registro de responsável, motivo e timestamp da exclusão.</p>
+        <div class="card-arrow">Acessar registros →</div>
+      </a>
+    </div>
+
+    <div class="footer">
+      PlanDesk · Gestão de Demandas Operacionais · Horário útil 08:00–17:48
+    </div>
+  </div>
+</body>
+</html>

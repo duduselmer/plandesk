@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlanDesk — Histórico de Demandas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #141820;
+      --surface2: #1a1f2b;
+      --surface3: #1f2534;
+      --border: #262d3d;
+      --accent: #4f8ef7;
+      --accent-dim: rgba(79,142,247,0.1);
+      --success: #4ff7a0;
+      --warning: #f7c94f;
+      --danger: #f74f4f;
+      --purple: #a78bfa;
+      --text: #e8ecf5;
+      --muted: #6b738a;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); overflow-x: hidden; }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: 0.3;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+    nav {
+      background: rgba(20,24,32,0.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .nav-brand { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-badge { background: var(--accent-dim); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .nav-home { color: var(--muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
+    .nav-home:hover { color: var(--text); }
+
+    .toolbar {
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      background: var(--surface);
+    }
+
+    .toolbar-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+    .toolbar-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
+
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 0.6rem 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-left: auto;
+    }
+    .search-box:focus { border-color: var(--accent); }
+    .search-box::placeholder { color: var(--muted); }
+
+    .btn-refresh { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.5rem 1.2rem; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
+
+    .content { flex: 1; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; }
+
+    .info-banner {
+      background: var(--accent-dim);
+      border: 1px solid rgba(79,142,247,0.2);
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      font-size: 0.78rem;
+      color: var(--accent);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .info-banner .icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+
+    .count-bar { display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--muted); }
+
+    .filtros-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-mono);
+    }
+    .chip:hover { border-color: var(--muted); color: var(--text); }
+    .chip.ativo { background: var(--accent-dim); border-color: rgba(79,142,247,0.4); color: var(--accent); }
+
+    /* Ticket Arquivado Card */
+    .ticket-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .ticket-header {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .ticket-header:hover { background: var(--surface2); }
+
+    .ticket-id-section { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+
+    .ticket-id { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+
+    .badge {
+      padding: 0.2rem 0.65rem;
+      border-radius: 99px;
+      font-size: 0.63rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge-setor { background: rgba(79,142,247,0.12); color: var(--accent); }
+    .badge-aberto { background: rgba(79,142,247,0.12); color: var(--accent); }
+    .badge-andamento { background: rgba(247,201,79,0.12); color: var(--warning); }
+    .badge-concluido { background: rgba(79,247,160,0.12); color: var(--success); }
+    .badge-reaberto { background: rgba(247,79,79,0.12); color: var(--danger); }
+    .badge-critica { background: rgba(247,79,79,0.15); color: var(--danger); }
+    .badge-alta { background: rgba(247,201,79,0.15); color: var(--warning); }
+    .badge-media { background: rgba(79,142,247,0.15); color: var(--accent); }
+    .badge-baixa { background: rgba(107,115,138,0.2); color: var(--muted); }
+    .badge-ciclo { background: rgba(167,139,250,0.12); color: var(--purple); }
+    .badge-sla-estourado { background: rgba(247,79,79,0.15); color: var(--danger); }
+
+    .ticket-arrow { color: var(--muted); transition: transform 0.3s; font-size: 1.2rem; }
+    .ticket-card.open .ticket-arrow { transform: rotate(180deg); }
+
+    .ticket-body { 
+      max-height: 0; 
+      overflow: hidden; 
+      transition: max-height 0.4s ease, padding 0.4s ease; 
+    }
+
+    .ticket-card.open .ticket-body { 
+      max-height: 2000px; 
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .ticket-desc {
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+      padding: 1rem;
+      background: var(--surface2);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0.5rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: 0.75rem 0;
+      padding-left: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -0.35rem;
+      top: 1rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--surface);
+    }
+
+    .timeline-dot.criado { border-color: var(--accent); background: var(--accent); }
+    .timeline-dot.iniciado { border-color: var(--warning); background: var(--warning); }
+    .timeline-dot.concluido { border-color: var(--success); background: var(--success); }
+    .timeline-dot.reaberto { border-color: var(--danger); background: var(--danger); }
+    .timeline-dot.arquivado { border-color: var(--muted); background: var(--muted); }
+    .timeline-dot.recusado { border-color: var(--danger); background: var(--danger); }
+
+    .timeline-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .timeline-title { font-size: 0.78rem; font-weight: 600; }
+    .timeline-date { font-size: 0.7rem; color: var(--muted); }
+
+    .timeline-detail {
+      font-size: 0.74rem;
+      color: var(--muted);
+      line-height: 1.5;
+      padding: 0.5rem 0.75rem;
+      background: var(--surface2);
+      border-radius: 6px;
+      margin-top: 0.25rem;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem; margin-top: 0.5rem; }
+
+    .info-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+    }
+
+    .info-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+    .info-value { font-size: 0.8rem; line-height: 1.4; }
+    .info-value.highlight { color: var(--warning); }
+    .info-value.danger { color: var(--danger); }
+    .info-value.success { color: var(--success); }
+
+    .empty-state { text-align: center; padding: 6rem 2rem; color: var(--muted); font-size: 0.8rem; }
+    .empty-state .icon { font-size: 4rem; margin-bottom: 1rem; display: block; opacity: 0.2; }
+
+    .result-info { font-size: 0.72rem; color: var(--muted); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <nav>
+    <a href="/" class="nav-brand">PlanDesk</a>
+    <div class="nav-right">
+      <div class="nav-badge">📋 Histórico</div>
+      <a href="/" class="nav-home">← Início</a>
+    </div>
+  </nav>
+
+  <div class="toolbar">
+    <div>
+      <div class="toolbar-title">Registro Histórico de Demandas</div>
+      <div class="toolbar-sub">Arquivo completo de tickets para auditoria e rastreabilidade</div>
+    </div>
+    <input type="text" class="search-box" id="busca" placeholder="Buscar por ID, setor, descrição, analista..." oninput="filtrarLocal()" />
+    <button class="btn-refresh" onclick="carregar()">⟳ Atualizar</button>
+  </div>
+
+  <div class="content">
+    <div class="info-banner">
+      <span class="icon">🔒</span>
+      <span>Todos os registros são preservados permanentemente para fins de auditoria. Nenhum ticket é realmente excluído do sistema. Esta visualização mostra o histórico completo de cada demanda.</span>
+    </div>
+
+    <div>
+      <div class="count-bar">
+        <span id="count-label">Carregando...</span>
+        <div class="filtros-chips">
+          <button class="chip ativo" onclick="filtrarStatus('')">Todos</button>
+          <button class="chip" onclick="filtrarStatus('concluído')">Concluídos</button>
+          <button class="chip" onclick="filtrarStatus('reaberto')">Reabertos</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tickets-container">
+      <div class="empty-state"><span class="icon">📋</span>Carregando registros...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = '/api/ticket';
+  const HEADERS = { 'Content-Type': 'application/json', 'x-perfil': 'analista', 'x-usuario': 'auditoria' };
+
+  let todosTickets = [];
+  let filtroStatusAtual = '';
+
+  async function carregar() {
+    const container = document.getElementById('tickets-container');
+    container.innerHTML = '<div class="empty-state"><span class="icon">📋</span>Carregando...</div>';
+
+    try {
+      // Buscar TODOS os tickets
+      const [resAtivos, resArquivados] = await Promise.all([
+        fetch(API, { headers: HEADERS }),
+        fetch(`${API}/lixeira/listar`, { headers: HEADERS })
+      ]);
+
+      const ativos = await resAtivos.json();
+      const arquivados = await resArquivados.json();
+      
+      // Combinar todos os tickets
+      let todos = [...ativos, ...arquivados];
+      
+      // Remover duplicados
+      const ids = new Set();
+      todos = todos.filter(t => {
+        if (ids.has(t.id)) return false;
+        ids.add(t.id);
+        return true;
+      });
+
+      // Agrupar por demanda (ticket_original_id ou próprio ID)
+      const demandas = new Map();
+      
+      todos.forEach(ticket => {
+        const chave = ticket.ticket_original_id || ticket.id;
+        
+        if (!demandas.has(chave)) {
+          demandas.set(chave, {
+            original: null,
+            reaberturas: []
+          });
+        }
+        
+        const demanda = demandas.get(chave);
+        
+        if (ticket.id === chave && !ticket.ticket_original_id) {
+          demanda.original = ticket;
+        } else if (ticket.ticket_original_id === chave) {
+          demanda.reaberturas.push(ticket);
+        } else {
+          // É o próprio original
+          if (!demanda.original) demanda.original = ticket;
+        }
+      });
+
+      todosTickets = Array.from(demandas.values());
+      
+      // Ordenar por ID do original (decrescente)
+      todosTickets.sort((a, b) => (b.original?.id || 0) - (a.original?.id || 0));
+
+      aplicarFiltros();
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = '<div class="empty-state"><span class="icon">⚠️</span>Erro ao carregar registros.</div>';
+    }
+  }
+
+  function filtrarStatus(status) {
+    filtroStatusAtual = status;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('ativo'));
+    document.querySelector(`.chip[onclick*="${status || "''"}"]`)?.classList.add('ativo');
+    aplicarFiltros();
+  }
+
+  function filtrarLocal() {
+    aplicarFiltros();
+  }
+
+  function aplicarFiltros() {
+    let demandas = [...todosTickets];
+    const q = document.getElementById('busca').value.toLowerCase();
+
+    if (filtroStatusAtual) {
+      demandas = demandas.filter(d => {
+        const todosTicketsDaDemanda = [d.original, ...d.reaberturas].filter(Boolean);
+        return todosTicketsDaDemanda.some(t => t.status === filtroStatusAtual);
+      });
+    }
+
+    if (q) {
+      demandas = demandas.filter(d => {
+        const todosTicketsDaDemanda = [d.original, ...d.reaberturas].filter(Boolean);
+        return todosTicketsDaDemanda.some(t =>
+          String(t.id).includes(q) ||
+          (t.setor || '').toLowerCase().includes(q) ||
+          (t.descricao || '').toLowerCase().includes(q) ||
+          (t.nome || '').toLowerCase().includes(q) ||
+          (t.analista_responsavel || '').toLowerCase().includes(q)
+        );
+      });
+    }
+
+    renderDemandas(demandas);
+  }
+
+  function renderDemandas(demandas) {
+    const container = document.getElementById('tickets-container');
+    
+    // Contar total de registros (originais + reaberturas)
+    let totalRegistros = 0;
+    demandas.forEach(d => {
+      if (d.original) totalRegistros++;
+      totalRegistros += d.reaberturas.length;
+    });
+    
+    document.getElementById('count-label').textContent = 
+      `${demandas.length} demanda${demandas.length !== 1 ? 's' : ''} · ${totalRegistros} registro${totalRegistros !== 1 ? 's' : ''}`;
+
+    if (!demandas.length) {
+      container.innerHTML = '<div class="empty-state"><span class="icon">📋</span>Nenhum registro encontrado.</div>';
+      return;
+    }
+
+    const statusBadge = { 
+      'aberto': 'badge-aberto', 
+      'em andamento': 'badge-andamento', 
+      'concluído': 'badge-concluido', 
+      'reaberto': 'badge-reaberto' 
+    };
+    const prioBadge = { 
+      'Baixa': 'badge-baixa', 
+      'Média': 'badge-media', 
+      'Alta': 'badge-alta', 
+      'Crítica': 'badge-critica' 
+    };
+
+    container.innerHTML = demandas.map((demanda, i) => {
+      const original = demanda.original;
+      const reaberturas = demanda.reaberturas;
+      
+      if (!original && reaberturas.length === 0) return '';
+      
+      // Usar o primeiro ticket disponível para informações básicas
+      const primeiro = original || reaberturas[0];
+      if (!primeiro) return '';
+
+      // Construir timeline completa
+      let timelineHTML = '';
+      
+      // Ordenar todos os tickets da demanda por data
+      const todosOrdenados = [original, ...reaberturas]
+        .filter(Boolean)
+        .sort((a, b) => new Date(a.criado_em) - new Date(b.criado_em));
+
+      todosOrdenados.forEach((t, idx) => {
+        const criadoEm = t.criado_em ? new Date(t.criado_em).toLocaleString('pt-BR') : '—';
+        const iniciadoEm = t.iniciado_em ? new Date(t.iniciado_em).toLocaleString('pt-BR') : null;
+        const concluidoEm = t.concluido_em ? new Date(t.concluido_em).toLocaleString('pt-BR') : null;
+        const arquivadoEm = t.deletado_em ? new Date(t.deletado_em).toLocaleString('pt-BR') : null;
+        const isReabertura = t.ticket_original_id !== null;
+
+        if (idx > 0) {
+          timelineHTML += `
+            <div style="padding:0.5rem 0;margin:0.5rem 0;border-top:1px dashed var(--border);"></div>`;
+        }
+
+        // Título do ciclo
+        timelineHTML += `
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.1em;">
+            ${isReabertura ? `🔄 Ciclo ${t.ciclo || '?'} — Reabertura #${t.id}` : `📝 Ciclo 1 — Original #${t.id}`}
+          </div>`;
+
+        // Criação
+        timelineHTML += `
+          <div class="timeline-item">
+            <div class="timeline-dot criado"></div>
+            <div class="timeline-header">
+              <span class="timeline-title" style="color:var(--accent);">📝 Ticket ${isReabertura ? 'Reaberto' : 'Criado'}</span>
+              <span class="timeline-date">${criadoEm}</span>
+            </div>
+            <div class="timeline-detail">
+              Setor: ${t.setor}${t.nome ? ` · Solicitante: ${t.nome}` : ''}
+              ${t.motivo_reabertura ? `<br><strong>Motivo reabertura:</strong> "${t.motivo_reabertura}"` : ''}
+            </div>
+          </div>`;
+
+        // Início do atendimento
+        if (iniciadoEm) {
+          timelineHTML += `
+            <div class="timeline-item">
+              <div class="timeline-dot iniciado"></div>
+              <div class="timeline-header">
+                <span class="timeline-title" style="color:var(--warning);">▶ Atendimento Iniciado</span>
+                <span class="timeline-date">${iniciadoEm}</span>
+              </div>
+              <div class="timeline-detail">
+                Analista: ${t.analista_responsavel || 'N/D'}<br>
+                Prioridade: <span style="color:var(--warning);">${t.prioridade || 'N/D'}</span><br>
+                SLA: ${t.sla_total_min || '?'} minutos
+              </div>
+            </div>`;
+        }
+
+        // Conclusão ou Recusa
+        if (concluidoEm && t.status === 'concluído') {
+          const foiRecusado = t.reabertura_aceita === 0;
+          
+          timelineHTML += `
+            <div class="timeline-item">
+              <div class="timeline-dot ${foiRecusado ? 'recusado' : 'concluido'}"></div>
+              <div class="timeline-header">
+                <span class="timeline-title" style="color:${foiRecusado ? 'var(--danger)' : 'var(--success)';}">
+                  ${foiRecusado ? '✗ Reabertura Recusada' : '✓ Ticket Concluído'}
+                </span>
+                <span class="timeline-date">${concluidoEm}</span>
+              </div>
+              <div class="timeline-detail">
+                ${t.descricao_final ? `<strong>Solução:</strong> "${t.descricao_final}"<br>` : ''}
+                ${t.justificativa_recusa_reabertura ? `<span style="color:var(--danger);"><strong>Justificativa da recusa:</strong> "${t.justificativa_recusa_reabertura}"</span><br>` : ''}
+                ${t.sla_consumido_min ? `SLA: ${t.sla_consumido_min}/${t.sla_total_min || '?'} min ${t.sla_estourado ? '⚠️ ESTOURADO' : '✓'}` : ''}
+                ${t.sla_justificativa ? `<br><span style="color:var(--danger);">📝 Justificativa SLA:</span> "${t.sla_justificativa}"` : ''}
+              </div>
+            </div>`;
+        }
+
+        // Arquivamento
+        if (t.deletado) {
+          timelineHTML += `
+            <div class="timeline-item">
+              <div class="timeline-dot arquivado"></div>
+              <div class="timeline-header">
+                <span class="timeline-title" style="color:var(--muted);">📦 Arquivado</span>
+                <span class="timeline-date">${arquivadoEm}</span>
+              </div>
+              <div class="timeline-detail">
+                Por: ${t.deletado_por || 'N/D'}<br>
+                Motivo: "${t.motivo_exclusao || 'N/D'}"
+              </div>
+            </div>`;
+        }
+      });
+
+      // Determinar status geral
+      const ultimoTicket = todosOrdenados[todosOrdenados.length - 1];
+      const statusGeral = ultimoTicket.status;
+      const totalCiclos = todosOrdenados.length;
+
+      return `
+        <div class="ticket-card" style="animation-delay:${i * 0.03}s">
+          <div class="ticket-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="ticket-id-section">
+              <span class="ticket-id">#${primeiro.ticket_original_id || primeiro.id}</span>
+              <span class="badge badge-setor">${primeiro.setor}</span>
+              <span class="badge ${statusBadge[statusGeral] || 'badge-aberto'}">${statusGeral}</span>
+              ${primeiro.prioridade ? `<span class="badge ${prioBadge[primeiro.prioridade] || ''}">${primeiro.prioridade}</span>` : ''}
+              <span class="badge badge-ciclo">${totalCiclos} ciclo${totalCiclos > 1 ? 's' : ''}</span>
+              ${todosOrdenados.some(t => t.sla_estourado) ? '<span class="badge badge-sla-estourado">SLA Estourado</span>' : ''}
+              ${todosOrdenados.some(t => t.deletado) ? '<span class="badge" style="background:rgba(107,115,138,0.2);color:var(--muted);">Arquivado</span>' : ''}
+            </div>
+            <span class="ticket-arrow">▶</span>
+          </div>
+          <div class="ticket-body">
+            <div class="ticket-desc">${primeiro.descricao}</div>
+
+            <div class="grid-2">
+              ${primeiro.nome ? `
+              <div class="info-box">
+                <div class="info-label">Solicitante</div>
+                <div class="info-value">${primeiro.nome}</div>
+              </div>` : ''}
+              ${primeiro.analista_responsavel ? `
+              <div class="info-box">
+                <div class="info-label">Analista</div>
+                <div class="info-value highlight">${primeiro.analista_responsavel}</div>
+              </div>` : ''}
+              <div class="info-box">
+                <div class="info-label">Demanda</div>
+                <div class="info-value">${totalCiclos} ciclo${totalCiclos > 1 ? 's' : ''} · ${todosOrdenados.filter(t => t.status === 'concluído').length} concluído${todosOrdenados.filter(t => t.status === 'concluído').length !== 1 ? 's' : ''}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Reaberturas</div>
+                <div class="info-value">${reaberturas.length} de 2</div>
+              </div>
+            </div>
+
+            <div class="timeline" style="margin-top:1.25rem;">
+              ${timelineHTML}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+          
+  carregar();
+  setInterval(carregar, 60000);
+</script>
+</body>
+</html>

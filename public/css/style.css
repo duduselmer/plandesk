@@ -1,0 +1,63 @@
+/* Reset e utilitários globais */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Variáveis globais de tema (fallback para páginas que não definem) */
+:root {
+  --bg: #0d0f12;
+  --text: #e8ecf5;
+  --muted: #6b738a;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar customizada */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(107, 115, 138, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 115, 138, 0.5);
+}
+
+/* Seleção */
+::selection {
+  background: rgba(79, 142, 247, 0.3);
+  color: #fff;
+}
+
+/* Foco em campos para acessibilidade */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid rgba(79, 142, 247, 0.5);
+  outline-offset: 2px;
+}
+
+/* Responsividade geral para telas menores */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}

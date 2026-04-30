@@ -3,9 +3,11 @@ const cors = require('cors');
 const path = require('path');
 const ticketRoutes = require('./routes/ticketRoutes');
 const reaberturaRoutes = require('./routes/reaberturaRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0';
 
 // Middlewares
 app.use(cors());
@@ -13,12 +15,17 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rotas da API
+app.use('/api/auth', authRoutes);
 app.use('/api/ticket', ticketRoutes);
 app.use('/api/reabertura', reaberturaRoutes);
 
 // Rotas das páginas
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 app.get('/solicitante', (req, res) => {
@@ -44,7 +51,7 @@ app.use((err, req, res, next) => {
 });
 
 // Iniciar servidor
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, HOST, () => {
   console.log(`
   ╔══════════════════════════════════════╗
   ║        PlanDesk Rodando 🚀           ║

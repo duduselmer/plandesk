@@ -1,14 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const ReaberturaService = require('../services/reaberturaService');
+const { autenticar, autorizar } = require('../middleware/auth');
 
-const identificarPerfil = (req, res, next) => {
-  req.perfil = (req.headers['x-perfil'] || 'solicitante').toLowerCase();
-  req.usuario = req.headers['x-usuario'] || 'anônimo';
-  next();
-};
-
-router.use(identificarPerfil);
+router.use(autenticar);
 
 // Verificar se pode reabrir
 router.get('/:id/pode-reabrir', async (req, res) => {
@@ -31,9 +26,8 @@ router.get('/:id/reaberturas', async (req, res) => {
 });
 
 // Listar pendentes (analista)
-router.get('/pendentes/lista', async (req, res) => {
+router.get('/pendentes/lista', autorizar('analista'), async (req, res) => {
   try {
-    if (req.perfil !== 'analista') return res.status(403).json({ error: 'Acesso restrito' });
     const pendentes = await ReaberturaService.listarPendentes();
     res.json(pendentes);
   } catch (error) {
@@ -45,7 +39,9 @@ router.get('/pendentes/lista', async (req, res) => {
 router.post('/:id/reaberturas/solicitar', async (req, res) => {
   try {
     const { motivo } = req.body;
-    if (!motivo || !motivo.trim()) return res.status(400).json({ error: 'Motivo obrigatório' });
+    if (!motivo || !motivo.trim()) {
+      return res.status(400).json({ error: 'Motivo obrigatório' });
+    }
     const result = await ReaberturaService.solicitarReabertura(req.params.id, motivo);
     res.status(201).json(result);
   } catch (error) {
@@ -64,12 +60,15 @@ router.patch('/reaberturas/:rid/cancelar', async (req, res) => {
 });
 
 // Aceitar reabertura (analista)
-router.patch('/reaberturas/:rid/aceitar', async (req, res) => {
+router.patch('/reaberturas/:rid/aceitar', autorizar('analista'), async (req, res) => {
   try {
-    if (req.perfil !== 'analista') return res.status(403).json({ error: 'Apenas analistas' });
     const { prioridade } = req.body;
-    if (!prioridade) return res.status(400).json({ error: 'Prioridade obrigatória' });
-    const result = await ReaberturaService.aceitarReabertura(req.params.rid, prioridade, req.usuario);
+    if (!prioridade) {
+      return res.status(400).json({ error: 'Prioridade obrigatória' });
+    }
+    const result = await ReaberturaService.aceitarReabertura(
+      req.params.rid, prioridade, req.usuario.nome
+    );
     res.json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -77,12 +76,15 @@ router.patch('/reaberturas/:rid/aceitar', async (req, res) => {
 });
 
 // Recusar reabertura (analista)
-router.patch('/reaberturas/:rid/recusar', async (req, res) => {
+router.patch('/reaberturas/:rid/recusar', autorizar('analista'), async (req, res) => {
   try {
-    if (req.perfil !== 'analista') return res.status(403).json({ error: 'Apenas analistas' });
     const { justificativa } = req.body;
-    if (!justificativa || !justificativa.trim()) return res.status(400).json({ error: 'Justificativa obrigatória' });
-    const result = await ReaberturaService.recusarReabertura(req.params.rid, justificativa, req.usuario);
+    if (!justificativa || !justificativa.trim()) {
+      return res.status(400).json({ error: 'Justificativa obrigatória' });
+    }
+    const result = await ReaberturaService.recusarReabertura(
+      req.params.rid, justificativa, req.usuario.nome
+    );
     res.json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -90,12 +92,15 @@ router.patch('/reaberturas/:rid/recusar', async (req, res) => {
 });
 
 // Concluir ciclo (analista)
-router.patch('/reaberturas/:rid/concluir', async (req, res) => {
+router.patch('/reaberturas/:rid/concluir', autorizar('analista'), async (req, res) => {
   try {
-    if (req.perfil !== 'analista') return res.status(403).json({ error: 'Apenas analistas' });
     const { descricao_final, link_referencia, justificativa } = req.body;
-    if (!descricao_final || !descricao_final.trim()) return res.status(400).json({ error: 'Descrição obrigatória' });
-    const result = await ReaberturaService.concluirReabertura(req.params.rid, descricao_final, link_referencia, justificativa);
+    if (!descricao_final || !descricao_final.trim()) {
+      return res.status(400).json({ error: 'Descrição obrigatória' });
+    }
+    const result = await ReaberturaService.concluirReabertura(
+      req.params.rid, descricao_final, link_referencia, justificativa
+    );
     res.json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });

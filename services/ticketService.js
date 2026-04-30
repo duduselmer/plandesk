@@ -2,13 +2,13 @@ const db = require('../db/connection');
 const SLAService = require('./slaService');
 
 class TicketService {
-  static criarTicket(setor, nome, descricao) {
+  static criarTicket(setor, nome, descricao, criadoPor) {
     return new Promise((resolve, reject) => {
       const sql = `
-        INSERT INTO tickets (setor, nome, descricao, status, criado_em)
-        VALUES (?, ?, ?, 'aberto', datetime('now', 'localtime'))
+        INSERT INTO tickets (setor, nome, descricao, status, criado_em, criado_por)
+        VALUES (?, ?, ?, 'aberto', datetime('now', 'localtime'), ?)
       `;
-      db.run(sql, [setor, nome || null, descricao], function(err) {
+      db.run(sql, [setor, nome || null, descricao, criadoPor || null], function(err) {
         if (err) return reject(new Error('Erro ao criar ticket'));
         resolve({ id: this.lastID, message: 'Ticket criado com sucesso' });
       });
@@ -118,15 +118,17 @@ class TicketService {
   static listarTickets(filtros = {}) {
     return new Promise((resolve, reject) => {
       let sql = `
-        SELECT id, setor, nome, descricao, status, prioridade, criado_em, iniciado_em, concluido_em,
-        sla_total_min, sla_consumido_min, sla_estourado, sla_justificativa, analista_responsavel,
-        descricao_final, link_referencia, ciclo_atual, reaberturas_aceitas, max_reaberturas_atingido
+        SELECT id, setor, nome, descricao, status, prioridade, criado_em, criado_por,
+        iniciado_em, concluido_em, sla_total_min, sla_consumido_min, sla_estourado,
+        sla_justificativa, analista_responsavel, descricao_final, link_referencia,
+        ciclo_atual, reaberturas_aceitas, max_reaberturas_atingido
         FROM tickets WHERE deletado = 0
       `;
       const params = [];
       if (filtros.status) { sql += ' AND status = ?'; params.push(filtros.status); }
       if (filtros.setor) { sql += ' AND setor = ?'; params.push(filtros.setor); }
       if (filtros.prioridade) { sql += ' AND prioridade = ?'; params.push(filtros.prioridade); }
+      if (filtros.criado_por) { sql += ' AND criado_por = ?'; params.push(filtros.criado_por); }
       sql += `
         ORDER BY CASE prioridade WHEN 'Crítica' THEN 1 WHEN 'Alta' THEN 2 WHEN 'Média' THEN 3 WHEN 'Baixa' THEN 4 ELSE 5 END, criado_em ASC
       `;

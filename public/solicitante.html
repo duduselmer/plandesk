@@ -21,7 +21,10 @@
     nav { background: rgba(20,23,32,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
     .nav-brand { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
     .nav-right { display: flex; align-items: center; gap: 1rem; }
-    .nav-badge { background: var(--accent-dim); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .nav-user { font-size: 0.75rem; color: var(--text); }
+    .nav-perfil { background: var(--accent-dim); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .nav-logout { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); padding: 0.3rem 0.75rem; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
+    .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
     .nav-home { color: var(--muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
     .nav-home:hover { color: var(--text); }
     main { display: grid; grid-template-columns: 380px 1fr; height: calc(100vh - 60px); }
@@ -98,7 +101,11 @@
 <div class="app">
   <nav>
     <a href="/" class="nav-brand">PlanDesk</a>
-    <div class="nav-right"><div class="nav-badge">📋 Solicitante</div><a href="/" class="nav-home">← Início</a></div>
+    <div class="nav-right">
+      <span class="nav-user" id="user-name"></span>
+      <span class="nav-perfil">📋 Solicitante</span>
+      <button class="nav-logout" onclick="logout()">Sair</button>
+    </div>
   </nav>
   <main>
     <div class="panel-form">
@@ -122,17 +129,41 @@
 <div class="modal-overlay" id="modal-reabrir"><div class="modal"><h3>Solicitar Reabertura</h3><p style="font-size:0.78rem;color:var(--muted);">Tentativas restantes: <strong id="reabrir-tentativas-restantes"></strong></p><input type="hidden" id="reabrir-id" /><label>Motivo <span style="color:var(--danger)">*</span><textarea id="reabrir-motivo"></textarea></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-reabrir')">Cancelar</button><button class="btn-confirm" onclick="confirmarReabertura()">Solicitar</button></div></div></div>
 <div class="toast" id="toast"></div>
 
+<div class="toast" id="toast"></div>
+
 <script>
+// Verificar autenticação
+const TOKEN = localStorage.getItem('plandesk_token');
+const PERFIL = localStorage.getItem('plandesk_perfil');
+const NOME = localStorage.getItem('plandesk_nome');
+
+if (!TOKEN || PERFIL !== 'solicitante') {
+  window.location.href = '/login';
+}
+
+document.getElementById('user-name').textContent = NOME || 'Solicitante';
+
+function getAuthHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + TOKEN
+  };
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = '/login';
+}
+
 const API = '/api/ticket';
 const API_REAB = '/api/reabertura';
-const HEADERS = { 'Content-Type': 'application/json', 'x-perfil': 'solicitante', 'x-usuario': 'solicitante' };
 
 async function criarTicket(e) {
   e.preventDefault();
   const btn = e.target.querySelector('button[type=submit]');
   btn.textContent = 'Enviando...'; btn.disabled = true;
   try {
-    const res = await fetch(API, { method: 'POST', headers: HEADERS, body: JSON.stringify({
+    const res = await fetch(API, { method: 'POST', headers: getAuthHeaders, body: JSON.stringify({
       setor: document.getElementById('setor').value,
       nome: document.getElementById('nome').value,
       descricao: document.getElementById('descricao').value
@@ -150,14 +181,14 @@ async function carregarTickets() {
   const container = document.getElementById('tickets-container');
   container.innerHTML = '<div class="empty-state">Carregando...</div>';
   try {
-    const res = await fetch(API, { headers: HEADERS });
+    const res = await fetch(API, { headers: getAuthHeaders });
     const tickets = await res.json();
     if (!tickets.length) { container.innerHTML = '<div class="empty-state">Nenhum ticket.</div>'; return; }
 
     // Carregar reaberturas para cada ticket
     const ticketsComReab = await Promise.all(tickets.map(async t => {
       try {
-        const rRes = await fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: HEADERS });
+        const rRes = await fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAtuhHeaders });
         t.reaberturas = await rRes.json();
       } catch { t.reaberturas = []; }
       return t;
@@ -263,7 +294,7 @@ function abrirEditar(id,setor,nome,desc) {
 function abrirExcluir(id) { document.getElementById('excluir-id').value=id; document.getElementById('modal-excluir').classList.add('open'); }
 async function abrirReabrir(id) {
   try {
-    const res = await fetch(`${API_REAB}/${id}/pode-reabrir`, { headers: HEADERS });
+    const res = await fetch(`${API_REAB}/${id}/pode-reabrir`, { headers: getAuthHeaders });
     const data = await res.json();
     if (!data.pode) { toast('✗ '+data.motivo, 'error'); return; }
     document.getElementById('reabrir-id').value = id;
@@ -275,7 +306,7 @@ function fecharModal(id) { document.getElementById(id).classList.remove('open');
 async function salvarEdicao() {
   const id = document.getElementById('edit-id').value;
   try {
-    const res = await fetch(`${API}/${id}`, { method:'PUT', headers:HEADERS, body:JSON.stringify({
+    const res = await fetch(`${API}/${id}`, { method:'PUT', headers:getAuthHeaders, body:JSON.stringify({
       setor:document.getElementById('edit-setor').value, nome:document.getElementById('edit-nome').value,
       descricao:document.getElementById('edit-descricao').value
     })});
@@ -288,7 +319,7 @@ async function confirmarExclusao() {
   const m = document.getElementById('excluir-motivo').value;
   if(!m.trim()){ toast('✗ Informe o motivo','error'); return; }
   try {
-    const res = await fetch(`${API}/${id}/delete`, { method:'PATCH', headers:HEADERS, body:JSON.stringify({motivo:m}) });
+    const res = await fetch(`${API}/${id}/delete`, { method:'PATCH', headers:getAuthHeaders, body:JSON.stringify({motivo:m}) });
     if(!res.ok) throw new Error((await res.json()).error);
     fecharModal('modal-excluir'); toast('✓ Arquivado','success'); carregarTickets();
   } catch(err) { toast('✗ '+err.message,'error'); }
@@ -298,7 +329,7 @@ async function confirmarReabertura() {
   const motivo = document.getElementById('reabrir-motivo').value;
   if(!motivo.trim()){ toast('✗ Informe o motivo','error'); return; }
   try {
-    const res = await fetch(`${API_REAB}/${id}/reaberturas/solicitar`, { method:'POST', headers:HEADERS, body:JSON.stringify({motivo}) });
+    const res = await fetch(`${API_REAB}/${id}/reaberturas/solicitar`, { method:'POST', headers:getAuthHeaders, body:JSON.stringify({motivo}) });
     if(!res.ok) throw new Error((await res.json()).error);
     fecharModal('modal-reabrir'); toast('✓ Solicitada!','success'); carregarTickets();
   } catch(err) { toast('✗ '+err.message,'error'); }
@@ -306,7 +337,7 @@ async function confirmarReabertura() {
 async function cancelarReabertura(rid) {
   if(!confirm('Cancelar esta solicitação?')) return;
   try {
-    const res = await fetch(`${API_REAB}/reaberturas/${rid}/cancelar`, { method:'PATCH', headers:HEADERS });
+    const res = await fetch(`${API_REAB}/reaberturas/${rid}/cancelar`, { method:'PATCH', headers:getAuthHeaders });
     if(!res.ok) throw new Error((await res.json()).error);
     toast('✓ Cancelada','success'); carregarTickets();
   } catch(err) { toast('✗ '+err.message,'error'); }

@@ -133,9 +133,9 @@
 
 <script>
 // Verificar autenticação
-const TOKEN = localStorage.getItem('plandesk_token');
-const PERFIL = localStorage.getItem('plandesk_perfil');
-const NOME = localStorage.getItem('plandesk_nome');
+ TOKEN = localStorage.getItem('plandesk_token');
+ PERFIL = localStorage.getItem('plandesk_perfil');
+ NOME = localStorage.getItem('plandesk_nome');
 
 if (!TOKEN || PERFIL !== 'solicitante') {
   window.location.href = '/login';
@@ -181,7 +181,7 @@ async function carregarTickets() {
   const container = document.getElementById('tickets-container');
   container.innerHTML = '<div class="empty-state">Carregando...</div>';
   try {
-    const res = await fetch(API, { headers: getAuthHeaders });
+    const res = await fetch(API, { headers: getAuthHeaders() });
     const tickets = await res.json();
     if (!tickets.length) { container.innerHTML = '<div class="empty-state">Nenhum ticket.</div>'; return; }
 

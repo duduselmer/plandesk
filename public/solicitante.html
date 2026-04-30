@@ -163,7 +163,7 @@ async function criarTicket(e) {
   const btn = e.target.querySelector('button[type=submit]');
   btn.textContent = 'Enviando...'; btn.disabled = true;
   try {
-    const res = await fetch(API, { method: 'POST', headers: getAuthHeaders, body: JSON.stringify({
+    const res = await fetch(API, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({
       setor: document.getElementById('setor').value,
       nome: document.getElementById('nome').value,
       descricao: document.getElementById('descricao').value
@@ -294,7 +294,7 @@ function abrirEditar(id,setor,nome,desc) {
 function abrirExcluir(id) { document.getElementById('excluir-id').value=id; document.getElementById('modal-excluir').classList.add('open'); }
 async function abrirReabrir(id) {
   try {
-    const res = await fetch(`${API_REAB}/${id}/pode-reabrir`, { headers: getAuthHeaders });
+    const res = await fetch(`${API_REAB}/${id}/pode-reabrir`, { headers: getAuthHeaders() });
     const data = await res.json();
     if (!data.pode) { toast('✗ '+data.motivo, 'error'); return; }
     document.getElementById('reabrir-id').value = id;
@@ -306,7 +306,7 @@ function fecharModal(id) { document.getElementById(id).classList.remove('open');
 async function salvarEdicao() {
   const id = document.getElementById('edit-id').value;
   try {
-    const res = await fetch(`${API}/${id}`, { method:'PUT', headers:getAuthHeaders, body:JSON.stringify({
+    const res = await fetch(`${API}/${id}`, { method:'PUT', headers:getAuthHeaders(), body:JSON.stringify({
       setor:document.getElementById('edit-setor').value, nome:document.getElementById('edit-nome').value,
       descricao:document.getElementById('edit-descricao').value
     })});
@@ -319,7 +319,7 @@ async function confirmarExclusao() {
   const m = document.getElementById('excluir-motivo').value;
   if(!m.trim()){ toast('✗ Informe o motivo','error'); return; }
   try {
-    const res = await fetch(`${API}/${id}/delete`, { method:'PATCH', headers:getAuthHeaders, body:JSON.stringify({motivo:m}) });
+    const res = await fetch(`${API}/${id}/delete`, { method:'PATCH', headers:getAuthHeaders(), body:JSON.stringify({motivo:m}) });
     if(!res.ok) throw new Error((await res.json()).error);
     fecharModal('modal-excluir'); toast('✓ Arquivado','success'); carregarTickets();
   } catch(err) { toast('✗ '+err.message,'error'); }
@@ -329,7 +329,7 @@ async function confirmarReabertura() {
   const motivo = document.getElementById('reabrir-motivo').value;
   if(!motivo.trim()){ toast('✗ Informe o motivo','error'); return; }
   try {
-    const res = await fetch(`${API_REAB}/${id}/reaberturas/solicitar`, { method:'POST', headers:getAuthHeaders, body:JSON.stringify({motivo}) });
+    const res = await fetch(`${API_REAB}/${id}/reaberturas/solicitar`, { method:'POST', headers:getAuthHeaders(), body:JSON.stringify({motivo}) });
     if(!res.ok) throw new Error((await res.json()).error);
     fecharModal('modal-reabrir'); toast('✓ Solicitada!','success'); carregarTickets();
   } catch(err) { toast('✗ '+err.message,'error'); }
@@ -337,7 +337,7 @@ async function confirmarReabertura() {
 async function cancelarReabertura(rid) {
   if(!confirm('Cancelar esta solicitação?')) return;
   try {
-    const res = await fetch(`${API_REAB}/reaberturas/${rid}/cancelar`, { method:'PATCH', headers:getAuthHeaders });
+    const res = await fetch(`${API_REAB}/reaberturas/${rid}/cancelar`, { method:'PATCH', headers:getAuthHeaders() });
     if(!res.ok) throw new Error((await res.json()).error);
     toast('✓ Cancelada','success'); carregarTickets();
   } catch(err) { toast('✗ '+err.message,'error'); }

@@ -26,9 +26,9 @@ db.serialize(() => {
 
   // Seed: criar usuários padrão se não existirem
   const usuariosPadrao = [
-    { nome: 'Supervisor', email: 'supervisor@iaf.com', perfil: 'solicitante', senha: '123456' },
-    { nome: 'Analista', email: 'analista@iaf.com', perfil: 'analista', senha: '123456' },
-    { nome: 'Gestor', email: 'gestor@iaf.com', perfil: 'gestao', senha: '123456' }
+    { nome: 'Supervisor', email: 'planejamento@iafsolucoes.com.br', perfil: 'solicitante', senha: '123456' },
+    { nome: 'Analista', email: 'planejamento@iafsolucoes.com.br', perfil: 'analista', senha: '123456' },
+    { nome: 'Gestor', email: 'planejamento@iafsolucoes.com.br', perfil: 'gestao', senha: '123456' }
   ];
 
   usuariosPadrao.forEach(u => {
@@ -54,6 +54,7 @@ db.serialize(() => {
       prioridade TEXT CHECK(prioridade IN ('Baixa', 'Média', 'Alta', 'Crítica')),
       
       criado_em TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+      criado_por INTEGER,
       iniciado_em TEXT,
       concluido_em TEXT,
       
@@ -120,6 +121,7 @@ db.serialize(() => {
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_prioridade ON tickets(prioridade)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_deletado ON tickets(deletado)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_setor ON tickets(setor)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_tickets_criado_por ON tickets(criado_por)');
   db.run('CREATE INDEX IF NOT EXISTS idx_reaberturas_ticket ON reaberturas(ticket_id)');
   db.run('CREATE INDEX IF NOT EXISTS idx_reaberturas_status ON reaberturas(status)');
 });

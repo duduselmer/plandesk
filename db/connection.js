@@ -115,8 +115,34 @@ db.serialize(() => {
     )
   `);
 
+    // ==========================================
+  // Tabela de perfis por usuário
+  // ==========================================
+  db.run(`
+    CREATE TABLE IF NOT EXISTS usuario_perfis (
+      usuario_id INTEGER NOT NULL,
+      perfil TEXT NOT NULL CHECK(perfil IN ('solicitante', 'analista', 'gestao', 'historico', 'dev')),
+      PRIMARY KEY (usuario_id, perfil),
+      FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    )
+  `);
+
+  // Seed: dar perfis aos usuários existentes
+  db.run(`
+    INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil)
+    SELECT id, perfil FROM usuarios WHERE perfil IS NOT NULL
+  `);
+
+  // Seed: garantir que usuários padrão tenham perfis corretos
+  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'solicitante' FROM usuarios WHERE email = 'supervisor@iaf.com'`);
+  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'analista' FROM usuarios WHERE email = 'analista@iaf.com'`);
+  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'historico' FROM usuarios WHERE email = 'analista@iaf.com'`);
+  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'gestao' FROM usuarios WHERE email = 'gestor@iaf.com'`);
+  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'historico' FROM usuarios WHERE email = 'gestor@iaf.com'`);
+
   // Índices
   db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_usuario_perfis ON usuario_perfis(usuario_id)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_prioridade ON tickets(prioridade)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_deletado ON tickets(deletado)');

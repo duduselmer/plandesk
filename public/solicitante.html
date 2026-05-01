@@ -186,7 +186,7 @@ async function carregarTickets() {
     // Carregar reaberturas para cada ticket
     const ticketsComReab = await Promise.all(tickets.map(async t => {
       try {
-        const rRes = await fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAtuhHeaders() });
+        const rRes = await fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAuthHeaders() });
         t.reaberturas = await rRes.json();
       } catch { t.reaberturas = []; }
       return t;

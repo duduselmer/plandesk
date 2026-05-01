@@ -12,6 +12,7 @@ class AuthService {
    * @param {string} senha
    * @returns {Promise<{token, perfil, nome}>}
    */
+
   static login(email, senha) {
     return new Promise((resolve, reject) => {
       if (!email || !senha) {
@@ -22,42 +23,41 @@ class AuthService {
         'SELECT * FROM usuarios WHERE email = ? AND ativo = 1',
         [email.toLowerCase().trim()],
         (err, user) => {
-          if (err) {
-            return reject(new Error('Erro ao buscar usuário'));
-          }
-
-          if (!user) {
-            return reject(new Error('Email ou senha inválidos'));
-          }
+          if (err) return reject(new Error('Erro ao buscar usuário'));
+          if (!user) return reject(new Error('Email ou senha inválidos'));
 
           bcrypt.compare(senha, user.senha_hash, (err, match) => {
-            if (err || !match) {
-              return reject(new Error('Email ou senha inválidos'));
-            }
+            if (err || !match) return reject(new Error('Email ou senha inválidos'));
 
-            const token = jwt.sign(
-              {
-                id: user.id,
-                nome: user.nome,
-                perfil: user.perfil,
-                email: user.email
-              },
-              JWT_SECRET,
-              { expiresIn: JWT_EXPIRES }
+            // Buscar perfis do usuário
+            db.all(
+              'SELECT perfil FROM usuario_perfis WHERE usuario_id = ?',
+              [user.id],
+              (err, rows) => {
+                if (err) return reject(new Error('Erro ao buscar perfis'));
+
+                const perfis = rows.map(r => r.perfil);
+                
+                const token = jwt.sign(
+                  { id: user.id, nome: user.nome, email: user.email },
+                  JWT_SECRET,
+                  { expiresIn: JWT_EXPIRES }
+                );
+
+                resolve({
+                  token,
+                  nome: user.nome,
+                  email: user.email,
+                  perfis: perfis.length > 0 ? perfis : [user.perfil]
+                });
+              }
             );
-
-            resolve({
-              token,
-              perfil: user.perfil,
-              nome: user.nome,
-              email: user.email
-            });
           });
         }
       );
     });
   }
-
+  
   /**
    * Verifica se um token JWT é válido
    * @param {string} token

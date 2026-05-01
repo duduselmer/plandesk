@@ -101,7 +101,7 @@ db.serialize(() => {
       decidido_em TEXT,
       justificativa_recusa TEXT,
       
-      iniziado_em TEXT,
+      iniciado_em TEXT,
       sla_total_min INTEGER,
       sla_consumido_min INTEGER DEFAULT 0,
       sla_estourado INTEGER DEFAULT 0,

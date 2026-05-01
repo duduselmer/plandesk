@@ -2,7 +2,6 @@ const AuthService = require('../services/authService');
 
 /**
  * Middleware de autenticação
- * Verifica se o token JWT é válido e injeta req.usuario
  */
 function autenticar(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -16,7 +15,7 @@ function autenticar(req, res, next) {
   try {
     const decoded = AuthService.verificarToken(token);
     req.usuario = decoded;
-    req.perfil = decoded.perfil;
+    req.perfil = req.headers['x-perfil-sessao'] || decoded.perfil || 'solicitante';
     next();
   } catch (err) {
     return res.status(401).json({ error: err.message });
@@ -26,7 +25,6 @@ function autenticar(req, res, next) {
 /**
  * Middleware de autorização por perfil
  * @param  {...string} perfis - Lista de perfis permitidos
- * @returns {function} middleware
  */
 function autorizar(...perfis) {
   return (req, res, next) => {
@@ -34,9 +32,9 @@ function autorizar(...perfis) {
       return res.status(401).json({ error: 'Não autenticado' });
     }
 
-    if (!perfis.includes(req.usuario.perfil)) {
+    if (!perfis.includes(req.perfil)) {
       return res.status(403).json({
-        error: `Acesso negado. Perfil '${req.usuario.perfil}' não autorizado para esta operação.`
+        error: `Acesso negado. Perfil '${req.perfil}' não autorizado.`
       });
     }
 

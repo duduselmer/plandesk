@@ -2,11 +2,10 @@ const express = require('express');
 const router = express.Router();
 const AuthService = require('../services/authService');
 const { autenticar } = require('../middleware/auth');
+const db = require('../db/connection');
 
 /**
  * POST /api/auth/login
- * Body: { email, senha }
- * Retorna: { token, perfil, nome, email }
  */
 router.post('/login', async (req, res) => {
   try {
@@ -21,9 +20,9 @@ router.post('/login', async (req, res) => {
     res.json({
       success: true,
       token: resultado.token,
-      perfil: resultado.perfil,
       nome: resultado.nome,
-      email: resultado.email
+      email: resultado.email,
+      perfis: resultado.perfis
     });
   } catch (error) {
     res.status(401).json({ 
@@ -35,8 +34,7 @@ router.post('/login', async (req, res) => {
 
 /**
  * GET /api/auth/me
- * Header: Authorization: Bearer <token>
- * Retorna dados do usuário logado
+ * Retorna dados do usuário + perfis disponíveis
  */
 router.get('/me', autenticar, async (req, res) => {
   try {
@@ -46,13 +44,22 @@ router.get('/me', autenticar, async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    res.json({
-      id: user.id,
-      nome: user.nome,
-      email: user.email,
-      perfil: user.perfil,
-      ativo: user.ativo
-    });
+    // Buscar perfis
+    db.all(
+      'SELECT perfil FROM usuario_perfis WHERE usuario_id = ?',
+      [req.usuario.id],
+      (err, rows) => {
+        const perfis = rows ? rows.map(r => r.perfil) : [user.perfil];
+        
+        res.json({
+          id: user.id,
+          nome: user.nome,
+          email: user.email,
+          perfis: perfis,
+          ativo: user.ativo
+        });
+      }
+    );
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

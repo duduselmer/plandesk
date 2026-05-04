@@ -29,29 +29,18 @@ class AuthService {
           bcrypt.compare(senha, user.senha_hash, (err, match) => {
             if (err || !match) return reject(new Error('Email ou senha inválidos'));
 
-            // Buscar perfis do usuário
-            db.all(
-              'SELECT perfil FROM usuario_perfis WHERE usuario_id = ?',
-              [user.id],
-              (err, rows) => {
-                if (err) return reject(new Error('Erro ao buscar perfis'));
-
-                const perfis = rows.map(r => r.perfil);
-                
-                const token = jwt.sign(
-                  { id: user.id, nome: user.nome, email: user.email },
-                  JWT_SECRET,
-                  { expiresIn: JWT_EXPIRES }
-                );
-
-                resolve({
-                  token,
-                  nome: user.nome,
-                  email: user.email,
-                  perfis: perfis.length > 0 ? perfis : [user.perfil]
-                });
-              }
+            const token = jwt.sign(
+              { id: user.id, nome: user.nome, nivel: user.nivel },
+              JWT_SECRET,
+              { expiresIn: JWT_EXPIRES }
             );
+
+            resolve({
+              token,
+              nome: user.nome,
+              email: user.email,
+              nivel: user.nivel
+            });
           });
         }
       );
@@ -80,7 +69,7 @@ class AuthService {
   static buscarPorId(id) {
     return new Promise((resolve, reject) => {
       db.get(
-        'SELECT id, nome, email, perfil, ativo FROM usuarios WHERE id = ?',
+        'SELECT id, nome, email, nivel, ativo FROM usuarios WHERE id = ?',
         [id],
         (err, user) => {
           if (err) return reject(err);

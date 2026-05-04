@@ -115,7 +115,7 @@
         localStorage.setItem('plandesk_nivel', data.nivel);
         localStorage.setItem('plandesk_telas', JSON.stringify(TELAS_POR_NIVEL[data.nivel] || []));
 
-        window.location.href = TELA_PADRAO[data.nivel] || '/solicitante';
+        window.location.href = '/menu';
 
       } catch (err) {
         errorEl.textContent = err.message;

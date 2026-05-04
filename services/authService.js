@@ -12,6 +12,7 @@ class AuthService {
    * @param {string} senha
    * @returns {Promise<{token, perfil, nome}>}
    */
+
   static login(email, senha) {
     return new Promise((resolve, reject) => {
       if (!email || !senha) {
@@ -22,42 +23,30 @@ class AuthService {
         'SELECT * FROM usuarios WHERE email = ? AND ativo = 1',
         [email.toLowerCase().trim()],
         (err, user) => {
-          if (err) {
-            return reject(new Error('Erro ao buscar usuário'));
-          }
-
-          if (!user) {
-            return reject(new Error('Email ou senha inválidos'));
-          }
+          if (err) return reject(new Error('Erro ao buscar usuário'));
+          if (!user) return reject(new Error('Email ou senha inválidos'));
 
           bcrypt.compare(senha, user.senha_hash, (err, match) => {
-            if (err || !match) {
-              return reject(new Error('Email ou senha inválidos'));
-            }
+            if (err || !match) return reject(new Error('Email ou senha inválidos'));
 
             const token = jwt.sign(
-              {
-                id: user.id,
-                nome: user.nome,
-                perfil: user.perfil,
-                email: user.email
-              },
+              { id: user.id, nome: user.nome, nivel: user.nivel },
               JWT_SECRET,
               { expiresIn: JWT_EXPIRES }
             );
 
             resolve({
               token,
-              perfil: user.perfil,
               nome: user.nome,
-              email: user.email
+              email: user.email,
+              nivel: user.nivel
             });
           });
         }
       );
     });
   }
-
+  
   /**
    * Verifica se um token JWT é válido
    * @param {string} token
@@ -80,7 +69,7 @@ class AuthService {
   static buscarPorId(id) {
     return new Promise((resolve, reject) => {
       db.get(
-        'SELECT id, nome, email, perfil, ativo FROM usuarios WHERE id = ?',
+        'SELECT id, nome, email, nivel, ativo FROM usuarios WHERE id = ?',
         [id],
         (err, user) => {
           if (err) return reject(err);

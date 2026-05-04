@@ -1,8 +1,23 @@
 const AuthService = require('../services/authService');
 
+// Hierarquia de níveis (índice = poder)
+const NIVEL_PODER = {
+  'requisitor': 1,
+  'supervisor': 2,
+  'controldesk': 3,
+  'admin': 4
+};
+
+// Acesso de cada nível às telas
+const ACESSO_TELAS = {
+  requisitor: ['solicitante'],
+  supervisor: ['solicitante', 'historico'],
+  controldesk: ['solicitante', 'analista', 'gestao'],
+  admin: ['solicitante', 'analista', 'gestao', 'historico', 'dev']
+};
+
 /**
  * Middleware de autenticação
- * Verifica se o token JWT é válido e injeta req.usuario
  */
 function autenticar(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -16,7 +31,7 @@ function autenticar(req, res, next) {
   try {
     const decoded = AuthService.verificarToken(token);
     req.usuario = decoded;
-    req.perfil = decoded.perfil;
+    req.nivel = decoded.nivel;
     next();
   } catch (err) {
     return res.status(401).json({ error: err.message });
@@ -24,19 +39,21 @@ function autenticar(req, res, next) {
 }
 
 /**
- * Middleware de autorização por perfil
- * @param  {...string} perfis - Lista de perfis permitidos
- * @returns {function} middleware
+ * Middleware de autorização por nível mínimo
+ * @param {string} nivelMinimo - 'requisitor', 'supervisor', 'controldesk', 'admin'
  */
-function autorizar(...perfis) {
+function autorizar(nivelMinimo) {
   return (req, res, next) => {
     if (!req.usuario) {
       return res.status(401).json({ error: 'Não autenticado' });
     }
 
-    if (!perfis.includes(req.usuario.perfil)) {
+    const poderUsuario = NIVEL_PODER[req.nivel] || 0;
+    const poderMinimo = NIVEL_PODER[nivelMinimo] || 99;
+
+    if (poderUsuario < poderMinimo) {
       return res.status(403).json({
-        error: `Acesso negado. Perfil '${req.usuario.perfil}' não autorizado para esta operação.`
+        error: `Acesso negado. Nível '${req.nivel}' não tem permissão.`
       });
     }
 
@@ -44,4 +61,11 @@ function autorizar(...perfis) {
   };
 }
 
-module.exports = { autenticar, autorizar };
+/**
+ * Retorna as telas que o nível pode acessar
+ */
+function telasDoNivel(nivel) {
+  return ACESSO_TELAS[nivel] || [];
+}
+
+module.exports = { autenticar, autorizar, telasDoNivel };

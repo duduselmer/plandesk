@@ -34,8 +34,8 @@ router.get('/', async (req, res) => {
     if (req.query.setor) filtros.setor = req.query.setor;
     if (req.query.prioridade) filtros.prioridade = req.query.prioridade;
 
-    // Se for solicitante, mostrar apenas seus tickets
-    if (req.usuario.perfil === 'solicitante') {
+    // Se for requisitor ou supervisor, mostrar apenas seus tickets
+    if (req.nivel === 'requisitor' || req.nivel === 'supervisor') {
       filtros.criado_por = req.usuario.id;
     }
 
@@ -46,8 +46,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Estatísticas (gestão e analista)
-router.get('/stats/geral', autorizar('gestao', 'analista'), async (req, res) => {
+// Estatísticas (controldesk ou admin)
+router.get('/stats/geral', autorizar('controldesk'), async (req, res) => {
   try {
     const stats = await TicketService.obterEstatisticas();
     res.json(stats);
@@ -56,8 +56,8 @@ router.get('/stats/geral', autorizar('gestao', 'analista'), async (req, res) => 
   }
 });
 
-// Lixeira (gestão e analista)
-router.get('/lixeira/listar', autorizar('gestao', 'analista'), async (req, res) => {
+// Lixeira (supervisor, controldesk ou admin)
+router.get('/lixeira/listar', autorizar('supervisor'), async (req, res) => {
   try {
     const tickets = await TicketService.listarLixeira();
     res.json(tickets);
@@ -86,8 +86,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Iniciar atendimento (analista)
-router.patch('/:id/start', autorizar('analista'), async (req, res) => {
+// Iniciar atendimento (controldesk ou admin)
+router.patch('/:id/start', autorizar('controldesk'), async (req, res) => {
   try {
     const { prioridade } = req.body;
     if (!prioridade) {
@@ -101,8 +101,8 @@ router.patch('/:id/start', autorizar('analista'), async (req, res) => {
   }
 });
 
-// Concluir ticket (analista)
-router.patch('/:id/finish', autorizar('analista'), async (req, res) => {
+// Concluir ticket (controldesk ou admin)
+router.patch('/:id/finish', autorizar('controldesk'), async (req, res) => {
   try {
     const { descricao_final, justificativa, link_referencia } = req.body;
 
@@ -128,7 +128,7 @@ router.patch('/:id/delete', async (req, res) => {
     }
 
     const resultado = await TicketService.excluirTicket(
-      req.params.id, req.usuario.perfil, req.usuario.nome, motivo
+      req.params.id, req.nivel, req.usuario.nome, motivo
     );
     res.json(resultado);
   } catch (error) {

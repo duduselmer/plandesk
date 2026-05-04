@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const AuthService = require('../services/authService');
-const { autenticar } = require('../middleware/auth');
+const { autenticar, telasDoNivel } = require('../middleware/auth');
 
 /**
  * POST /api/auth/login
- * Body: { email, senha }
- * Retorna: { token, perfil, nome, email }
+ * Retorna: { token, nome, email, nivel }
  */
 router.post('/login', async (req, res) => {
   try {
@@ -21,9 +20,9 @@ router.post('/login', async (req, res) => {
     res.json({
       success: true,
       token: resultado.token,
-      perfil: resultado.perfil,
       nome: resultado.nome,
-      email: resultado.email
+      email: resultado.email,
+      nivel: resultado.nivel
     });
   } catch (error) {
     res.status(401).json({ 
@@ -35,8 +34,7 @@ router.post('/login', async (req, res) => {
 
 /**
  * GET /api/auth/me
- * Header: Authorization: Bearer <token>
- * Retorna dados do usuário logado
+ * Retorna dados do usuário + telas que pode acessar
  */
 router.get('/me', autenticar, async (req, res) => {
   try {
@@ -50,7 +48,8 @@ router.get('/me', autenticar, async (req, res) => {
       id: user.id,
       nome: user.nome,
       email: user.email,
-      perfil: user.perfil,
+      nivel: user.nivel,
+      telas: telasDoNivel(user.nivel),
       ativo: user.ativo
     });
   } catch (error) {

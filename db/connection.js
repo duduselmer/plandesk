@@ -18,24 +18,25 @@ db.serialize(() => {
       nome TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       senha_hash TEXT NOT NULL,
-      perfil TEXT NOT NULL CHECK(perfil IN ('solicitante', 'analista', 'gestao')),
+      nivel TEXT NOT NULL DEFAULT 'requisitor' CHECK(nivel IN ('requisitor', 'supervisor', 'controldesk', 'admin')),
       ativo INTEGER DEFAULT 1,
       criado_em TEXT DEFAULT (datetime('now', 'localtime'))
     )
   `);
 
-  // Seed: criar usuários padrão se não existirem
+  // Seed: criar usuários padrão
   const usuariosPadrao = [
-    { nome: 'Supervisor', email: 'planejamento@iafsolucoes.com.br', perfil: 'solicitante', senha: '123456' },
-    { nome: 'Analista', email: 'planejamento@iafsolucoes.com.br', perfil: 'analista', senha: '123456' },
-    { nome: 'Gestor', email: 'planejamento@iafsolucoes.com.br', perfil: 'gestao', senha: '123456' }
+    { nome: 'Requisitor', email: 'requisitor@iaf.com', nivel: 'requisitor', senha: '123456' },
+    { nome: 'Supervisor', email: 'supervisor@iaf.com', nivel: 'supervisor', senha: '123456' },
+    { nome: 'Control Desk', email: 'controldesk@iaf.com', nivel: 'controldesk', senha: '123456' },
+    { nome: 'Admin', email: 'admin@iaf.com', nivel: 'admin', senha: '123456' }
   ];
 
   usuariosPadrao.forEach(u => {
     const hash = bcrypt.hashSync(u.senha, 10);
     db.run(
-      'INSERT OR IGNORE INTO usuarios (nome, email, senha_hash, perfil) VALUES (?, ?, ?, ?)',
-      [u.nome, u.email, hash, u.perfil]
+      'INSERT OR IGNORE INTO usuarios (nome, email, senha_hash, nivel) VALUES (?, ?, ?, ?)',
+      [u.nome, u.email, hash, u.nivel]
     );
   });
 
@@ -117,6 +118,7 @@ db.serialize(() => {
 
   // Índices
   db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_nivel ON usuarios(nivel)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_prioridade ON tickets(prioridade)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_deletado ON tickets(deletado)');

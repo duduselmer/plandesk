@@ -25,8 +25,8 @@ router.get('/:id/reaberturas', async (req, res) => {
   }
 });
 
-// Listar pendentes (analista)
-router.get('/pendentes/lista', autorizar('analista'), async (req, res) => {
+// Listar pendentes (controldesk ou admin)
+router.get('/pendentes/lista', autorizar('controldesk'), async (req, res) => {
   try {
     const pendentes = await ReaberturaService.listarPendentes();
     res.json(pendentes);
@@ -59,8 +59,8 @@ router.patch('/reaberturas/:rid/cancelar', async (req, res) => {
   }
 });
 
-// Aceitar reabertura (analista)
-router.patch('/reaberturas/:rid/aceitar', autorizar('analista'), async (req, res) => {
+// Aceitar reabertura (controldesk ou admin)
+router.patch('/reaberturas/:rid/aceitar', autorizar('controldesk'), async (req, res) => {
   try {
     const { prioridade } = req.body;
     if (!prioridade) {
@@ -75,8 +75,8 @@ router.patch('/reaberturas/:rid/aceitar', autorizar('analista'), async (req, res
   }
 });
 
-// Recusar reabertura (analista)
-router.patch('/reaberturas/:rid/recusar', autorizar('analista'), async (req, res) => {
+// Recusar reabertura (controldesk ou admin)
+router.patch('/reaberturas/:rid/recusar', autorizar('controldesk'), async (req, res) => {
   try {
     const { justificativa } = req.body;
     if (!justificativa || !justificativa.trim()) {
@@ -91,8 +91,8 @@ router.patch('/reaberturas/:rid/recusar', autorizar('analista'), async (req, res
   }
 });
 
-// Concluir ciclo (analista)
-router.patch('/reaberturas/:rid/concluir', autorizar('analista'), async (req, res) => {
+// Concluir ciclo (controldesk ou admin)
+router.patch('/reaberturas/:rid/concluir', autorizar('controldesk'), async (req, res) => {
   try {
     const { descricao_final, link_referencia, justificativa } = req.body;
     if (!descricao_final || !descricao_final.trim()) {

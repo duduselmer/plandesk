@@ -20,7 +20,7 @@ db.serialize(() => {
       senha_hash TEXT NOT NULL,
       nivel TEXT NOT NULL DEFAULT 'requisitor' CHECK(nivel IN ('requisitor', 'supervisor', 'controldesk', 'admin')),
       ativo INTEGER DEFAULT 1,
-      criado_em TEXT DEFAULT (datetime('now', '-3 hours'))
+      criado_em TEXT DEFAULT (datetime('now', 'localtime'))
     )
   `);
 
@@ -54,7 +54,7 @@ db.serialize(() => {
       status TEXT NOT NULL DEFAULT 'aberto' CHECK(status IN ('aberto', 'em andamento', 'concluído')),
       prioridade TEXT CHECK(prioridade IN ('Baixa', 'Média', 'Alta', 'Crítica')),
       
-      criado_em TEXT NOT NULL DEFAULT (datetime('now', '-3 hours')),
+      criado_em TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
       criado_por INTEGER,
       iniciado_em TEXT,
       concluido_em TEXT,

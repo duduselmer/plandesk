@@ -28,6 +28,10 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
+app.get('/menu', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'menu.html'));
+});
+
 app.get('/solicitante', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'solicitante.html'));
 });

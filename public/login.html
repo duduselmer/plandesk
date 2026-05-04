@@ -84,7 +84,7 @@
       const token = localStorage.getItem('plandesk_token');
       const nivel = localStorage.getItem('plandesk_nivel');
       if (token && nivel) {
-        window.location.href = TELA_PADRAO[nivel] || '/solicitante';
+        window.location.href = '/menu';
       }
     })();
 

@@ -133,14 +133,24 @@
 
 <script>
 const TOKEN = localStorage.getItem('plandesk_token');
-const PERFIL = localStorage.getItem('plandesk_perfil');
+const NIVEL = localStorage.getItem('plandesk_nivel');
 const NOME = localStorage.getItem('plandesk_nome');
+const TELAS = JSON.parse(localStorage.getItem('plandesk_telas') || '[]');
 
-if (!TOKEN) { window.location.href = '/login'; }
+if (!TOKEN || !TELAS.includes('historico')) {
+  window.location.href = '/login';
+}
 
 document.getElementById('user-name').textContent = NOME || 'Auditoria';
 
-function getAuthHeaders() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN }; }
+function getAuthHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + TOKEN,
+    'x-nivel': NIVEL
+  };
+}
+
 function logout() { localStorage.clear(); window.location.href = '/login'; }
 
 const API = '/api/ticket';

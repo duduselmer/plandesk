@@ -5,6 +5,8 @@ const ticketRoutes = require('./routes/ticketRoutes');
 const reaberturaRoutes = require('./routes/reaberturaRoutes');
 const authRoutes = require('./routes/authRoutes');
 
+process.env.TZ = 'America/Sao_Paulo';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';

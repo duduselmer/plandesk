@@ -40,22 +40,6 @@ db.serialize(() => {
     );
   });
 
-
-  // Seed: criar usuários padrão se não existirem
-  const usuariosPadrao = [
-    { nome: 'Supervisor', email: 'planejamento@iafsolucoes.com.br', perfil: 'solicitante', senha: '123456' },
-    { nome: 'Analista', email: 'planejamento@iafsolucoes.com.br', perfil: 'analista', senha: '123456' },
-    { nome: 'Gestor', email: 'planejamento@iafsolucoes.com.br', perfil: 'gestao', senha: '123456' }
-  ];
-
-  usuariosPadrao.forEach(u => {
-    const hash = bcrypt.hashSync(u.senha, 10);
-    db.run(
-      'INSERT OR IGNORE INTO usuarios (nome, email, senha_hash, perfil) VALUES (?, ?, ?, ?)',
-      [u.nome, u.email, hash, u.perfil]
-    );
-  });
-
   // ==========================================
   // Tabela de tickets
   // ==========================================

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlanDesk — Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0f12; --surface: #141720; --surface2: #1c2030; --border: #252a3a;
+      --accent: #4f8ef7; --accent2: #f7c94f; --accent3: #4ff7a0; --danger: #f74f4f; --purple: #a78bfa;
+      --text: #e8ecf5; --muted: #6b738a;
+      --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none; }
+    body::after { content: ''; position: fixed; top: -20%; left: 50%; transform: translateX(-50%); width: 80vw; height: 60vh; background: radial-gradient(ellipse, rgba(79,142,247,0.06) 0%, transparent 70%); z-index: 0; pointer-events: none; }
+    .wrapper { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .user-bar { position: fixed; top: 0; left: 0; right: 0; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    .user-info { font-size: 0.8rem; color: var(--muted); }
+    .user-nivel { background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.2); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .btn-logout { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); padding: 0.3rem 0.75rem; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+    .brand { text-align: center; margin-bottom: 3rem; animation: fadeDown 0.6s ease; }
+    .brand-title { font-family: var(--font-display); font-size: clamp(2rem, 6vw, 4rem); font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .brand-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; width: 100%; max-width: 800px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.75rem; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; animation: fadeUp 0.5s ease both; cursor: pointer; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,0.3); }
+    .card-solicitante { border-top: 3px solid var(--accent); }
+    .card-solicitante:hover { border-color: var(--accent); }
+    .card-analista { border-top: 3px solid var(--accent2); }
+    .card-analista:hover { border-color: var(--accent2); }
+    .card-gestao { border-top: 3px solid var(--accent3); }
+    .card-gestao:hover { border-color: var(--accent3); }
+    .card-historico { border-top: 3px solid var(--purple); }
+    .card-historico:hover { border-color: var(--purple); }
+    .card-icon { font-size: 2rem; }
+    .card-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; }
+    .card-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div class="user-bar">
+    <div class="user-info"><span id="user-name"></span> · <span class="user-nivel" id="user-nivel"></span></div>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+
+  <div class="wrapper">
+    <div class="brand">
+      <div class="brand-title">PlanDesk</div>
+      <div class="brand-sub">Gestão de Demandas Operacionais</div>
+    </div>
+
+    <div class="cards" id="cards-container"></div>
+  </div>
+
+  <script>
+    const TOKEN = localStorage.getItem('plandesk_token');
+    const NIVEL = localStorage.getItem('plandesk_nivel');
+    const NOME = localStorage.getItem('plandesk_nome');
+    const TELAS = JSON.parse(localStorage.getItem('plandesk_telas') || '[]');
+
+    if (!TOKEN || !NIVEL) { window.location.href = '/login'; }
+
+    document.getElementById('user-name').textContent = NOME || 'Usuário';
+    document.getElementById('user-nivel').textContent = NIVEL || '';
+
+    function logout() { localStorage.clear(); window.location.href = '/login'; }
+
+    const cardsData = {
+      solicitante: { icon: '📋', nome: 'Solicitante', desc: 'Abrir e acompanhar tickets', href: '/solicitante', cls: 'card-solicitante' },
+      analista:    { icon: '🎯', nome: 'Analista', desc: 'Atender demandas e gerenciar SLA', href: '/analista', cls: 'card-analista' },
+      gestao:      { icon: '📊', nome: 'Gestão', desc: 'Dashboard e indicadores de performance', href: '/gestao', cls: 'card-gestao' },
+      historico:   { icon: '📜', nome: 'Histórico', desc: 'Auditoria e registro de demandas', href: '/historico', cls: 'card-historico' }
+    };
+
+    const container = document.getElementById('cards-container');
+    
+    if (TELAS.length === 1) {
+      // Só uma tela: redireciona direto
+      window.location.href = cardsData[TELAS[0]]?.href || '/solicitante';
+    } else {
+      // Múltiplas telas: mostra cards
+      container.innerHTML = TELAS.map((tela, i) => {
+        const c = cardsData[tela];
+        if (!c) return '';
+        return `
+          <a href="${c.href}" class="card ${c.cls}" style="animation-delay:${i*0.08}s">
+            <div class="card-icon">${c.icon}</div>
+            <div class="card-name">${c.nome}</div>
+            <div class="card-desc">${c.desc}</div>
+          </a>`;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

@@ -132,11 +132,12 @@
 
 <script>
 // Verificar autenticação
- TOKEN = localStorage.getItem('plandesk_token');
- PERFIL = localStorage.getItem('plandesk_perfil');
- NOME = localStorage.getItem('plandesk_nome');
+const TOKEN = localStorage.getItem('plandesk_token');
+const NIVEL = localStorage.getItem('plandesk_nivel');
+const NOME = localStorage.getItem('plandesk_nome');
+const TELAS = JSON.parse(localStorage.getItem('plandesk_telas') || '[]');
 
-if (!TOKEN || PERFIL !== 'solicitante') {
+if (!TOKEN || !TELAS.includes('solicitante')) {
   window.location.href = '/login';
 }
 
@@ -145,7 +146,8 @@ document.getElementById('user-name').textContent = NOME || 'Solicitante';
 function getAuthHeaders() {
   return {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + TOKEN
+    'Authorization': 'Bearer ' + TOKEN,
+    'x-nivel': NIVEL
   };
 }
 

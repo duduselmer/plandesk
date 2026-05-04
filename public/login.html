@@ -10,7 +10,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0d0f12; --surface: #141720; --surface2: #1c2030; --border: #252a3a;
-      --accent: #4f8ef7; --accent2: #f7c94f; --accent3: #4ff7a0; --danger: #f74f4f; --purple: #a78bfa;
+      --accent: #4f8ef7; --danger: #f74f4f;
       --text: #e8ecf5; --muted: #6b738a;
       --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
     }
@@ -19,7 +19,7 @@
     body::after { content: ''; position: fixed; top: -20%; left: 50%; transform: translateX(-50%); width: 80vw; height: 60vh; background: radial-gradient(ellipse, rgba(79,142,247,0.08) 0%, transparent 70%); z-index: 0; pointer-events: none; }
     .wrapper { position: relative; z-index: 1; height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
     .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 3rem; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 2rem; animation: fadeUp 0.6s ease; position: relative; overflow: hidden; }
-    .login-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3)); }
+    .login-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); }
     .brand { text-align: center; }
     .brand-title { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .brand-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; letter-spacing: 0.05em; }
@@ -28,25 +28,11 @@
     input { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: var(--font-mono); font-size: 0.9rem; padding: 0.85rem 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
     input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.1); }
     input::placeholder { color: var(--muted); }
-    .btn-login { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 0.9rem; font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em; margin-top: 0.5rem; }
+    .btn-login { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 0.9rem; font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 0.5rem; }
     .btn-login:hover { background: #3a7de8; box-shadow: 0 6px 24px rgba(79,142,247,0.3); transform: translateY(-1px); }
     .btn-login:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .error-msg { background: rgba(247,79,79,0.08); border: 1px solid rgba(247,79,79,0.3); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.78rem; color: var(--danger); display: none; text-align: center; }
     .error-msg.show { display: block; animation: shake 0.4s ease; }
-
-    /* Tela de escolha de perfil */
-    .perfil-escolha { display: none; flex-direction: column; gap: 1.25rem; }
-    .perfil-escolha.show { display: flex; }
-    .perfil-welcome { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; text-align: center; }
-    .perfil-botoes { display: flex; flex-direction: column; gap: 0.75rem; }
-    .btn-perfil { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); padding: 1rem 1.5rem; font-family: var(--font-mono); font-size: 0.9rem; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 1rem; }
-    .btn-perfil:hover { border-color: var(--accent); background: rgba(79,142,247,0.05); }
-    .btn-perfil .icon { font-size: 1.5rem; }
-    .btn-perfil .perfil-nome { font-weight: 600; }
-    .btn-perfil .perfil-desc { font-size: 0.7rem; color: var(--muted); }
-    .btn-sair { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.5rem; font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; text-align: center; }
-    .btn-sair:hover { border-color: var(--danger); color: var(--danger); }
-
     .info-text { font-size: 0.7rem; color: var(--muted); text-align: center; line-height: 1.6; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-4px); } }
@@ -60,7 +46,6 @@
         <div class="brand-sub">Gestão de Demandas Operacionais</div>
       </div>
 
-      <!-- Formulário de login -->
       <form class="form" id="login-form" onsubmit="handleLogin(event)">
         <label>Email
           <input type="email" id="email" placeholder="seu@email.com" required autocomplete="email" />
@@ -72,13 +57,6 @@
         <div class="error-msg" id="error-msg"></div>
       </form>
 
-      <!-- Escolha de perfil (escondido até ter múltiplos) -->
-      <div class="perfil-escolha" id="perfil-escolha">
-        <div class="perfil-welcome" id="perfil-welcome"></div>
-        <div class="perfil-botoes" id="perfil-botoes"></div>
-        <button class="btn-sair" onclick="voltarLogin()">← Sair e voltar ao login</button>
-      </div>
-
       <div class="info-text">Acesso restrito a colaboradores autorizados</div>
     </div>
   </div>
@@ -86,34 +64,29 @@
   <script>
     const API_AUTH = '/api/auth';
 
-    // Se já tem sessão com perfil escolhido, vai direto
+    // Mapeamento de telas por nível
+    const TELAS_POR_NIVEL = {
+      requisitor: ['solicitante'],
+      supervisor: ['solicitante', 'historico'],
+      controldesk: ['solicitante', 'analista', 'gestao'],
+      admin: ['solicitante', 'analista', 'gestao', 'historico']
+    };
+
+    const TELA_PADRAO = {
+      requisitor: '/solicitante',
+      supervisor: '/solicitante',
+      controldesk: '/analista',
+      admin: '/analista'
+    };
+
+    // Se já está logado, redireciona
     (function() {
-      const perfilSessao = localStorage.getItem('plandesk_perfil_sessao');
       const token = localStorage.getItem('plandesk_token');
-      if (token && perfilSessao) {
-        redirecionar(perfilSessao);
+      const nivel = localStorage.getItem('plandesk_nivel');
+      if (token && nivel) {
+        window.location.href = TELA_PADRAO[nivel] || '/solicitante';
       }
     })();
-
-    const destinos = {
-      solicitante: '/solicitante',
-      analista: '/analista',
-      gestao: '/gestao',
-      historico: '/historico',
-      dev: '/dev'
-    };
-
-    const descricoes = {
-      solicitante: 'Abrir e acompanhar tickets',
-      analista: 'Atender demandas e gerenciar SLA',
-      gestao: 'Dashboard e indicadores de performance',
-      historico: 'Auditoria e registro de demandas',
-      dev: 'Acesso total ao sistema'
-    };
-
-    function redirecionar(perfil) {
-      window.location.href = destinos[perfil] || '/solicitante';
-    }
 
     async function handleLogin(e) {
       e.preventDefault();
@@ -139,19 +112,10 @@
 
         localStorage.setItem('plandesk_token', data.token);
         localStorage.setItem('plandesk_nome', data.nome);
+        localStorage.setItem('plandesk_nivel', data.nivel);
+        localStorage.setItem('plandesk_telas', JSON.stringify(TELAS_POR_NIVEL[data.nivel] || []));
 
-        const perfis = data.perfis || [];
-
-        if (perfis.length === 1) {
-          // Só um perfil: vai direto
-          localStorage.setItem('plandesk_perfil_sessao', perfis[0]);
-          localStorage.setItem('plandesk_perfis', JSON.stringify(perfis));
-          redirecionar(perfis[0]);
-        } else {
-          // Múltiplos perfis: mostra tela de escolha
-          localStorage.setItem('plandesk_perfis', JSON.stringify(perfis));
-          mostrarEscolhaPerfil(data.nome, perfis);
-        }
+        window.location.href = TELA_PADRAO[data.nivel] || '/solicitante';
 
       } catch (err) {
         errorEl.textContent = err.message;
@@ -160,46 +124,6 @@
         btn.textContent = 'Entrar';
         btn.disabled = false;
       }
-    }
-
-    function mostrarEscolhaPerfil(nome, perfis) {
-      document.getElementById('login-form').style.display = 'none';
-      document.getElementById('perfil-escolha').classList.add('show');
-      document.getElementById('perfil-welcome').textContent = `Bem-vindo, ${nome}!`;
-
-      const botoes = document.getElementById('perfil-botoes');
-      botoes.innerHTML = perfis.map(p => `
-        <button class="btn-perfil" onclick="escolherPerfil('${p}')">
-          <span class="icon">${iconePerfil(p)}</span>
-          <div>
-            <div class="perfil-nome">${nomePerfil(p)}</div>
-            <div class="perfil-desc">${descricoes[p] || ''}</div>
-          </div>
-        </button>
-      `).join('');
-    }
-
-    function iconePerfil(p) {
-      const map = { solicitante: '📋', analista: '🎯', gestao: '📊', historico: '📜', dev: '🛠️' };
-      return map[p] || '👤';
-    }
-
-    function nomePerfil(p) {
-      const map = { solicitante: 'Solicitante', analista: 'Analista', gestao: 'Gestão', historico: 'Histórico / Auditoria', dev: 'Desenvolvedor' };
-      return map[p] || p;
-    }
-
-    function escolherPerfil(perfil) {
-      localStorage.setItem('plandesk_perfil_sessao', perfil);
-      redirecionar(perfil);
-    }
-
-    function voltarLogin() {
-      localStorage.clear();
-      document.getElementById('login-form').style.display = '';
-      document.getElementById('perfil-escolha').classList.remove('show');
-      document.getElementById('email').value = '';
-      document.getElementById('senha').value = '';
     }
   </script>
 </body>

@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const AuthService = require('../services/authService');
-const { autenticar } = require('../middleware/auth');
-const db = require('../db/connection');
+const { autenticar, telasDoNivel } = require('../middleware/auth');
 
 /**
  * POST /api/auth/login
+ * Retorna: { token, nome, email, nivel }
  */
 router.post('/login', async (req, res) => {
   try {
@@ -22,7 +22,7 @@ router.post('/login', async (req, res) => {
       token: resultado.token,
       nome: resultado.nome,
       email: resultado.email,
-      perfis: resultado.perfis
+      nivel: resultado.nivel
     });
   } catch (error) {
     res.status(401).json({ 
@@ -34,7 +34,7 @@ router.post('/login', async (req, res) => {
 
 /**
  * GET /api/auth/me
- * Retorna dados do usuário + perfis disponíveis
+ * Retorna dados do usuário + telas que pode acessar
  */
 router.get('/me', autenticar, async (req, res) => {
   try {
@@ -44,22 +44,14 @@ router.get('/me', autenticar, async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    // Buscar perfis
-    db.all(
-      'SELECT perfil FROM usuario_perfis WHERE usuario_id = ?',
-      [req.usuario.id],
-      (err, rows) => {
-        const perfis = rows ? rows.map(r => r.perfil) : [user.perfil];
-        
-        res.json({
-          id: user.id,
-          nome: user.nome,
-          email: user.email,
-          perfis: perfis,
-          ativo: user.ativo
-        });
-      }
-    );
+    res.json({
+      id: user.id,
+      nome: user.nome,
+      email: user.email,
+      nivel: user.nivel,
+      telas: telasDoNivel(user.nivel),
+      ativo: user.ativo
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

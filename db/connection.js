@@ -18,11 +18,28 @@ db.serialize(() => {
       nome TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       senha_hash TEXT NOT NULL,
-      perfil TEXT NOT NULL CHECK(perfil IN ('solicitante', 'analista', 'gestao')),
+      nivel TEXT NOT NULL DEFAULT 'requisitor' CHECK(nivel IN ('requisitor', 'supervisor', 'controldesk', 'admin')),
       ativo INTEGER DEFAULT 1,
       criado_em TEXT DEFAULT (datetime('now', 'localtime'))
     )
   `);
+
+  // Seed: criar usuários padrão
+  const usuariosPadrao = [
+    { nome: 'Requisitor', email: 'requisitor@iaf.com', nivel: 'requisitor', senha: '123456' },
+    { nome: 'Supervisor', email: 'supervisor@iaf.com', nivel: 'supervisor', senha: '123456' },
+    { nome: 'Control Desk', email: 'controldesk@iaf.com', nivel: 'controldesk', senha: '123456' },
+    { nome: 'Admin', email: 'admin@iaf.com', nivel: 'admin', senha: '123456' }
+  ];
+
+  usuariosPadrao.forEach(u => {
+    const hash = bcrypt.hashSync(u.senha, 10);
+    db.run(
+      'INSERT OR IGNORE INTO usuarios (nome, email, senha_hash, nivel) VALUES (?, ?, ?, ?)',
+      [u.nome, u.email, hash, u.nivel]
+    );
+  });
+
 
   // Seed: criar usuários padrão se não existirem
   const usuariosPadrao = [
@@ -115,34 +132,9 @@ db.serialize(() => {
     )
   `);
 
-    // ==========================================
-  // Tabela de perfis por usuário
-  // ==========================================
-  db.run(`
-    CREATE TABLE IF NOT EXISTS usuario_perfis (
-      usuario_id INTEGER NOT NULL,
-      perfil TEXT NOT NULL CHECK(perfil IN ('solicitante', 'analista', 'gestao', 'historico', 'dev')),
-      PRIMARY KEY (usuario_id, perfil),
-      FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-    )
-  `);
-
-  // Seed: dar perfis aos usuários existentes
-  db.run(`
-    INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil)
-    SELECT id, perfil FROM usuarios WHERE perfil IS NOT NULL
-  `);
-
-  // Seed: garantir que usuários padrão tenham perfis corretos
-  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'solicitante' FROM usuarios WHERE email = 'supervisor@iaf.com'`);
-  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'analista' FROM usuarios WHERE email = 'analista@iaf.com'`);
-  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'historico' FROM usuarios WHERE email = 'analista@iaf.com'`);
-  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'gestao' FROM usuarios WHERE email = 'gestor@iaf.com'`);
-  db.run(`INSERT OR IGNORE INTO usuario_perfis (usuario_id, perfil) SELECT id, 'historico' FROM usuarios WHERE email = 'gestor@iaf.com'`);
-
   // Índices
   db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email)');
-  db.run('CREATE INDEX IF NOT EXISTS idx_usuario_perfis ON usuario_perfis(usuario_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_nivel ON usuarios(nivel)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_prioridade ON tickets(prioridade)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_deletado ON tickets(deletado)');

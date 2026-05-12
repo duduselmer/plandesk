@@ -443,7 +443,7 @@ function renderTickets(tickets) {
             ${t.ciclo_atual > 1 ? `<span class="badge badge-pendente">Ciclo ${t.ciclo_atual}</span>` : ''}
             ${temPendente ? '<span class="badge badge-pendente">⏳ Pendente</span>' : ''}
           </div>
-          <div class="ticket-setor-nome">${t.setor}${t.nome ? ` · ${t.nome}` : ''}</div>
+          <div class="ticket-setor-nome">${t.setor}${t.solicitante_nome ? ` · ${t.solicitante_nome}` : t.nome ? ` · ${t.nome}` : ''}</div>
           <div class="ticket-desc">${t.descricao}</div>
           ${t.descricao_final ? `<div class="solucao-box"><span style="color:var(--success);">Solução Original: ${t.descricao_final}</span>${t.link_referencia ? ` <a href="${t.link_referencia}" target="_blank" style="color:var(--accent);">🔗</a>` : ''}</div>` : ''}
           ${reabAceitasInfo}

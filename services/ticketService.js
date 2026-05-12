@@ -126,7 +126,7 @@ class TicketService {
                u.nome as solicitante_nome
         FROM tickets t
         LEFT JOIN usuarios u ON t.criado_por = u.id
-        WHERE t.deletado = 0
+        WHERE t.deletado = 0 AND t.status != 'recebido'
       `;
       const params = [];
       if (filtros.status) { sql += ' AND t.status = ?'; params.push(filtros.status); }
@@ -168,7 +168,14 @@ class TicketService {
 
   static listarLixeira() {
     return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM tickets WHERE deletado = 1 ORDER BY deletado_em DESC', [], (err, tickets) => {
+      const sql = `
+        SELECT t.*, u.nome as solicitante_nome
+        FROM tickets t
+        LEFT JOIN usuarios u ON t.criado_por = u.id
+        WHERE t.deletado = 1
+        ORDER BY t.deletado_em DESC
+      `;
+      db.all(sql, [], (err, tickets) => {
         if (err) return reject(err);
         resolve(tickets);
       });

@@ -136,4 +136,14 @@ router.patch('/:id/delete', async (req, res) => {
   }
 });
 
+// Confirmar recebimento (solicitante)
+router.patch('/:id/receber', async (req, res) => {
+  try {
+    const resultado = await TicketService.marcarRecebido(req.params.id, req.usuario.id);
+    res.json(resultado);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 module.exports = router;

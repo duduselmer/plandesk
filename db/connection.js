@@ -51,7 +51,7 @@ db.serialize(() => {
       nome TEXT,
       descricao TEXT NOT NULL,
       
-      status TEXT NOT NULL DEFAULT 'aberto' CHECK(status IN ('aberto', 'em andamento', 'concluído')),
+      status TEXT NOT NULL DEFAULT 'aberto' CHECK(status IN ('aberto', 'em andamento', 'concluído', 'recebido')),
       prioridade TEXT CHECK(prioridade IN ('Baixa', 'Média', 'Alta', 'Crítica')),
       
       criado_em TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),

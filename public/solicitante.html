@@ -198,7 +198,7 @@ async function carregarTickets() {
 }
 
 function renderTicket(t) {
-  const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido' };
+  const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido', 'recebido': 'badge-concluido' };
   const prioBadge = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
 
   const reabs = t.reaberturas || [];
@@ -211,7 +211,15 @@ function renderTicket(t) {
     acoes = `<button class="btn-sm" onclick="abrirEditar(${t.id},'${(t.setor||'').replace(/'/g,"\\'")}','${(t.nome||'').replace(/'/g,"\\'")}',\`${(t.descricao||'').replace(/`/g,'\\`')}\`)">Editar</button>
              <button class="btn-sm danger" onclick="abrirExcluir(${t.id})">Excluir</button>`;
   } else if (t.status === 'concluído') {
-    // Só mostra "Solicitar Reabertura" se não tem pendente, não tem em andamento, e não atingiu limite
+    // Botão de confirmar recebimento
+    acoes = `<button class="btn-sm success" onclick="confirmarRecebimento(${t.id})">✅ Confirmar Recebimento</button>`;
+    
+    // Reabertura (se ainda permitido)
+    if (!temPendente && !temEmAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
+      acoes += `<button class="btn-sm" onclick="abrirReabrir(${t.id})" style="margin-left:0.5rem;">🔄 Solicitar Reabertura</button>`;
+    }
+  } else if (t.status === 'recebido') {
+    // Já recebido: pode reabrir se ainda permitido
     if (!temPendente && !temEmAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
       acoes = `<button class="btn-sm success" onclick="abrirReabrir(${t.id})">Solicitar Reabertura</button>`;
     } else if (temPendente) {
@@ -219,7 +227,7 @@ function renderTicket(t) {
     } else if (temEmAndamento) {
       acoes = `<span class="badge badge-andamento">⏳ Ciclo em andamento</span>`;
     } else {
-      acoes = `<span style="font-size:0.65rem;color:var(--muted);">🔒 Limite atingido</span>`;
+      acoes = `<span style="font-size:0.65rem;color:var(--muted);">✅ Finalizado</span>`;
     }
   }
 
@@ -341,6 +349,16 @@ async function cancelarReabertura(rid) {
     if(!res.ok) throw new Error((await res.json()).error);
     toast('✓ Cancelada','success'); carregarTickets();
   } catch(err) { toast('✗ '+err.message,'error'); }
+}
+async function confirmarRecebimento(id) {
+  if (!confirm('Confirmar que a solução foi recebida e está correta?')) return;
+  try {
+    const res = await fetch(`${API}/${id}/receber`, { method: 'PATCH', headers: getAuthHeaders() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    toast('✓ Recebimento confirmado!', 'success');
+    carregarTickets();
+  } catch (err) { toast('✗ ' + err.message, 'error'); }
 }
 function toast(msg,type='success') {
   const el = document.getElementById('toast');

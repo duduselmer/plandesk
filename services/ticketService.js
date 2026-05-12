@@ -189,6 +189,36 @@ class TicketService {
       db.all("SELECT setor, COUNT(*) as count FROM tickets WHERE deletado = 0 GROUP BY setor", (err, rows) => { if (err) return reject(err); stats.por_setor = rows || []; checkComplete(); });
     });
   }
+
+  /**
+   * Solicitante confirma recebimento da solução
+   */
+  static marcarRecebido(id, usuarioId) {
+    return new Promise((resolve, reject) => {
+      const agora = new Date().toISOString();
+
+      // Verificar se o ticket pertence ao usuário e está concluído
+      db.get(
+        'SELECT * FROM tickets WHERE id = ? AND criado_por = ? AND status = ? AND deletado = 0',
+        [id, usuarioId, 'concluído'],
+        (err, ticket) => {
+          if (err) return reject(err);
+          if (!ticket) {
+            return reject(new Error('Ticket não encontrado ou não está concluído'));
+          }
+
+          db.run(
+            `UPDATE tickets SET status = 'recebido', ultima_atualizacao = ? WHERE id = ?`,
+            [agora, id],
+            function(err) {
+              if (err) return reject(err);
+              resolve({ message: 'Recebimento confirmado com sucesso' });
+            }
+          );
+        }
+      );
+    });
+  }
 }
 
 module.exports = TicketService;

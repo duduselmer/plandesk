@@ -126,7 +126,7 @@ class TicketService {
                u.nome as solicitante_nome
         FROM tickets t
         LEFT JOIN usuarios u ON t.criado_por = u.id
-        WHERE t.deletado = 0 AND t.status != 'recebido'
+        WHERE t.deletado = 0 ${filtros.status === 'recebido' ? '' : "AND t.status != 'recebido'"}
       `;
       const params = [];
       if (filtros.status) { sql += ' AND t.status = ?'; params.push(filtros.status); }

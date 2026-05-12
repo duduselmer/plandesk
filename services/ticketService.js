@@ -129,12 +129,12 @@ class TicketService {
         WHERE t.deletado = 0
       `;
       const params = [];
-      if (filtros.status) { sql += ' AND status = ?'; params.push(filtros.status); }
-      if (filtros.setor) { sql += ' AND setor = ?'; params.push(filtros.setor); }
-      if (filtros.prioridade) { sql += ' AND prioridade = ?'; params.push(filtros.prioridade); }
-      if (filtros.criado_por) { sql += ' AND criado_por = ?'; params.push(filtros.criado_por); }
+      if (filtros.status) { sql += ' AND t.status = ?'; params.push(filtros.status); }
+      if (filtros.setor) { sql += ' AND t.setor = ?'; params.push(filtros.setor); }
+      if (filtros.prioridade) { sql += ' AND t.prioridade = ?'; params.push(filtros.prioridade); }
+      if (filtros.criado_por) { sql += ' AND t.criado_por = ?'; params.push(filtros.criado_por); }
       sql += `
-        ORDER BY CASE prioridade WHEN 'Crítica' THEN 1 WHEN 'Alta' THEN 2 WHEN 'Média' THEN 3 WHEN 'Baixa' THEN 4 ELSE 5 END, criado_em ASC
+        ORDER BY CASE t.prioridade WHEN 'Crítica' THEN 1 WHEN 'Alta' THEN 2 WHEN 'Média' THEN 3 WHEN 'Baixa' THEN 4 ELSE 5 END, t.criado_em ASC
       `;
       db.all(sql, params, (err, tickets) => {
         if (err) return reject(err);

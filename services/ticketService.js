@@ -118,11 +118,15 @@ class TicketService {
   static listarTickets(filtros = {}) {
     return new Promise((resolve, reject) => {
       let sql = `
-        SELECT id, setor, nome, descricao, status, prioridade, criado_em, criado_por,
-        iniciado_em, concluido_em, sla_total_min, sla_consumido_min, sla_estourado,
-        sla_justificativa, analista_responsavel, descricao_final, link_referencia,
-        ciclo_atual, reaberturas_aceitas, max_reaberturas_atingido
-        FROM tickets WHERE deletado = 0
+        SELECT t.id, t.setor, t.nome, t.descricao, t.status, t.prioridade, 
+               t.criado_em, t.criado_por, t.iniciado_em, t.concluido_em,
+               t.sla_total_min, t.sla_consumido_min, t.sla_estourado, t.sla_justificativa,
+               t.analista_responsavel, t.descricao_final, t.link_referencia,
+               t.ciclo_atual, t.reaberturas_aceitas, t.max_reaberturas_atingido,
+               u.nome as solicitante_nome
+        FROM tickets t
+        LEFT JOIN usuarios u ON t.criado_por = u.id
+        WHERE t.deletado = 0
       `;
       const params = [];
       if (filtros.status) { sql += ' AND status = ?'; params.push(filtros.status); }

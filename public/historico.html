@@ -113,13 +113,15 @@ let todasDemandas = [];
 async function carregar() {
   document.getElementById('container').innerHTML = '<div class="empty-state">Carregando...</div>';
   try {
-    const [resAtivos, resArquivados] = await Promise.all([
+    const [resAtivos, resArquivados, resRecebidos] = await Promise.all([
       fetch(API, { headers: getAuthHeaders() }),
-      fetch(`${API}/lixeira/listar`, { headers: getAuthHeaders() })
+      fetch(`${API}/lixeira/listar`, { headers: getAuthHeaders() }),
+      fetch(`${API}?status=recebido`, { headers: getAuthHeaders() })
     ]);
     const ativos = await resAtivos.json();
     const arquivados = await resArquivados.json();
-    let todos = [...ativos, ...arquivados];
+    const recebidos = await resRecebidos.json();
+    let todos = [...ativos, ...arquivados, ...recebidos];
     // Remover duplicados
     const ids = new Set();
     todos = todos.filter(t => { if (ids.has(t.id)) return false; ids.add(t.id); return true; });

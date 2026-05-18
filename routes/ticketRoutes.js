@@ -128,7 +128,7 @@ router.patch('/:id/delete', async (req, res) => {
     }
 
     const resultado = await TicketService.excluirTicket(
-    req.params.id, req.nivel, req.usuario.nome, motivo
+    req.params.id, req.nivel, req.usuario.nome, req.usuario.id, motivo
   );
     res.json(resultado);
   } catch (error) {

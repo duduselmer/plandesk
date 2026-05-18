@@ -78,21 +78,31 @@ class TicketService {
     });
   }
 
-  static excluirTicket(id, nivel, usuario, motivo) {
+static excluirTicket(id, nivel, usuario, usuarioId) {
     return new Promise((resolve, reject) => {
-      let condicaoStatus;
-      if (nivel === 'requisitor' || nivel === 'supervisor') { condicaoStatus = "status = 'aberto'"; }
-      else if (nivel === 'controldesk' || nivel === 'admin') { condicaoStatus = "status = 'concluído' OR status = 'recebido'"; }
+      // Admin pode tudo
+      if (nivel === 'admin') {
+        const sql = `UPDATE tickets SET deletado = 1, deletado_por = ?, motivo_exclusao = ?,
+          deletado_em = ?, ultima_atualizacao = ? WHERE id = ? AND deletado = 0`;
+        const agora = new Date().toISOString();
+        db.run(sql, [`${nivel}: ${usuario}`, motivo, agora, agora, id], function(err) {
+          if (err) return reject(err);
+          if (this.changes === 0) return reject(new Error('Ticket não encontrado'));
+          resolve({ message: 'Ticket arquivado pelo admin' });
+        });
+        return;
+      }
 
+      // Usuário comum: só pode excluir se for dono E status = aberto
+      const sql = `UPDATE tickets SET deletado = 1, deletado_por = ?, motivo_exclusao = ?,
+        deletado_em = ?, ultima_atualizacao = ? 
+        WHERE id = ? AND criado_por = ? AND status = 'aberto' AND deletado = 0`;
+      
       const agora = new Date().toISOString();
-      const sql = `
-        UPDATE tickets SET deletado = 1, deletado_por = ?, motivo_exclusao = ?,
-        deletado_em = ?, ultima_atualizacao = ? WHERE id = ? AND ${condicaoStatus} AND deletado = 0
-      `;
-      db.run(sql, [`${nivel}: ${usuario}`, motivo, agora, agora, id], function(err) {
+      db.run(sql, [`${nivel}: ${usuario}`, motivo, agora, agora, id, usuarioId], function(err) {
         if (err) return reject(err);
-        if (this.changes === 0) return reject(new Error('Exclusão não permitida'));
-        resolve({ message: 'Ticket arquivado' });
+        if (this.changes === 0) return reject(new Error('Exclusão não permitida. Apenas o autor pode excluir tickets em aberto.'));
+        resolve({ message: 'Ticket arquivado com sucesso' });
       });
     });
   }
@@ -199,11 +209,10 @@ class TicketService {
   /**
    * Solicitante confirma recebimento da solução
    */
-  static marcarRecebido(id, usuarioId) {
+static marcarRecebido(id, usuarioId) {
     return new Promise((resolve, reject) => {
       const agora = new Date().toISOString();
 
-      // Verificar se o ticket pertence ao usuário e está concluído
       db.get(
         'SELECT * FROM tickets WHERE id = ? AND criado_por = ? AND status = ? AND deletado = 0',
         [id, usuarioId, 'concluído'],
@@ -213,12 +222,15 @@ class TicketService {
             return reject(new Error('Ticket não encontrado ou não está concluído'));
           }
 
+          // Marcar como recebido E arquivar automaticamente
           db.run(
-            `UPDATE tickets SET status = 'recebido', ultima_atualizacao = ? WHERE id = ?`,
-            [agora, id],
+            `UPDATE tickets SET status = 'recebido', deletado = 1, 
+             deletado_por = 'sistema', motivo_exclusao = 'Confirmação de recebimento pelo solicitante',
+             deletado_em = ?, ultima_atualizacao = ? WHERE id = ?`,
+            [agora, agora, id],
             function(err) {
               if (err) return reject(err);
-              resolve({ message: 'Recebimento confirmado com sucesso' });
+              resolve({ message: 'Recebimento confirmado e ticket arquivado automaticamente' });
             }
           );
         }

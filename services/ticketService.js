@@ -78,19 +78,18 @@ class TicketService {
     });
   }
 
-  static excluirTicket(id, perfil, usuario, motivo) {
+  static excluirTicket(id, nivel, usuario, motivo) {
     return new Promise((resolve, reject) => {
       let condicaoStatus;
-      if (perfil === 'solicitante') condicaoStatus = "status = 'aberto'";
-      else if (perfil === 'analista') condicaoStatus = "status = 'concluído'";
-      else return reject(new Error('Perfil não autorizado'));
+      if (nivel === 'requisitor' || nivel === 'supervisor') { condicaoStatus = "status = 'aberto'"; }
+      else if (nivel === 'controldesk' || nivel === 'admin') { condicaoStatus = "status = 'concluído' OR status = 'recebido'"; }
 
       const agora = new Date().toISOString();
       const sql = `
         UPDATE tickets SET deletado = 1, deletado_por = ?, motivo_exclusao = ?,
         deletado_em = ?, ultima_atualizacao = ? WHERE id = ? AND ${condicaoStatus} AND deletado = 0
       `;
-      db.run(sql, [`${perfil}: ${usuario}`, motivo, agora, agora, id], function(err) {
+      db.run(sql, [`${nivel}: ${usuario}`, motivo, agora, agora, id], function(err) {
         if (err) return reject(err);
         if (this.changes === 0) return reject(new Error('Exclusão não permitida'));
         resolve({ message: 'Ticket arquivado' });

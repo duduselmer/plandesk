@@ -128,8 +128,8 @@ router.patch('/:id/delete', async (req, res) => {
     }
 
     const resultado = await TicketService.excluirTicket(
-      req.params.id, req.nivel, req.usuario.nome, motivo
-    );
+    req.params.id, req.nivel, req.usuario.nome, motivo
+  );
     res.json(resultado);
   } catch (error) {
     res.status(400).json({ error: error.message });

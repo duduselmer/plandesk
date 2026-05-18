@@ -209,11 +209,10 @@ static excluirTicket(id, nivel, usuario, usuarioId) {
   /**
    * Solicitante confirma recebimento da solução
    */
-  static marcarRecebido(id, usuarioId) {
+static marcarRecebido(id, usuarioId) {
     return new Promise((resolve, reject) => {
       const agora = new Date().toISOString();
 
-      // Verificar se o ticket pertence ao usuário e está concluído
       db.get(
         'SELECT * FROM tickets WHERE id = ? AND criado_por = ? AND status = ? AND deletado = 0',
         [id, usuarioId, 'concluído'],
@@ -223,12 +222,15 @@ static excluirTicket(id, nivel, usuario, usuarioId) {
             return reject(new Error('Ticket não encontrado ou não está concluído'));
           }
 
+          // Marcar como recebido E arquivar automaticamente
           db.run(
-            `UPDATE tickets SET status = 'recebido', ultima_atualizacao = ? WHERE id = ?`,
-            [agora, id],
+            `UPDATE tickets SET status = 'recebido', deletado = 1, 
+             deletado_por = 'sistema', motivo_exclusao = 'Confirmação de recebimento pelo solicitante',
+             deletado_em = ?, ultima_atualizacao = ? WHERE id = ?`,
+            [agora, agora, id],
             function(err) {
               if (err) return reject(err);
-              resolve({ message: 'Recebimento confirmado com sucesso' });
+              resolve({ message: 'Recebimento confirmado e ticket arquivado automaticamente' });
             }
           );
         }

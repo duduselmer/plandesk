@@ -78,21 +78,31 @@ class TicketService {
     });
   }
 
-  static excluirTicket(id, nivel, usuario, motivo) {
+static excluirTicket(id, nivel, usuario, usuarioId) {
     return new Promise((resolve, reject) => {
-      let condicaoStatus;
-      if (nivel === 'requisitor' || nivel === 'supervisor') { condicaoStatus = "status = 'aberto'"; }
-      else if (nivel === 'controldesk' || nivel === 'admin') { condicaoStatus = "status = 'concluído' OR status = 'recebido'"; }
+      // Admin pode tudo
+      if (nivel === 'admin') {
+        const sql = `UPDATE tickets SET deletado = 1, deletado_por = ?, motivo_exclusao = ?,
+          deletado_em = ?, ultima_atualizacao = ? WHERE id = ? AND deletado = 0`;
+        const agora = new Date().toISOString();
+        db.run(sql, [`${nivel}: ${usuario}`, motivo, agora, agora, id], function(err) {
+          if (err) return reject(err);
+          if (this.changes === 0) return reject(new Error('Ticket não encontrado'));
+          resolve({ message: 'Ticket arquivado pelo admin' });
+        });
+        return;
+      }
 
+      // Usuário comum: só pode excluir se for dono E status = aberto
+      const sql = `UPDATE tickets SET deletado = 1, deletado_por = ?, motivo_exclusao = ?,
+        deletado_em = ?, ultima_atualizacao = ? 
+        WHERE id = ? AND criado_por = ? AND status = 'aberto' AND deletado = 0`;
+      
       const agora = new Date().toISOString();
-      const sql = `
-        UPDATE tickets SET deletado = 1, deletado_por = ?, motivo_exclusao = ?,
-        deletado_em = ?, ultima_atualizacao = ? WHERE id = ? AND ${condicaoStatus} AND deletado = 0
-      `;
-      db.run(sql, [`${nivel}: ${usuario}`, motivo, agora, agora, id], function(err) {
+      db.run(sql, [`${nivel}: ${usuario}`, motivo, agora, agora, id, usuarioId], function(err) {
         if (err) return reject(err);
-        if (this.changes === 0) return reject(new Error('Exclusão não permitida'));
-        resolve({ message: 'Ticket arquivado' });
+        if (this.changes === 0) return reject(new Error('Exclusão não permitida. Apenas o autor pode excluir tickets em aberto.'));
+        resolve({ message: 'Ticket arquivado com sucesso' });
       });
     });
   }

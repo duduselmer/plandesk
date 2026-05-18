@@ -112,7 +112,7 @@
     <div class="panel-form">
       <div><div class="panel-title">Nova Solicitação</div><div class="panel-subtitle">Preencha os dados para abrir um ticket</div></div>
       <form class="form" id="form-ticket" onsubmit="criarTicket(event)">
-        <label>Setor <span>*</span><select id="setor" required><option value="">Selecione...</option><option value="Carteira Assinatura">Carteira Assinatura</option><option value="Carteira Rescisão">Carteira Rescisão</option><option value="Control Desk">Control Desk</option><option value="Gerente">Gerente</option></select></label>
+        <label>Setor <span>*</span><select id="setor" required><option value="">Selecione...</option><option value="Carteira Assinatura">Carteira Assinatura</option><option value="Carteira Rescisão">Carteira Rescisão</option><option value="Carteira Athos">Carteira Athos</option><option value="Monitoria">Monitoria</option><option value="Control Desk">Control Desk</option><option value="Gerente">Gerente</option></select></label>
         <label>Descrição <span>*</span><textarea id="descricao" required></textarea></label>
         <button type="submit" class="btn-submit">Abrir Ticket →</button>
       </form>
@@ -209,7 +209,7 @@ function renderTicket(t) {
 
   let acoes = '';
   if (t.status === 'aberto') {
-    acoes = `<button class="btn-sm" onclick="abrirEditar(${t.id},'${(t.setor||'').replace(/'/g,"\\'")}','${(t.nome||'').replace(/'/g,"\\'")}',\`${(t.descricao||'').replace(/`/g,'\\`')}\`)">Editar</button>
+    acoes = `<button class="btn-sm" onclick="abrirEditar(${t.id},'${(t.setor||'').replace(/'/g,"\\'")}',\`${(t.descricao||'').replace(/`/g,'\\`')}\`)">Editar</button>
              <button class="btn-sm danger" onclick="abrirExcluir(${t.id})">Excluir</button>`;
   } else if (t.status === 'concluído') {
     // Botão de confirmar recebimento
@@ -295,9 +295,10 @@ function renderTicket(t) {
   </div>`;
 }
 
-function abrirEditar(id,setor,nome,desc) {
-  document.getElementById('edit-id').value=id; document.getElementById('edit-setor').value=setor;
-  document.getElementById('edit-nome').value=nome; document.getElementById('edit-descricao').value=desc;
+function abrirEditar(id,setor,desc) {
+  document.getElementById('edit-id').value=id; 
+  document.getElementById('edit-setor').value=setor;
+  document.getElementById('edit-descricao').value=desc;
   document.getElementById('modal-editar').classList.add('open');
 }
 function abrirExcluir(id) { document.getElementById('excluir-id').value=id; document.getElementById('modal-excluir').classList.add('open'); }
@@ -316,9 +317,9 @@ async function salvarEdicao() {
   const id = document.getElementById('edit-id').value;
   try {
     const res = await fetch(`${API}/${id}`, { method:'PUT', headers:getAuthHeaders(), body:JSON.stringify({
-      setor:document.getElementById('edit-setor').value, nome:document.getElementById('edit-nome').value,
-      descricao:document.getElementById('edit-descricao').value
-    })});
+    setor:document.getElementById('edit-setor').value,
+    descricao:document.getElementById('edit-descricao').value
+  })});
     if(!res.ok) throw new Error((await res.json()).error);
     fecharModal('modal-editar'); toast('✓ Atualizado','success'); carregarTickets();
   } catch(err) { toast('✗ '+err.message,'error'); }

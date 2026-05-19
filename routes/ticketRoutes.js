@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Setor e descrição são obrigatórios' });
     }
 
-    const setoresValidos = ['Carteira Assinatura', 'Carteira Rescisão', 'Control Desk', 'Gerente'];
+    const setoresValidos = ['Carteira Assinatura', 'Carteira Rescisão', 'Carteira Athos', 'Monitoria', 'Control Desk', 'Gerente'];
     if (!setoresValidos.includes(setor)) {
       return res.status(400).json({ error: 'Setor inválido' });
     }

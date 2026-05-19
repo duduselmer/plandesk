@@ -25,20 +25,20 @@ db.serialize(() => {
   `);
 
   // Seed: criar usuários padrão
-  const usuariosPadrao = [
-    { nome: 'Requisitor', email: 'requisitor@iaf.com', nivel: 'requisitor', senha: '123456' },
-    { nome: 'Supervisor', email: 'supervisor@iaf.com', nivel: 'supervisor', senha: '123456' },
-    { nome: 'Control Desk', email: 'controldesk@iaf.com', nivel: 'controldesk', senha: '123456' },
-    { nome: 'Admin', email: 'admin@iaf.com', nivel: 'admin', senha: '123456' }
-  ];
+  //const usuariosPadrao = [
+  //  { nome: 'Requisitor', email: 'requisitor@iaf.com', nivel: 'requisitor', senha: '123456' },
+  //  { nome: 'Supervisor', email: 'supervisor@iaf.com', nivel: 'supervisor', senha: '123456' },
+  //  { nome: 'Control Desk', email: 'controldesk@iaf.com', nivel: 'controldesk', senha: '123456' },
+  //  { nome: 'Admin', email: 'admin@iaf.com', nivel: 'admin', senha: '123456' }
+  //];
 
-  usuariosPadrao.forEach(u => {
-    const hash = bcrypt.hashSync(u.senha, 10);
-    db.run(
-      'INSERT OR IGNORE INTO usuarios (nome, email, senha_hash, nivel) VALUES (?, ?, ?, ?)',
-      [u.nome, u.email, hash, u.nivel]
-    );
-  });
+  //usuariosPadrao.forEach(u => {
+  //  const hash = bcrypt.hashSync(u.senha, 10);
+  //  db.run(
+  //   'INSERT OR IGNORE INTO usuarios (nome, email, senha_hash, nivel) VALUES (?, ?, ?, ?)',
+  //    [u.nome, u.email, hash, u.nivel]
+  //  );
+  //});
 
   // ==========================================
   // Tabela de tickets
@@ -47,7 +47,7 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS tickets (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       
-      setor TEXT NOT NULL CHECK(setor IN ('Carteira Assinatura', 'Carteira Rescisão', 'Control Desk', 'Gerente')),
+      setor TEXT NOT NULL CHECK(setor IN ('Carteira Assinatura', 'Carteira Rescisão', 'Carteira Athos', 'Monitoria', 'Control Desk', 'Gerente')),
       nome TEXT,
       descricao TEXT NOT NULL,
       

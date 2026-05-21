@@ -111,7 +111,8 @@ router.patch('/:id/finish', autorizar('controldesk'), async (req, res) => {
     }
 
     const resultado = await TicketService.concluirTicket(
-      req.params.id, descricao_final, justificativa, link_referencia
+      req.params.id, descricao_final, justificativa, link_referencia,
+      req.usuario.nome, req.nivel
     );
     res.json(resultado);
   } catch (error) {

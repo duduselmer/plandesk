@@ -91,43 +91,63 @@ class SLAService {
     return SLA_POR_PRIORIDADE[prioridade] || 60;
   }
 
-  /**
-   * Calcula minutos úteis entre duas datas
-   */
   static calcularMinutosUteis(dataInicio, dataFim) {
     if (!dataInicio || !dataFim) return 0;
-    
+
     let inicio = new Date(dataInicio);
     const fim = new Date(dataFim);
     let minutos = 0;
-    
+
+    // Se início fora do horário útil, ajusta para o próximo horário útil
     if (!this.estaEmHorarioUtil(inicio)) {
       inicio = this.proximoHorarioUtil(inicio);
     }
-    
-    let tentativas = 0;
-    const MAX_TENTATIVAS = 100000;
-    
-    while (inicio < fim && tentativas < MAX_TENTATIVAS) {
-      tentativas++;
-      
-      const proximo = this.proximoHorarioUtil(inicio);
-      
-      if (proximo > fim) {
-        if (this.estaEmHorarioUtil(inicio)) {
-          minutos += (fim - inicio) / 60000;
+
+    // Se fim antes do início ajustado, retorna 0
+    if (inicio >= fim) return 0;
+
+    // Avança dia por dia útil
+    while (inicio < fim) {
+      const diaAtual = new Date(inicio);
+      diaAtual.setHours(Math.floor(HORA_FIM / 60), HORA_FIM % 60, 0, 0); // 17:48
+
+      // Se o fim é antes do fim do expediente de hoje
+      const limiteDia = fim < diaAtual ? fim : diaAtual;
+
+      // Subtrai pausas dentro do intervalo [inicio, limiteDia]
+      let minNoDia = (limiteDia - inicio) / 60000;
+
+      PAUSAS.forEach(pausa => {
+        const pausaInicio = new Date(inicio);
+        pausaInicio.setHours(Math.floor(pausa.inicio / 60), pausa.inicio % 60, 0, 0);
+        const pausaFim = new Date(inicio);
+        pausaFim.setHours(Math.floor(pausa.fim / 60), pausa.fim % 60, 0, 0);
+
+        // Se a pausa está dentro do intervalo [inicio, limiteDia]
+        if (pausaInicio < limiteDia && pausaFim > inicio) {
+          const sobreposicaoInicio = inicio > pausaInicio ? inicio : pausaInicio;
+          const sobreposicaoFim = limiteDia < pausaFim ? limiteDia : pausaFim;
+          const minutosPausa = (sobreposicaoFim - sobreposicaoInicio) / 60000;
+          if (minutosPausa > 0) {
+            minNoDia -= minutosPausa;
+          }
         }
-        break;
+      });
+
+      minutos += minNoDia;
+
+      // Próximo dia útil às 08:00
+      inicio = new Date(diaAtual);
+      inicio.setDate(inicio.getDate() + 1);
+      inicio.setHours(8, 0, 0, 0);
+
+      // Pular fim de semana
+      while (inicio.getDay() === 0 || inicio.getDay() === 6) {
+        inicio.setDate(inicio.getDate() + 1);
       }
-      
-      if (this.estaEmHorarioUtil(inicio)) {
-        minutos += (proximo - inicio) / 60000;
-      }
-      
-      inicio = proximo;
     }
-    
-    return Math.round(minutos);
+
+    return Math.round(Math.max(0, minutos));
   }
 
   /**

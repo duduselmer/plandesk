@@ -48,14 +48,22 @@ class TicketService {
     });
   }
 
-  static concluirTicket(id, descricaoFinal, justificativaSLA, linkRef) {
-    return new Promise((resolve, reject) => {
-      const agora = new Date();
-      const agoraISO = agora.toISOString();
+  static concluirTicket(id, descricaoFinal, justificativaSLA, linkRef, usuarioNome, usuarioNivel) {
+      return new Promise((resolve, reject) => {
+        const agora = new Date();
+        const agoraISO = agora.toISOString();
 
-      db.get('SELECT * FROM tickets WHERE id = ? AND deletado = 0 AND status = ?', [id, 'em andamento'], (err, ticket) => {
-        if (err) return reject(err);
-        if (!ticket) return reject(new Error('Ticket não encontrado ou não está em andamento'));
+        db.get(
+          'SELECT * FROM tickets WHERE id = ? AND deletado = 0 AND status = ?',
+          [id, 'em andamento'],
+          (err, ticket) => {
+            if (err) return reject(err);
+            if (!ticket) return reject(new Error('Ticket não encontrado ou não está em andamento'));
+
+            // Verificar permissão: mesmo analista ou admin
+            if (usuarioNivel !== 'admin' && ticket.analista_responsavel !== usuarioNome) {
+              return reject(new Error('Apenas o analista que iniciou o atendimento ou um admin pode concluir este ticket.'));
+            }
 
         const slaConsumido = SLAService.calcularMinutosUteis(new Date(ticket.iniciado_em), agora);
         const slaEstourado = slaConsumido > ticket.sla_total_min ? 1 : 0;

@@ -5,7 +5,6 @@ const ticketRoutes = require('./routes/ticketRoutes');
 const reaberturaRoutes = require('./routes/reaberturaRoutes');
 const authRoutes = require('./routes/authRoutes');
 const multer = require('multer');
-const path = require('path');
 
 process.env.TZ = 'America/Sao_Paulo';
 

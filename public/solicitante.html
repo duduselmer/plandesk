@@ -220,6 +220,10 @@
         <label>Descrição <span>*</span>
           <textarea id="descricao" class="fi" required></textarea>
         </label>
+        <label>Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span>
+          <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" style="padding:0.5rem;" />
+          <small style="color:var(--muted);font-size:0.6rem;">PDF, Excel, Word, Imagens — até 25MB</small>
+        </label>
         <button type="submit" class="btn-submit">Abrir Ticket →</button>
       </form>
     </div>
@@ -349,17 +353,27 @@
     const btn = e.target.querySelector('button[type=submit]');
     btn.textContent = 'Enviando...'; btn.disabled = true;
     try {
-      const res = await fetch(API, {
-        method: 'POST', headers: getAuthHeaders(),
-        body: JSON.stringify({ setor: document.getElementById('setor').value, descricao: document.getElementById('descricao').value })
-      });
+      const res = await fetch(API, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({
+        setor: document.getElementById('setor').value,
+        descricao: document.getElementById('descricao').value
+      })});
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
+  
+      // Upload de arquivo se existir
+      const arquivoInput = document.getElementById('arquivo');
+      if (arquivoInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('arquivo', arquivoInput.files[0]);
+        try {
+          await fetch(`/api/anexo/${d.id}/upload`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, body: formData });
+        } catch (uploadErr) { console.error('Upload falhou:', uploadErr); }
+      }
+  
       toast('✓ Ticket criado!', 'success');
       document.getElementById('form-ticket').reset();
-      _ticketsCache = null; // invalida cache
       carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
+    } catch(err) { toast('✗ '+err.message, 'error'); }
     finally { btn.textContent = 'Abrir Ticket →'; btn.disabled = false; }
   }
 
@@ -367,115 +381,131 @@
     const container = document.getElementById('tickets-container');
     container.innerHTML = '<div class="empty-state">Carregando...</div>';
     try {
-      const res     = await fetch(API, { headers: getAuthHeaders() });
+      const res = await fetch(API, { headers: getAuthHeaders() });
       const tickets = await res.json();
       if (!tickets.length) { container.innerHTML = '<div class="empty-state">Nenhum ticket.</div>'; return; }
-
-      // CORRIGIDO: fetch paralelo de reaberturas (Promise.all ao invés de serial)
-      const ticketsComReab = await Promise.all(tickets.map(async t => {
+  
+      // Carregar reaberturas E anexos para cada ticket
+      const ticketsCompleto = await Promise.all(tickets.map(async t => {
         try {
-          const rRes = await fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAuthHeaders() });
+          const [rRes, aRes] = await Promise.all([
+            fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAuthHeaders() }),
+            fetch(`/api/anexo/${t.id}/listar`, { headers: getAuthHeaders() })
+          ]);
           t.reaberturas = await rRes.json();
-        } catch { t.reaberturas = []; }
+          t.anexos = await aRes.json();
+        } catch { 
+          t.reaberturas = []; 
+          t.anexos = []; 
+        }
         return t;
       }));
-
-      container.innerHTML = ticketsComReab.map(renderTicket).join('');
+      container.innerHTML = ticketsCompleto.map(renderTicket).join('');
     } catch { container.innerHTML = '<div class="empty-state">Erro ao carregar.</div>'; }
   }
 
-  function renderTicket(t) {
-    const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido', 'recebido': 'badge-concluido' };
-    const prioBadge   = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
+function renderTicket(t) {
+  const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido', 'recebido': 'badge-concluido' };
+  const prioBadge = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
 
-    const reabs         = t.reaberturas || [];
-    const temPendente   = reabs.some(r => r.status === 'pendente');
-    const temEmAndamento= reabs.some(r => r.status === 'aceita' && !r.concluido_em);
-    const aceitasCount  = reabs.filter(r => r.status === 'aceita').length;
+  const reabs = t.reaberturas || [];
+  const anexos = t.anexos || [];
+  const temPendente = reabs.some(r => r.status === 'pendente');
+  const temEmAndamento = reabs.some(r => r.status === 'aceita' && !r.concluido_em);
+  const aceitasCount = reabs.filter(r => r.status === 'aceita').length;
 
-    let acoes = '';
-    if (t.status === 'aberto') {
-      // CORRIGIDO: usa data-id em vez de passar dados como argumento inline — evita escapes frágeis
-      acoes = `<button class="btn-sm" data-action="editar" data-id="${esc(t.id)}" data-setor="${esc(t.setor)}" data-desc="${esc(t.descricao)}">Editar</button>
-               <button class="btn-sm danger" data-action="excluir" data-id="${esc(t.id)}">Excluir</button>`;
-    } else if (t.status === 'concluído') {
-      acoes = `<button class="btn-sm success" data-action="receber" data-id="${esc(t.id)}">✅ Confirmar Recebimento</button>`;
-      if (!temPendente && !temEmAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
-        acoes += `<button class="btn-sm" data-action="reabrir" data-id="${esc(t.id)}">🔄 Solicitar Reabertura</button>`;
-      }
-    } else if (t.status === 'recebido') {
-      if (!temPendente && !temEmAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
-        acoes = `<button class="btn-sm success" data-action="reabrir" data-id="${esc(t.id)}">Solicitar Reabertura</button>`;
-      } else if (temPendente) {
-        acoes = `<span class="badge badge-pendente">⏳ Aguardando analista</span>`;
-      } else if (temEmAndamento) {
-        acoes = `<span class="badge badge-andamento">⏳ Ciclo em andamento</span>`;
-      } else {
-        acoes = `<span style="font-size:0.65rem;color:var(--muted);">✅ Finalizado</span>`;
-      }
+  let acoes = '';
+  if (t.status === 'aberto') {
+    acoes = `<button class="btn-sm" onclick="abrirEditar(${t.id},'${(t.setor||'').replace(/'/g,"\\'")}',\`${(t.descricao||'').replace(/`/g,'\\`')}\`)">Editar</button>
+             <button class="btn-sm danger" onclick="abrirExcluir(${t.id})">Excluir</button>`;
+  } else if (t.status === 'concluído') {
+    acoes = `<button class="btn-sm success" onclick="confirmarRecebimento(${t.id})">✅ Confirmar Recebimento</button>`;
+    if (!temPendente && !temEmAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
+      acoes += `<button class="btn-sm" onclick="abrirReabrir(${t.id})" style="margin-left:0.5rem;">🔄 Solicitar Reabertura</button>`;
     }
-
-    // Solução original
-    let solucao = '';
-    if (t.descricao_final) {
-      solucao = `<div class="solucao-box">
-        <div class="solucao-label">✅ Solução Original</div>
-        <div class="solucao-text">${esc(t.descricao_final)}</div>
-        ${t.link_referencia ? `<a href="${esc(t.link_referencia)}" target="_blank" rel="noopener noreferrer" class="link-ref">🔗 Link</a>` : ''}
-      </div>`;
+  } else if (t.status === 'recebido') {
+    if (!temPendente && !temEmAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
+      acoes = `<button class="btn-sm success" onclick="abrirReabrir(${t.id})">Solicitar Reabertura</button>`;
+    } else if (temPendente) {
+      acoes = `<span class="badge badge-pendente">⏳ Aguardando analista</span>`;
+    } else if (temEmAndamento) {
+      acoes = `<span class="badge badge-andamento">⏳ Ciclo em andamento</span>`;
+    } else {
+      acoes = `<span style="font-size:0.65rem;color:var(--muted);">✅ Finalizado</span>`;
     }
+  }
 
-    // Reaberturas
-    let reabHTML = '';
-    reabs.forEach(r => {
-      let cls = 'reabertura-box', lblCls = '', statusLabel = '', detalhes = '';
-      if (r.status === 'pendente') {
-        cls += ' reab-pendente'; lblCls = 'pendente'; statusLabel = '⏳ Pendente';
-        detalhes = `Motivo: &ldquo;${esc(r.motivo_solicitacao)}&rdquo;<br><small>${new Date(r.solicitado_em).toLocaleString('pt-BR')}</small>
-                    <br><button class="btn-sm danger" style="font-size:0.6rem;margin-top:0.3rem;" data-action="cancelar-reab" data-id="${esc(r.id)}">Cancelar</button>`;
-      } else if (r.status === 'aceita') {
-        cls += ' reab-aceita'; lblCls = 'aceita';
-        statusLabel = r.concluido_em ? `✅ Ciclo ${esc(r.ciclo)} Concluído` : `✅ Ciclo ${esc(r.ciclo)} Em Andamento`;
-        detalhes    = `Motivo: &ldquo;${esc(r.motivo_solicitacao)}&rdquo;<br>Prioridade: ${esc(r.prioridade)}`;
-        if (r.concluido_em) {
-          detalhes += `<br><span style="color:var(--success);">Solução: ${esc(r.descricao_final || 'N/D')}</span>`;
-          detalhes += `<br><span class="sla-mini ${r.sla_estourado ? 'estourado' : 'ok'}">SLA: ${esc(r.sla_consumido_min || 0)}/${esc(r.sla_total_min)} min</span>`;
-          if (r.link_referencia) detalhes += `<br><a href="${esc(r.link_referencia)}" target="_blank" rel="noopener noreferrer" class="link-ref">🔗 Link</a>`;
-        } else {
-          detalhes += `<br><span class="sla-mini ok">SLA: ${esc(r.sla_consumido_min || 0)}/${esc(r.sla_total_min)} min</span>`;
-        }
-      } else if (r.status === 'recusada') {
-        cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '🚫 Recusada';
-        detalhes = `Motivo: &ldquo;${esc(r.motivo_solicitacao)}&rdquo;<br><span style="color:var(--danger);">Recusa: ${esc(r.justificativa_recusa || 'Sem justificativa')}</span>`;
-      } else if (r.status === 'cancelada') {
-        cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '✗ Cancelada';
-        detalhes = 'Cancelada por você';
-      }
-      reabHTML += `<div class="${cls}">
-        <div class="reab-label ${lblCls}">${statusLabel} · ${new Date(r.solicitado_em).toLocaleString('pt-BR')}</div>
-        <div style="font-size:0.7rem;color:var(--muted);">${detalhes}</div>
-      </div>`;
-    });
+  // Solução original
+  let solucao = '';
+  if (t.descricao_final) {
+    solucao = `<div class="solucao-box"><div class="solucao-label">✅ Solução Original</div><div class="solucao-text">${t.descricao_final}</div>${t.link_referencia?`<a href="${t.link_referencia}" target="_blank" class="link-ref">🔗 Link</a>`:''}</div>`;
+  }
 
-    return `<div class="ticket-card">
-      <div class="ticket-header">
-        <span class="ticket-id">#${esc(t.id)} · ${esc(t.setor)}</span>
-        <div class="ticket-badges">
-          ${t.prioridade ? `<span class="badge ${esc(prioBadge[t.prioridade])}">${esc(t.prioridade)}</span>` : ''}
-          <span class="badge ${statusBadge[t.status] || 'badge-aberto'}">${esc(t.status)}</span>
-          ${t.ciclo_atual > 1 ? `<span class="badge badge-pendente">Ciclo ${esc(t.ciclo_atual)}</span>` : ''}
-        </div>
-      </div>
-      <div class="ticket-desc">${esc(t.descricao)}</div>
-      ${solucao}
-      ${reabHTML ? `<div style="margin-top:0.25rem;">${reabHTML}</div>` : ''}
-      <div class="ticket-meta">
-        <span>📅 ${new Date(t.criado_em).toLocaleString('pt-BR')}</span>
-        ${t.analista_responsavel ? `<span>👤 ${esc(t.analista_responsavel)}</span>` : ''}
-      </div>
-      ${acoes ? `<div class="ticket-actions">${acoes}</div>` : ''}
+  // Anexos
+  let anexosHTML = '';
+  if (anexos.length > 0) {
+    anexosHTML = `<div style="margin-top:0.5rem;font-size:0.68rem;color:var(--muted);">
+      📎 Anexos: ${anexos.map(a => `<a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);text-decoration:none;">${a.nome_original}</a> <span style="font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`).join(' | ')}
     </div>`;
   }
+
+  // Reaberturas
+  let reabHTML = '';
+  reabs.forEach(r => {
+    let cls = 'reabertura-box';
+    let lblCls = '';
+    let statusLabel = '';
+    let detalhes = '';
+
+    if (r.status === 'pendente') {
+      cls += ' reab-pendente'; lblCls = 'pendente';
+      statusLabel = '⏳ Pendente';
+      detalhes = `Motivo: "${r.motivo_solicitacao}"<br><small>${new Date(r.solicitado_em).toLocaleString('pt-BR')}</small>
+                  <br><button class="btn-sm danger" style="font-size:0.6rem;margin-top:0.3rem;" onclick="cancelarReabertura(${r.id})">Cancelar</button>`;
+    } else if (r.status === 'aceita') {
+      cls += ' reab-aceita'; lblCls = 'aceita';
+      statusLabel = r.concluido_em ? `✅ Ciclo ${r.ciclo} Concluído` : `✅ Ciclo ${r.ciclo} Em Andamento`;
+      detalhes = `Motivo: "${r.motivo_solicitacao}"<br>Prioridade: ${r.prioridade}`;
+      if (r.concluido_em) {
+        detalhes += `<br><span style="color:var(--success);">Solução: ${r.descricao_final||'N/D'}</span>`;
+        detalhes += `<br><span class="sla-mini ${r.sla_estourado?'estourado':'ok'}">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`;
+        if (r.link_referencia) detalhes += `<br><a href="${r.link_referencia}" target="_blank" class="link-ref">🔗 Link</a>`;
+      } else {
+        detalhes += `<br><span class="sla-mini ok">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`;
+      }
+    } else if (r.status === 'recusada') {
+      cls += ' reab-recusada'; lblCls = 'recusada';
+      statusLabel = '🚫 Recusada';
+      detalhes = `Motivo: "${r.motivo_solicitacao}"<br><span style="color:var(--danger);">Recusa: ${r.justificativa_recusa||'Sem justificativa'}</span>`;
+    } else if (r.status === 'cancelada') {
+      cls += ' reab-recusada'; lblCls = 'recusada';
+      statusLabel = '✗ Cancelada';
+      detalhes = 'Cancelada por você';
+    }
+
+    reabHTML += `<div class="${cls}"><div class="reab-label ${lblCls}">${statusLabel} · ${new Date(r.solicitado_em).toLocaleString('pt-BR')}</div><div style="font-size:0.7rem;color:var(--muted);">${detalhes}</div></div>`;
+  });
+
+  return `<div class="ticket-card">
+    <div class="ticket-header">
+      <span class="ticket-id">#${t.id} · ${t.setor}</span>
+      <div class="ticket-badges">
+        ${t.prioridade?`<span class="badge ${prioBadge[t.prioridade]}">${t.prioridade}</span>`:''}
+        <span class="badge ${statusBadge[t.status]||'badge-aberto'}">${t.status}</span>
+        ${t.ciclo_atual>1?`<span class="badge badge-pendente">Ciclo ${t.ciclo_atual}</span>`:''}
+      </div>
+    </div>
+    <div class="ticket-desc">${t.descricao}</div>
+    ${anexosHTML}
+    ${solucao}
+    ${reabHTML ? `<div style="margin-top:0.25rem;">${reabHTML}</div>` : ''}
+    <div class="ticket-meta">
+      <span>📅 ${new Date(t.criado_em).toLocaleString('pt-BR')}</span>
+      ${t.analista_responsavel?`<span>👤 ${t.analista_responsavel}</span>`:''}
+    </div>
+    ${acoes?`<div class="ticket-actions">${acoes}</div>`:''}
+  </div>`;
+}
 
   // CORRIGIDO: delegação de eventos no container — evita event listeners perdidos ao re-renderizar
   document.getElementById('tickets-container').addEventListener('click', async function (e) {

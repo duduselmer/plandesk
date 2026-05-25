@@ -86,7 +86,7 @@ class TicketService {
     });
   }
 
-static excluirTicket(id, nivel, usuario, usuarioId) {
+static excluirTicket(id, nivel, usuario, usuarioId, motivo) {
     return new Promise((resolve, reject) => {
       // Admin pode tudo
       if (nivel === 'admin') {

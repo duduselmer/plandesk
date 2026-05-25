@@ -14,28 +14,71 @@
       --text: #e8ecf5; --muted: #6b738a;
       --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
     }
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); overflow: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none; }
-    body::after { content: ''; position: fixed; top: -20%; left: 50%; transform: translateX(-50%); width: 80vw; height: 60vh; background: radial-gradient(ellipse, rgba(79,142,247,0.08) 0%, transparent 70%); z-index: 0; pointer-events: none; }
-    .wrapper { position: relative; z-index: 1; height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-    .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 3rem; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 2rem; animation: fadeUp 0.6s ease; position: relative; overflow: hidden; }
-    .login-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); }
+    html, body {
+      height: 100%;
+      background: var(--bg); color: var(--text); font-family: var(--font-mono);
+      /* CORRIGIDO: removido overflow:hidden — impedia zoom em mobile/acessibilidade */
+      overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none;
+    }
+    body::after {
+      content: ''; position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 80vw; height: 60vh;
+      background: radial-gradient(ellipse, rgba(79,142,247,0.08) 0%, transparent 70%);
+      z-index: 0; pointer-events: none;
+    }
+    .wrapper {
+      position: relative; z-index: 1;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem;
+    }
+    .login-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 3rem; width: 100%; max-width: 420px;
+      display: flex; flex-direction: column; gap: 2rem;
+      animation: fadeUp 0.6s ease; position: relative; overflow: hidden;
+    }
+    .login-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent);
+    }
     .brand { text-align: center; }
-    .brand-title { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .brand-title {
+      font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
     .brand-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; letter-spacing: 0.05em; }
     .form { display: flex; flex-direction: column; gap: 1.25rem; }
     label { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-    input { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: var(--font-mono); font-size: 0.9rem; padding: 0.85rem 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    input {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: var(--font-mono); font-size: 0.9rem;
+      padding: 0.85rem 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
     input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.1); }
     input::placeholder { color: var(--muted); }
-    .btn-login { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 0.9rem; font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 0.5rem; }
+    .btn-login {
+      background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 0.9rem;
+      font-family: var(--font-display); font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; margin-top: 0.5rem;
+    }
     .btn-login:hover { background: #3a7de8; box-shadow: 0 6px 24px rgba(79,142,247,0.3); transform: translateY(-1px); }
     .btn-login:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    .error-msg { background: rgba(247,79,79,0.08); border: 1px solid rgba(247,79,79,0.3); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.78rem; color: var(--danger); display: none; text-align: center; }
+    .error-msg {
+      background: rgba(247,79,79,0.08); border: 1px solid rgba(247,79,79,0.3);
+      border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.78rem; color: var(--danger);
+      display: none; text-align: center;
+    }
     .error-msg.show { display: block; animation: shake 0.4s ease; }
     .info-text { font-size: 0.7rem; color: var(--muted); text-align: center; line-height: 1.6; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-4px); } }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }   75% { transform: translateX(-4px); }
+    }
   </style>
 </head>
 <body>
@@ -45,7 +88,6 @@
         <div class="brand-title">PlanDesk</div>
         <div class="brand-sub">Gestão de Demandas Operacionais</div>
       </div>
-
       <form class="form" id="login-form" onsubmit="handleLogin(event)">
         <label>Email
           <input type="email" id="email" placeholder="seu@email.com" required autocomplete="email" />
@@ -56,73 +98,58 @@
         <button type="submit" class="btn-login" id="btn-login">Entrar</button>
         <div class="error-msg" id="error-msg"></div>
       </form>
-
       <div class="info-text">Acesso restrito a colaboradores autorizados</div>
     </div>
   </div>
-
   <script>
     const API_AUTH = '/api/auth';
 
-    // Mapeamento de telas por nível
+    // Mapeamento de telas por nível — usado apenas para UI (quais opções exibir no menu).
+    // IMPORTANTE: autorização real deve ser validada no servidor a cada requisição.
+    // Nunca confie apenas nesta lista para proteger rotas ou dados.
     const TELAS_POR_NIVEL = {
-      requisitor: ['solicitante'],
-      supervisor: ['solicitante', 'historico'],
+      requisitor:  ['solicitante'],
+      supervisor:  ['solicitante', 'historico'],
       controldesk: ['solicitante', 'analista', 'gestao'],
-      admin: ['solicitante', 'analista', 'gestao', 'historico']
+      admin:       ['solicitante', 'analista', 'gestao', 'historico']
     };
+    // CORRIGIDO: TELA_PADRAO era declarada mas nunca utilizada — removida.
 
-    const TELA_PADRAO = {
-      requisitor: '/solicitante',
-      supervisor: '/solicitante',
-      controldesk: '/analista',
-      admin: '/analista'
-    };
-
-    // Se já está logado, redireciona
-    (function() {
-      const token = localStorage.getItem('plandesk_token');
-      const nivel = localStorage.getItem('plandesk_nivel');
-      if (token && nivel) {
+    // Se já está logado, redireciona direto para o menu
+    (function () {
+      if (localStorage.getItem('plandesk_token') && localStorage.getItem('plandesk_nivel')) {
         window.location.href = '/menu';
       }
     })();
 
     async function handleLogin(e) {
       e.preventDefault();
-      const btn = document.getElementById('btn-login');
+      const btn     = document.getElementById('btn-login');
       const errorEl = document.getElementById('error-msg');
-      
       btn.textContent = 'Entrando...';
-      btn.disabled = true;
+      btn.disabled    = true;
       errorEl.classList.remove('show');
-
       const email = document.getElementById('email').value.trim();
       const senha = document.getElementById('senha').value;
-
       try {
-        const res = await fetch(`${API_AUTH}/login`, {
+        const res  = await fetch(`${API_AUTH}/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, senha })
         });
-
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Erro ao fazer login');
-
         localStorage.setItem('plandesk_token', data.token);
-        localStorage.setItem('plandesk_nome', data.nome);
+        localStorage.setItem('plandesk_nome',  data.nome);
         localStorage.setItem('plandesk_nivel', data.nivel);
         localStorage.setItem('plandesk_telas', JSON.stringify(TELAS_POR_NIVEL[data.nivel] || []));
-
         window.location.href = '/menu';
-
       } catch (err) {
         errorEl.textContent = err.message;
         errorEl.classList.add('show');
       } finally {
         btn.textContent = 'Entrar';
-        btn.disabled = false;
+        btn.disabled    = false;
       }
     }
   </script>

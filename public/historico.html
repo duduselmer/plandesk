@@ -16,56 +16,99 @@
       --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
     }
     html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none; }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none;
+    }
     .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
-    nav { background: rgba(20,24,32,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .nav-brand { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+    nav {
+      background: rgba(20,24,32,0.97); border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px); padding: 0 2rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand {
+      font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;
+      background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none;
+    }
     .nav-right { display: flex; align-items: center; gap: 1rem; }
-    .nav-user { font-size: 0.75rem; color: var(--text); }
-    .nav-home { color: var(--muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
+    .nav-user  { font-size: 0.75rem; color: var(--text); }
+    .nav-home  { color: var(--muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
     .nav-home:hover { color: var(--text); }
-    .nav-badge { background: var(--accent-dim); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
-    .nav-logout { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); padding: 0.3rem 0.75rem; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
+    .nav-badge {
+      background: var(--accent-dim); border: 1px solid rgba(79,142,247,0.3); color: var(--accent);
+      padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .nav-logout {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      color: var(--muted); padding: 0.3rem 0.75rem; font-family: var(--font-mono); font-size: 0.7rem;
+      cursor: pointer; transition: all 0.2s;
+    }
     .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
-    .toolbar { border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; background: var(--surface); }
-    .toolbar-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
-    .toolbar-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
-    .search-box { flex: 1; max-width: 400px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-mono); font-size: 0.8rem; padding: 0.6rem 1rem; outline: none; transition: border-color 0.2s; margin-left: auto; }
+    .toolbar {
+      border-bottom: 1px solid var(--border); padding: 1.5rem 2rem;
+      display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; background: var(--surface);
+    }
+    .toolbar-title   { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+    .toolbar-sub     { font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
+    .search-box {
+      flex: 1; max-width: 400px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-family: var(--font-mono); font-size: 0.8rem;
+      padding: 0.6rem 1rem; outline: none; transition: border-color 0.2s; margin-left: auto;
+    }
     .search-box:focus { border-color: var(--accent); }
-    .btn-refresh { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.5rem 1.2rem; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer; transition: all 0.2s; }
+    .btn-refresh {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--muted); padding: 0.5rem 1.2rem; font-family: var(--font-mono); font-size: 0.72rem;
+      cursor: pointer; transition: all 0.2s;
+    }
     .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
     .content { flex: 1; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; }
-    .count-bar { font-size: 0.72rem; color: var(--muted); }
+    .count-bar  { font-size: 0.72rem; color: var(--muted); }
     .demanda-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; animation: fadeUp 0.3s ease both; }
-    .demanda-header { padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; }
+    .demanda-header {
+      padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.2s;
+    }
     .demanda-header:hover { background: var(--surface2); }
-    .demanda-id { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
-    .badge { padding: 0.2rem 0.65rem; border-radius: 99px; font-size: 0.63rem; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
-    .badge-setor { background: rgba(79,142,247,0.12); color: var(--accent); }
-    .badge-critica { background: rgba(247,79,79,0.15); color: var(--danger); }
-    .badge-alta { background: rgba(247,201,79,0.15); color: var(--warning); }
-    .badge-media { background: rgba(79,142,247,0.15); color: var(--accent); }
-    .badge-baixa { background: rgba(107,115,138,0.2); color: var(--muted); }
-    .badge-arquivado { background: rgba(107,115,138,0.2); color: var(--muted); }
+    .demanda-id    { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+    .badge         { padding: 0.2rem 0.65rem; border-radius: 99px; font-size: 0.63rem; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+    .badge-setor   { background: rgba(79,142,247,0.12);  color: var(--accent); }
+    .badge-critica { background: rgba(247,79,79,0.15);   color: var(--danger); }
+    .badge-alta    { background: rgba(247,201,79,0.15);  color: var(--warning); }
+    .badge-media   { background: rgba(79,142,247,0.15);  color: var(--accent); }
+    .badge-baixa   { background: rgba(107,115,138,0.2);  color: var(--muted); }
+    .badge-arquivado{ background: rgba(107,115,138,0.2); color: var(--muted); }
     .demanda-arrow { color: var(--muted); transition: transform 0.3s; font-size: 1.2rem; }
     .demanda-card.open .demanda-arrow { transform: rotate(180deg); }
-    .demanda-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-    .demanda-card.open .demanda-body { max-height: 5000px; padding: 1.5rem; border-top: 1px solid var(--border); }
+    /* CORRIGIDO: accordion com grid-template-rows para transição suave e precisa */
+    .demanda-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.35s ease;
+    }
+    .demanda-body-inner { overflow: hidden; }
+    .demanda-card.open .demanda-body { grid-template-rows: 1fr; }
+    .demanda-body-content { padding: 1.5rem; border-top: 1px solid var(--border); }
     .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
-    .info-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; }
-    .info-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
-    .info-value { font-size: 0.8rem; }
+    .info-box  { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; }
+    .info-label{ font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+    .info-value{ font-size: 0.8rem; }
     .ciclo-section { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1rem; overflow: hidden; }
-    .ciclo-header { padding: 0.75rem 1rem; background: var(--surface2); font-size: 0.75rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-    .ciclo-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
-    .evento { padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.72rem; }
-    .evento-criado { background: rgba(79,142,247,0.05); border-left: 3px solid var(--accent); }
-    .evento-iniciado { background: rgba(247,201,79,0.05); border-left: 3px solid var(--warning); }
-    .evento-concluido { background: rgba(79,247,160,0.05); border-left: 3px solid var(--success); }
-    .evento-recusado { background: rgba(247,79,79,0.05); border-left: 3px solid var(--danger); }
-    .evento-arquivado { background: rgba(107,115,138,0.05); border-left: 3px solid var(--muted); }
-    .evento-label { font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.25rem; }
-    .empty-state { text-align: center; padding: 6rem 2rem; color: var(--muted); font-size: 0.8rem; }
+    .ciclo-header  { padding: 0.75rem 1rem; background: var(--surface2); font-size: 0.75rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    .ciclo-body    { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .evento        { padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.72rem; }
+    .evento-criado   { background: rgba(79,142,247,0.05);  border-left: 3px solid var(--accent); }
+    .evento-iniciado { background: rgba(247,201,79,0.05);  border-left: 3px solid var(--warning); }
+    .evento-concluido{ background: rgba(79,247,160,0.05);  border-left: 3px solid var(--success); }
+    .evento-recusado { background: rgba(247,79,79,0.05);   border-left: 3px solid var(--danger); }
+    .evento-arquivado{ background: rgba(107,115,138,0.05); border-left: 3px solid var(--muted); }
+    .evento-label  { font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.25rem; }
+    .empty-state   { text-align: center; padding: 6rem 2rem; color: var(--muted); font-size: 0.8rem; }
+    .error-state   { text-align: center; padding: 4rem 2rem; color: var(--danger); font-size: 0.8rem; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -97,183 +140,243 @@
 </div>
 
 <script>
-const TOKEN = localStorage.getItem('plandesk_token');
-const NIVEL = localStorage.getItem('plandesk_nivel');
-const NOME = localStorage.getItem('plandesk_nome');
-const TELAS = JSON.parse(localStorage.getItem('plandesk_telas') || '[]');
-if (!TOKEN || !TELAS.includes('historico')) { window.location.href = '/login'; }
-document.getElementById('user-name').textContent = NOME || 'Auditoria';
-function getAuthHeaders() { return { 'Content-Type':'application/json', 'Authorization':'Bearer '+TOKEN, 'x-nivel':NIVEL }; }
-function logout() { localStorage.clear(); window.location.href = '/login'; }
+  // ── Autenticação ──────────────────────────────────────────────────
+  const TOKEN = localStorage.getItem('plandesk_token');
+  const NIVEL = localStorage.getItem('plandesk_nivel');
+  const NOME  = localStorage.getItem('plandesk_nome');
+  const TELAS = JSON.parse(localStorage.getItem('plandesk_telas') || '[]');
+  if (!TOKEN || !TELAS.includes('historico')) { window.location.href = '/login'; }
+  document.getElementById('user-name').textContent = NOME || 'Auditoria';
 
-const API = '/api/ticket';
-const API_REAB = '/api/reabertura';
-let todasDemandas = [];
+  function getAuthHeaders() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }; }
+  function logout() { localStorage.clear(); window.location.href = '/login'; }
 
-async function carregar() {
-  document.getElementById('container').innerHTML = '<div class="empty-state">Carregando...</div>';
-  try {
-    const [resAtivos, resArquivados, resRecebidos] = await Promise.all([
-      fetch(API, { headers: getAuthHeaders() }),
-      fetch(`${API}/lixeira/listar`, { headers: getAuthHeaders() }),
-      fetch(`${API}?status=recebido`, { headers: getAuthHeaders() })
-    ]);
-    const ativos = await resAtivos.json();
-    const arquivados = await resArquivados.json();
-    const recebidos = await resRecebidos.json();
-    let todos = [...ativos, ...arquivados, ...recebidos];
-    // Remover duplicados
-    const ids = new Set();
-    todos = todos.filter(t => { if (ids.has(t.id)) return false; ids.add(t.id); return true; });
+  const API      = '/api/ticket';
+  const API_REAB = '/api/reabertura';
+  let todasDemandas = [];
 
-    // Agrupar por ticket_original_id
-    const demandas = new Map();
-    for (const t of todos) {
-      const chave = t.ticket_original_id || t.id;
-      if (!demandas.has(chave)) demandas.set(chave, { original: null, reaberturas: [], arquivado: false });
-      const d = demandas.get(chave);
-      if (t.id === chave && !t.ticket_original_id) d.original = t;
-      else if (t.ticket_original_id === chave) d.reaberturas.push(t);
-      else if (!d.original) d.original = t;
-      if (t.deletado) d.arquivado = true;
-    }
-
-    // Carregar reaberturas de cada original
-    for (const [chave, d] of demandas) {
-      try {
-        const rRes = await fetch(`${API_REAB}/${chave}/reaberturas`, { headers: getAuthHeaders() });
-        d.reaberturasDB = await rRes.json();
-      } catch { d.reaberturasDB = []; }
-    }
-
-    todasDemandas = Array.from(demandas.values());
-    todasDemandas.sort((a,b) => (b.original?.id||0) - (a.original?.id||0));
-    filtrarLocal();
-  } catch(e) { console.error(e); }
-}
-
-function filtrarLocal() {
-  const q = document.getElementById('busca').value.toLowerCase();
-  let filtradas = todasDemandas;
-  if (q) {
-    filtradas = todasDemandas.filter(d => {
-      const o = d.original;
-      return (String(o?.id||'').includes(q) || (o?.setor||'').toLowerCase().includes(q) ||
-              (o?.descricao||'').toLowerCase().includes(q) || (o?.solicitante_nome||'').toLowerCase().includes(q) ||
-              (o?.analista_responsavel||'').toLowerCase().includes(q));
-    });
+  // ── Sanitização HTML (CORRIGIDO: previne XSS em todos os templates) ──
+  function esc(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g,  '&amp;')
+      .replace(/</g,  '&lt;')
+      .replace(/>/g,  '&gt;')
+      .replace(/"/g,  '&quot;')
+      .replace(/'/g,  '&#x27;');
   }
-  render(filtradas);
-}
 
-function render(demandas) {
-  document.getElementById('count-label').textContent = `${demandas.length} demanda(s) encontrada(s)`;
-  const container = document.getElementById('container');
-  if (!demandas.length) { container.innerHTML = '<div class="empty-state">Nenhum registro encontrado.</div>'; return; }
+  async function carregar() {
+    document.getElementById('container').innerHTML = '<div class="empty-state">Carregando...</div>';
+    document.getElementById('count-label').textContent = 'Carregando...';
 
-  const prioBadge = { 'Baixa':'badge-baixa', 'Média':'badge-media', 'Alta':'badge-alta', 'Crítica':'badge-critica' };
+    try {
+      // Fetch paralelo dos três endpoints de tickets
+      const [resAtivos, resArquivados, resRecebidos] = await Promise.all([
+        fetch(API,                          { headers: getAuthHeaders() }),
+        fetch(`${API}/lixeira/listar`,      { headers: getAuthHeaders() }),
+        fetch(`${API}?status=recebido`,     { headers: getAuthHeaders() })
+      ]);
 
-  container.innerHTML = demandas.map((d, i) => {
-    const o = d.original;
-    if (!o) return '';
-    const reabs = d.reaberturasDB || [];
-    const ciclos = [];
-    // Ciclo 1 (original)
-    ciclos.push({ numero: 1, ticket: o, reab: null });
-    // Ciclos adicionais
-    reabs.forEach(r => {
-      if (r.status === 'aceita') ciclos.push({ numero: r.ciclo, ticket: o, reab: r });
+      const ativos     = await resAtivos.json();
+      const arquivados = await resArquivados.json();
+      const recebidos  = await resRecebidos.json();
+
+      // Deduplicar por ID
+      const ids  = new Set();
+      const todos= [...ativos, ...arquivados, ...recebidos].filter(t => {
+        if (ids.has(t.id)) return false;
+        ids.add(t.id); return true;
+      });
+
+      // Agrupar por ticket original
+      const demandas = new Map();
+      for (const t of todos) {
+        const chave = t.ticket_original_id || t.id;
+        if (!demandas.has(chave)) demandas.set(chave, { original: null, reaberturas: [], arquivado: false, reaberturasDB: [] });
+        const d = demandas.get(chave);
+        if (t.id === chave && !t.ticket_original_id) d.original = t;
+        else if (t.ticket_original_id === chave)     d.reaberturas.push(t);
+        else if (!d.original)                        d.original = t;
+        if (t.deletado) d.arquivado = true;
+      }
+
+      // CORRIGIDO: fetch paralelo de reaberturas (Promise.all ao invés de for..of serial)
+      const demandaEntries = Array.from(demandas.entries());
+      await Promise.all(
+        demandaEntries.map(async ([chave, d]) => {
+          try {
+            const rRes = await fetch(`${API_REAB}/${chave}/reaberturas`, { headers: getAuthHeaders() });
+            d.reaberturasDB = await rRes.json();
+          } catch { d.reaberturasDB = []; }
+        })
+      );
+
+      todasDemandas = demandaEntries
+        .map(([, d]) => d)
+        .filter(d => d.original != null) // CORRIGIDO: filtra entradas sem original antes de renderizar
+        .sort((a, b) => (b.original?.id || 0) - (a.original?.id || 0));
+
+      filtrarLocal();
+
+    } catch (e) {
+      console.error(e);
+      // CORRIGIDO: exibe erro na UI em vez de silenciar
+      document.getElementById('container').innerHTML = '<div class="error-state">⚠️ Erro ao carregar registros. Tente atualizar.</div>';
+      document.getElementById('count-label').textContent = '';
+    }
+  }
+
+  function filtrarLocal() {
+    const q = document.getElementById('busca').value.toLowerCase();
+    const filtradas = !q ? todasDemandas : todasDemandas.filter(d => {
+      const o = d.original;
+      return (
+        String(o?.id  || '').includes(q) ||
+        (o?.setor               || '').toLowerCase().includes(q) ||
+        (o?.descricao           || '').toLowerCase().includes(q) ||
+        (o?.solicitante_nome    || '').toLowerCase().includes(q) ||
+        (o?.analista_responsavel|| '').toLowerCase().includes(q)
+      );
     });
+    render(filtradas);
+  }
 
-    let ciclosHTML = ciclos.map(c => {
-      let eventos = '';
-      // Criação
-      eventos += `<div class="evento evento-criado"><div class="evento-label" style="color:var(--accent);">📝 ${c.numero===1?'Ticket Criado':'Reabertura Solicitada'}</div>
-        Data: ${new Date(c.numero===1?c.ticket.criado_em:c.reab.solicitado_em).toLocaleString('pt-BR')}<br>
-        ${c.numero>1?`Motivo: "${c.reab.motivo_solicitacao}"`:''}
-      </div>`;
-      // Iniciado
-      if (c.numero===1 && c.ticket.iniciado_em) {
-        eventos += `<div class="evento evento-iniciado"><div class="evento-label" style="color:var(--warning);">▶ Atendimento Iniciado</div>
-          Analista: ${c.ticket.analista_responsavel||'N/D'}<br>
-          Prioridade: ${c.ticket.prioridade||'N/D'} · SLA: ${c.ticket.sla_total_min||'?'} min<br>
-          Data: ${new Date(c.ticket.iniciado_em).toLocaleString('pt-BR')}
+  function render(demandas) {
+    document.getElementById('count-label').textContent = `${demandas.length} demanda(s) encontrada(s)`;
+    const container = document.getElementById('container');
+    if (!demandas.length) {
+      container.innerHTML = '<div class="empty-state">Nenhum registro encontrado.</div>';
+      return;
+    }
+
+    const prioBadge = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
+
+    container.innerHTML = demandas.map((d, i) => {
+      const o    = d.original;
+      const reabs= d.reaberturasDB || [];
+
+      // Montar ciclos: 1 = original + N = reaberturas aceitas
+      const ciclos = [{ numero: 1, ticket: o, reab: null }];
+      reabs.forEach(r => { if (r.status === 'aceita') ciclos.push({ numero: r.ciclo, ticket: o, reab: r }); });
+
+      const ciclosHTML = ciclos.map(c => {
+        let eventos = '';
+
+        // Criação / solicitação
+        eventos += `<div class="evento evento-criado">
+          <div class="evento-label" style="color:var(--accent);">📝 ${c.numero === 1 ? 'Ticket Criado' : 'Reabertura Solicitada'}</div>
+          Data: ${new Date(c.numero === 1 ? c.ticket.criado_em : c.reab.solicitado_em).toLocaleString('pt-BR')}
+          ${c.numero > 1 ? `<br>Motivo: &ldquo;${esc(c.reab.motivo_solicitacao)}&rdquo;` : ''}
+        </div>`;
+
+        // Iniciado
+        if (c.numero === 1 && c.ticket.iniciado_em) {
+          eventos += `<div class="evento evento-iniciado">
+            <div class="evento-label" style="color:var(--warning);">▶ Atendimento Iniciado</div>
+            Analista: ${esc(c.ticket.analista_responsavel || 'N/D')}<br>
+            Prioridade: ${esc(c.ticket.prioridade || 'N/D')} · SLA: ${esc(c.ticket.sla_total_min || '?')} min<br>
+            Data: ${new Date(c.ticket.iniciado_em).toLocaleString('pt-BR')}
+          </div>`;
+        }
+        if (c.numero > 1 && c.reab?.iniciado_em) {
+          eventos += `<div class="evento evento-iniciado">
+            <div class="evento-label" style="color:var(--warning);">▶ Atendimento Iniciado (Ciclo ${esc(c.numero)})</div>
+            Analista: ${esc(c.reab.analista_responsavel || 'N/D')}<br>
+            Prioridade: ${esc(c.reab.prioridade || 'N/D')} · SLA: ${esc(c.reab.sla_total_min || '?')} min<br>
+            Data: ${new Date(c.reab.iniciado_em).toLocaleString('pt-BR')}
+          </div>`;
+        }
+
+        // Concluído
+        if (c.numero === 1 && c.ticket.descricao_final) {
+          eventos += `<div class="evento evento-concluido">
+            <div class="evento-label" style="color:var(--success);">✅ Concluído</div>
+            Solução: &ldquo;${esc(c.ticket.descricao_final)}&rdquo;<br>
+            SLA: ${esc(c.ticket.sla_consumido_min || 0)}/${esc(c.ticket.sla_total_min || '?')} min ${c.ticket.sla_estourado ? '⚠️ ESTOURADO' : ''}<br>
+            Data: ${new Date(c.ticket.concluido_em).toLocaleString('pt-BR')}
+            ${c.ticket.link_referencia ? `<br><a href="${esc(c.ticket.link_referencia)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">🔗 Link</a>` : ''}
+          </div>`;
+        }
+        if (c.numero > 1 && c.reab?.descricao_final) {
+          eventos += `<div class="evento evento-concluido">
+            <div class="evento-label" style="color:var(--success);">✅ Concluído (Ciclo ${esc(c.numero)})</div>
+            Solução: &ldquo;${esc(c.reab.descricao_final)}&rdquo;<br>
+            SLA: ${esc(c.reab.sla_consumido_min || 0)}/${esc(c.reab.sla_total_min || '?')} min ${c.reab.sla_estourado ? '⚠️ ESTOURADO' : ''}<br>
+            Data: ${new Date(c.reab.concluido_em).toLocaleString('pt-BR')}
+            ${c.reab.link_referencia ? `<br><a href="${esc(c.reab.link_referencia)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">🔗 Link</a>` : ''}
+          </div>`;
+        }
+
+        // Recusada
+        if (c.reab?.status === 'recusada') {
+          eventos += `<div class="evento evento-recusado">
+            <div class="evento-label" style="color:var(--danger);">🚫 Recusada</div>
+            Justificativa: &ldquo;${esc(c.reab.justificativa_recusa || 'N/D')}&rdquo;<br>
+            Data: ${new Date(c.reab.decidido_em).toLocaleString('pt-BR')}
+          </div>`;
+        }
+
+        return `<div class="ciclo-section">
+          <div class="ciclo-header">
+            <span>🔄 Ciclo ${esc(c.numero)}</span>
+            <span style="color:var(--muted);font-size:0.65rem;">${c.numero === 1 ? 'Original' : 'Reabertura'}</span>
+          </div>
+          <div class="ciclo-body">${eventos}</div>
+        </div>`;
+      }).join('');
+
+      // Arquivamento
+      let arquivamentoHTML = '';
+      if (d.arquivado && o.deletado) {
+        arquivamentoHTML = `<div class="evento evento-arquivado" style="margin-top:0.5rem;">
+          <div class="evento-label" style="color:var(--muted);">📦 Arquivado</div>
+          Por: ${esc(o.deletado_por || 'N/D')}<br>
+          Motivo: &ldquo;${esc(o.motivo_exclusao || 'N/D')}&rdquo;<br>
+          Data: ${new Date(o.deletado_em).toLocaleString('pt-BR')}
         </div>`;
       }
-      if (c.numero>1 && c.reab?.iniciado_em) {
-        eventos += `<div class="evento evento-iniciado"><div class="evento-label" style="color:var(--warning);">▶ Atendimento Iniciado (Ciclo ${c.numero})</div>
-          Analista: ${c.reab.analista_responsavel||'N/D'}<br>
-          Prioridade: ${c.reab.prioridade||'N/D'} · SLA: ${c.reab.sla_total_min||'?'} min<br>
-          Data: ${new Date(c.reab.iniciado_em).toLocaleString('pt-BR')}
-        </div>`;
-      }
-      // Concluído
-      if (c.numero===1 && c.ticket.descricao_final) {
-        eventos += `<div class="evento evento-concluido"><div class="evento-label" style="color:var(--success);">✅ Concluído</div>
-          Solução: "${c.ticket.descricao_final}"<br>
-          SLA: ${c.ticket.sla_consumido_min||0}/${c.ticket.sla_total_min||'?'} min ${c.ticket.sla_estourado?'⚠️ ESTOURADO':''}<br>
-          Data: ${new Date(c.ticket.concluido_em).toLocaleString('pt-BR')}
-          ${c.ticket.link_referencia?`<br><a href="${c.ticket.link_referencia}" target="_blank" style="color:var(--accent);">🔗 Link</a>`:''}
-        </div>`;
-      }
-      if (c.numero>1 && c.reab?.descricao_final) {
-        eventos += `<div class="evento evento-concluido"><div class="evento-label" style="color:var(--success);">✅ Concluído (Ciclo ${c.numero})</div>
-          Solução: "${c.reab.descricao_final}"<br>
-          SLA: ${c.reab.sla_consumido_min||0}/${c.reab.sla_total_min||'?'} min ${c.reab.sla_estourado?'⚠️ ESTOURADO':''}<br>
-          Data: ${new Date(c.reab.concluido_em).toLocaleString('pt-BR')}
-          ${c.reab.link_referencia?`<br><a href="${c.reab.link_referencia}" target="_blank" style="color:var(--accent);">🔗 Link</a>`:''}
-        </div>`;
-      }
-      // Recusada
-      if (c.reab?.status === 'recusada') {
-        eventos += `<div class="evento evento-recusado"><div class="evento-label" style="color:var(--danger);">🚫 Recusada</div>
-          Justificativa: "${c.reab.justificativa_recusa||'N/D'}"<br>
-          Data: ${new Date(c.reab.decidido_em).toLocaleString('pt-BR')}
-        </div>`;
-      }
-      return `<div class="ciclo-section">
-        <div class="ciclo-header"><span>🔄 Ciclo ${c.numero}</span><span style="color:var(--muted);font-size:0.65rem;">${c.numero===1?'Original':'Reabertura'}</span></div>
-        <div class="ciclo-body">${eventos}</div>
+
+      return `<div class="demanda-card" style="animation-delay:${i * 0.03}s">
+        <div class="demanda-header" onclick="this.closest('.demanda-card').classList.toggle('open')">
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+            <span class="demanda-id">#${esc(o.id)}</span>
+            <span class="badge badge-setor">${esc(o.setor)}</span>
+            ${o.prioridade ? `<span class="badge ${esc(prioBadge[o.prioridade] || '')}">${esc(o.prioridade)}</span>` : ''}
+            <span style="font-size:0.7rem;color:var(--muted);">${esc(o.solicitante_nome || o.nome || 'N/D')}</span>
+            ${d.arquivado ? '<span class="badge badge-arquivado">Arquivado</span>' : ''}
+            <span style="font-size:0.65rem;color:var(--muted);">${esc(ciclos.length)} ciclo(s)</span>
+          </div>
+          <span class="demanda-arrow">▶</span>
+        </div>
+        <div class="demanda-body">
+          <div class="demanda-body-inner">
+            <div class="demanda-body-content">
+              <div style="background:var(--surface2);padding:1rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem;">${esc(o.descricao)}</div>
+              <div class="info-grid">
+                <div class="info-box"><div class="info-label">Setor</div><div class="info-value">${esc(o.setor)}</div></div>
+                <div class="info-box"><div class="info-label">Solicitante</div><div class="info-value">${esc(o.solicitante_nome || o.nome || 'N/D')}</div></div>
+                <div class="info-box"><div class="info-label">Analista</div><div class="info-value" style="color:var(--warning);">${esc(o.analista_responsavel || 'N/D')}</div></div>
+                <div class="info-box"><div class="info-label">Ciclos</div><div class="info-value">${esc(ciclos.length)}</div></div>
+              </div>
+              ${ciclosHTML}
+              ${arquivamentoHTML}
+            </div>
+          </div>
+        </div>
       </div>`;
     }).join('');
+  }
 
-    // Arquivamento
-    let arquivamentoHTML = '';
-    if (d.arquivado && o.deletado) {
-      arquivamentoHTML = `<div class="evento evento-arquivado" style="margin-top:0.5rem;"><div class="evento-label" style="color:var(--muted);">📦 Arquivado</div>
-        Por: ${o.deletado_por||'N/D'}<br>Motivo: "${o.motivo_exclusao||'N/D'}"<br>Data: ${new Date(o.deletado_em).toLocaleString('pt-BR')}
-      </div>`;
-    }
+  // CORRIGIDO: auto-refresh pausado quando aba está em background
+  function iniciarAutoRefresh() {
+    return setInterval(() => {
+      if (document.visibilityState === 'visible') carregar();
+    }, 60000);
+  }
 
-    return `<div class="demanda-card" style="animation-delay:${i*0.03}s">
-      <div class="demanda-header" onclick="this.parentElement.classList.toggle('open')">
-        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-          <span class="demanda-id">#${o.id}</span>
-          <span class="badge badge-setor">${o.setor}</span>
-          ${o.prioridade?`<span class="badge ${prioBadge[o.prioridade]||''}">${o.prioridade}</span>`:''}
-          <span style="font-size:0.7rem;color:var(--muted);">${o.solicitante_nome||o.nome||'N/D'}</span>
-          ${d.arquivado?'<span class="badge badge-arquivado">Arquivado</span>':''}
-          <span style="font-size:0.65rem;color:var(--muted);">${ciclos.length} ciclo(s)</span>
-        </div>
-        <span class="demanda-arrow">▶</span>
-      </div>
-      <div class="demanda-body">
-        <div style="background:var(--surface2);padding:1rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem;">${o.descricao}</div>
-        <div class="info-grid">
-          <div class="info-box"><div class="info-label">Setor</div><div class="info-value">${o.setor}</div></div>
-          <div class="info-box"><div class="info-label">Solicitante</div><div class="info-value">${o.solicitante_nome||o.nome||'N/D'}</div></div>
-          <div class="info-box"><div class="info-label">Analista</div><div class="info-value" style="color:var(--warning);">${o.analista_responsavel||'N/D'}</div></div>
-          <div class="info-box"><div class="info-label">Ciclos</div><div class="info-value">${ciclos.length}</div></div>
-        </div>
-        ${ciclosHTML}
-        ${arquivamentoHTML}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-carregar();
-setInterval(carregar, 60000);
+  carregar();
+  iniciarAutoRefresh();
 </script>
 </body>
 </html>

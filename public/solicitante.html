@@ -241,22 +241,27 @@
 
 <!-- Modal Editar -->
 <div class="modal-overlay" id="modal-editar">
-  <div class="modal">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;">
     <h3>Editar Ticket</h3>
     <input type="hidden" id="edit-id" />
-    <label class="field">Setor
-      <select id="edit-setor" class="fi">
-        <option value="Carteira Assinatura">Carteira Assinatura</option>
-        <option value="Carteira Rescisão">Carteira Rescisão</option>
-        <option value="Carteira Athos">Carteira Athos</option>
-        <option value="Monitoria">Monitoria</option>
-        <option value="Control Desk">Control Desk</option>
-        <option value="Gerente">Gerente</option>
+    <label>Setor 
+      <select id="edit-setor">
+        <option>Carteira Assinatura</option><option>Carteira Rescisão</option>
+        <option>Carteira Athos</option><option>Monitoria</option>
+        <option>Control Desk</option><option>Gerente</option>
       </select>
     </label>
-    <label class="field">Descrição
-      <textarea id="edit-descricao" class="fi"></textarea>
+    <label>Descrição <textarea id="edit-descricao"></textarea></label>
+    
+    <!-- Anexos existentes -->
+    <div style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;">📎 Anexos atuais:</div>
+    <div id="edit-anexos-lista" style="font-size:0.68rem;color:var(--muted);margin-bottom:0.5rem;"></div>
+    
+    <!-- Novo anexo -->
+    <label>Adicionar anexo <span style="color:var(--muted);font-size:0.6rem;">(máx 2 total)</span>
+      <input type="file" id="edit-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" style="padding:0.4rem;" />
     </label>
+    
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModal('modal-editar')">Cancelar</button>
       <button class="btn-confirm" onclick="salvarEdicao()">Salvar</button>
@@ -520,16 +525,55 @@ function renderTicket(t) {
     else if (action === 'cancelar-reab') abrirCancelarReabertura(id);
   });
 
-  function abrirEditar(id, setor, desc) {
-    document.getElementById('edit-id').value       = id;
-    document.getElementById('edit-setor').value    = setor;
-    document.getElementById('edit-descricao').value= desc;
+  async function abrirEditar(id, setor, desc) {
+    document.getElementById('edit-id').value = id; 
+    document.getElementById('edit-setor').value = setor;
+    document.getElementById('edit-descricao').value = desc;
+    document.getElementById('edit-arquivo').value = '';
+    
+    // Carregar anexos existentes
+    const anexosLista = document.getElementById('edit-anexos-lista');
+    try {
+      const res = await fetch(`/api/anexo/${id}/listar`, { headers: getAuthHeaders() });
+      const anexos = await res.json();
+      if (anexos.length > 0) {
+        anexosLista.innerHTML = anexos.map(a => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--border);">
+            <a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);text-decoration:none;">${a.nome_original}</a>
+            <button onclick="excluirAnexo(${a.id})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.8rem;">🗑</button>
+          </div>
+        `).join('');
+      } else {
+        anexosLista.innerHTML = '<span style="color:var(--muted);">Nenhum anexo</span>';
+      }
+    } catch { anexosLista.innerHTML = ''; }
+    
     document.getElementById('modal-editar').classList.add('open');
   }
 
   function abrirExcluir(id) {
     document.getElementById('excluir-id').value = id;
     document.getElementById('modal-excluir').classList.add('open');
+  }
+
+  async function excluirAnexo(anexoId) {
+    if (!confirm('Remover este anexo?')) return;
+    try {
+      const res = await fetch(`/api/anexo/${anexoId}`, { method: 'DELETE', headers: getAuthHeaders() });
+      if (!res.ok) throw new Error((await res.json()).error);
+      toast('✓ Anexo removido', 'success');
+      // Recarregar lista de anexos no modal
+      const ticketId = document.getElementById('edit-id').value;
+      const anexosLista = document.getElementById('edit-anexos-lista');
+      const resLista = await fetch(`/api/anexo/${ticketId}/listar`, { headers: getAuthHeaders() });
+      const anexos = await resLista.json();
+      anexosLista.innerHTML = anexos.length > 0 ? anexos.map(a => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--border);">
+          <a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);text-decoration:none;">${a.nome_original}</a>
+          <button onclick="excluirAnexo(${a.id})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.8rem;">🗑</button>
+        </div>
+      `).join('') : '<span style="color:var(--muted);">Nenhum anexo</span>';
+    } catch(err) { toast('✗ '+err.message,'error'); }
   }
 
   async function abrirReabrir(id) {
@@ -544,7 +588,6 @@ function renderTicket(t) {
     } catch (err) { toast('✗ ' + err.message, 'error'); }
   }
 
-  // CORRIGIDO: cancelar reabertura usa modal próprio em vez de confirm() nativo
   function abrirCancelarReabertura(rid) {
     document.getElementById('cancelar-reab-id').value = rid;
     document.getElementById('modal-cancelar-reab').classList.add('open');
@@ -566,15 +609,30 @@ function renderTicket(t) {
   async function salvarEdicao() {
     const id = document.getElementById('edit-id').value;
     try {
-      const res = await fetch(`${API}/${id}`, {
-        method: 'PUT', headers: getAuthHeaders(),
-        body: JSON.stringify({ setor: document.getElementById('edit-setor').value, descricao: document.getElementById('edit-descricao').value })
-      });
-      if (!res.ok) throw new Error((await res.json()).error);
-      fecharModal('modal-editar');
-      toast('✓ Atualizado', 'success');
-      carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
+      const res = await fetch(`${API}/${id}`, { method:'PUT', headers:getAuthHeaders(), body:JSON.stringify({
+        setor:document.getElementById('edit-setor').value,
+        descricao:document.getElementById('edit-descricao').value
+      })});
+      if(!res.ok) throw new Error((await res.json()).error);
+      
+      // Upload de novo arquivo se existir
+      const arquivoInput = document.getElementById('edit-arquivo');
+      if (arquivoInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('arquivo', arquivoInput.files[0]);
+        const uploadRes = await fetch(`/api/anexo/${id}/upload`, { 
+          method: 'POST', 
+          headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, 
+          body: formData 
+        });
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json();
+          toast('⚠️ Ticket salvo, mas upload falhou: ' + err.error, 'error');
+        }
+      }
+      
+      fecharModal('modal-editar'); toast('✓ Atualizado','success'); carregarTickets();
+    } catch(err) { toast('✗ '+err.message,'error'); }
   }
 
   async function confirmarExclusao() {

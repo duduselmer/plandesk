@@ -4,12 +4,45 @@ const path = require('path');
 const ticketRoutes = require('./routes/ticketRoutes');
 const reaberturaRoutes = require('./routes/reaberturaRoutes');
 const authRoutes = require('./routes/authRoutes');
+const multer = require('multer');
+const path = require('path');
 
 process.env.TZ = 'America/Sao_Paulo';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
+
+// Criar pasta uploads se não existir
+const fs = require('fs');
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configurar multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB
+  fileFilter: (req, file, cb) => {
+    const tipos = /jpeg|jpg|png|pdf|xlsx|xls|csv|docx|doc/;
+    const ext = tipos.test(path.extname(file.originalname).toLowerCase());
+    const mime = tipos.test(file.mimetype);
+    if (ext && mime) return cb(null, true);
+    cb(new Error('Tipo de arquivo não permitido. Formatos aceitos: PDF, Excel, Word, Imagens'));
+  }
+});
+
+// Servir arquivos estáticos da pasta uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Middlewares
 app.use(cors());
@@ -20,6 +53,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/ticket', ticketRoutes);
 app.use('/api/reabertura', reaberturaRoutes);
+
+const anexoRoutes = require('./routes/anexoRoutes');
+app.use('/api/anexo', anexoRoutes);
 
 // Rotas das páginas
 app.get('/', (req, res) => {

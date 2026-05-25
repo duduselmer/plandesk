@@ -116,6 +116,25 @@ db.serialize(() => {
     )
   `);
 
+    // ==========================================
+  // Tabela de anexos
+  // ==========================================
+  db.run(`
+    CREATE TABLE IF NOT EXISTS anexos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ticket_id INTEGER NOT NULL,
+      nome_original TEXT NOT NULL,
+      nome_servidor TEXT NOT NULL,
+      tamanho_bytes INTEGER,
+      tipo TEXT,
+      uploaded_por INTEGER,
+      uploaded_em TEXT DEFAULT (datetime('now', '-4 hours')),
+      FOREIGN KEY (ticket_id) REFERENCES tickets(id)
+    )
+  `);
+
+  db.run('CREATE INDEX IF NOT EXISTS idx_anexos_ticket ON anexos(ticket_id)');
+
   // Índices
   db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email)');
   db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_nivel ON usuarios(nivel)');

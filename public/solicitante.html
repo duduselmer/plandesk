@@ -357,7 +357,23 @@
     e.preventDefault();
     const btn = e.target.querySelector('button[type=submit]');
     btn.textContent = 'Enviando...'; btn.disabled = true;
+    
     try {
+      // Validar arquivos antes de enviar
+      const arquivoInput = document.getElementById('arquivo');
+      if (arquivoInput.files.length > 2) {
+        toast('✗ Máximo de 2 arquivos por ticket', 'error');
+        btn.textContent = 'Abrir Ticket →'; btn.disabled = false;
+        return;
+      }
+      for (const file of arquivoInput.files) {
+        if (file.size > 25 * 1024 * 1024) {
+          toast(`✗ Arquivo "${file.name}" excede 25MB`, 'error');
+          btn.textContent = 'Abrir Ticket →'; btn.disabled = false;
+          return;
+        }
+      }
+  
       const res = await fetch(API, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({
         setor: document.getElementById('setor').value,
         descricao: document.getElementById('descricao').value
@@ -365,29 +381,36 @@
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
   
-      // Upload de arquivos se existirem
-      const arquivoInput = document.getElementById('arquivo');
+      // Upload de arquivos
       if (arquivoInput.files.length > 0) {
         for (const file of arquivoInput.files) {
           const formData = new FormData();
           formData.append('arquivo', file);
           try {
-            await fetch(`/api/anexo/${d.id}/upload`, { 
-              method: 'POST', 
-              headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, 
-              body: formData 
+            const uploadRes = await fetch(`/api/anexo/${d.id}/upload`, {
+              method: 'POST',
+              headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL },
+              body: formData
             });
-          } catch (uploadErr) { 
-            console.error('Upload falhou:', file.name, uploadErr); 
+            if (!uploadRes.ok) {
+              const err = await uploadRes.json();
+              toast('⚠️ Upload falhou: ' + err.error, 'error');
+            }
+          } catch (uploadErr) {
+            console.error('Upload falhou:', file.name, uploadErr);
           }
         }
       }
-
+  
       toast('✓ Ticket criado!', 'success');
       document.getElementById('form-ticket').reset();
       carregarTickets();
-    } catch(err) { toast('✗ '+err.message, 'error'); }
-    finally { btn.textContent = 'Abrir Ticket →'; btn.disabled = false; }
+    } catch(err) {
+      toast('✗ ' + err.message, 'error');
+    } finally {
+      btn.textContent = 'Abrir Ticket →';
+      btn.disabled = false;
+    }
   }
 
   async function carregarTickets() {
@@ -616,31 +639,54 @@ function renderTicket(t) {
 
   async function salvarEdicao() {
     const id = document.getElementById('edit-id').value;
-    try {
-      const res = await fetch(`${API}/${id}`, { method:'PUT', headers:getAuthHeaders(), body:JSON.stringify({
-        setor:document.getElementById('edit-setor').value,
-        descricao:document.getElementById('edit-descricao').value
-      })});
-      if(!res.ok) throw new Error((await res.json()).error);
-      
-      // Upload de novo arquivo se existir
+    
+    // Validar arquivos antes de enviar
     const arquivoInput = document.getElementById('edit-arquivo');
+    if (arquivoInput.files.length > 2) {
+      toast('✗ Máximo de 2 arquivos por vez', 'error');
+      return;
+    }
     for (const file of arquivoInput.files) {
-      const formData = new FormData();
-      formData.append('arquivo', file);
-      const uploadRes = await fetch(`/api/anexo/${id}/upload`, { 
-        method: 'POST', 
-        headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, 
-        body: formData 
-      });
-      if (!uploadRes.ok) {
-        const err = await uploadRes.json();
-        toast('⚠️ Upload falhou: ' + err.error, 'error');
+      if (file.size > 25 * 1024 * 1024) {
+        toast(`✗ Arquivo "${file.name}" excede 25MB`, 'error');
+        return;
       }
     }
-      
-      fecharModal('modal-editar'); toast('✓ Atualizado','success'); carregarTickets();
-    } catch(err) { toast('✗ '+err.message,'error'); }
+  
+    try {
+      const res = await fetch(`${API}/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          setor: document.getElementById('edit-setor').value,
+          descricao: document.getElementById('edit-descricao').value
+        })
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+  
+      // Upload de novos arquivos
+      if (arquivoInput.files.length > 0) {
+        for (const file of arquivoInput.files) {
+          const formData = new FormData();
+          formData.append('arquivo', file);
+          const uploadRes = await fetch(`/api/anexo/${id}/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL },
+            body: formData
+          });
+          if (!uploadRes.ok) {
+            const err = await uploadRes.json();
+            toast('⚠️ Upload falhou: ' + err.error, 'error');
+          }
+        }
+      }
+  
+      fecharModal('modal-editar');
+      toast('✓ Atualizado', 'success');
+      carregarTickets();
+    } catch(err) {
+      toast('✗ ' + err.message, 'error');
+    }
   }
 
   async function confirmarExclusao() {

@@ -276,7 +276,6 @@
     <label class="field">Link de referência <span style="color:var(--muted);font-size:0.65rem;">(opcional)</span>
       <input type="url" class="fi" id="concluir-orig-link" placeholder="https://..." />
     </label>
-    <!-- AJUSTE 1: múltiplos arquivos com lista visual -->
     <label class="field">Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span>
       <input type="file" id="concluir-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple
              style="padding:0.4rem;" onchange="adicionarArquivos('concluir-arquivo', 2)" />
@@ -395,7 +394,7 @@
   let reaberturasCache = [];
   let reaberturasAceitasCache = [];
 
-  // ── AJUSTE 2: Gerenciamento de arquivos múltiplos ─────────────────
+  // ── Gerenciamento de arquivos múltiplos ───────────────────────────
   const MAX_FILE_SIZE = 25 * 1024 * 1024;
   const arquivosAcumulados = { 'concluir-arquivo': [] };
 
@@ -571,6 +570,7 @@
       const temPendente       = pendentesDoTicket.length > 0;
       const reabAceitas       = reaberturasAceitasCache.filter(r => r._ticket_id === t.id);
 
+      // ── SLA Ciclo 1 ────────────────────────────────────────────────
       let slaBlock = '';
       if (t.sla_total_min) {
         slaBlock = `<div class="sla-block">
@@ -580,6 +580,7 @@
         </div>`;
       }
 
+      // ── SLA Ciclos de Reabertura ────────────────────────────────────
       let slasReab = '';
       reabAceitas.forEach(r => {
         if (r.sla_total_min && !r.concluido_em) {
@@ -594,6 +595,7 @@
         }
       });
 
+      // ── Reaberturas pendentes inline ───────────────────────────────
       let pendenteInfo = '';
       if (temPendente) {
         pendenteInfo = pendentesDoTicket.map(p => `
@@ -607,6 +609,7 @@
           </div>`).join('');
       }
 
+      // ── Ciclos aceitos / concluídos ────────────────────────────────
       let reabAceitasInfo = '';
       reabAceitas.forEach(r => {
         if (!r.concluido_em) {
@@ -625,21 +628,43 @@
         }
       });
 
-      let anexosHTML = '';
-      if (t.anexos && t.anexos.length > 0) {
-        const chips = t.anexos.map(a => {
-          const kb = a.tamanho_bytes ? (a.tamanho_bytes / 1024).toFixed(0) + ' KB' : '';
-          return `<a class="anexo-chip"
-                     href="/uploads/${esc(a.nome_servidor)}"
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     title="${esc(a.nome_original)}">
-                    📎 ${esc(a.nome_original)}${kb ? `<span class="anexo-size">${esc(kb)}</span>` : ''}
-                  </a>`;
-        }).join('');
-        anexosHTML = `<div class="anexos-box">${chips}</div>`;
+      // ── Anexos do solicitante — exibidos após a descrição ──────────
+      let anexosSolicitanteHTML = '';
+      const anexosSolicitante = (t.anexos || []).filter(a => a.tipo_upload === 'solicitante');
+      if (anexosSolicitante.length > 0) {
+        anexosSolicitanteHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;color:var(--muted);">
+          📎 Anexos do solicitante: ${anexosSolicitante.map(a =>
+            `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
+                style="color:var(--accent);">${esc(a.nome_original)}</a>
+             <span style="font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`
+          ).join(' &nbsp;|&nbsp; ')}
+        </div>`;
       }
 
+      // ── Anexos do analista — exibidos dentro da solucao-box ────────
+      let anexosAnalistaHTML = '';
+      const anexosAnalista = (t.anexos || []).filter(a => a.tipo_upload === 'analista');
+      if (anexosAnalista.length > 0) {
+        anexosAnalistaHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;">
+          📎 Anexos da solução: ${anexosAnalista.map(a =>
+            `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
+                style="color:var(--accent);">${esc(a.nome_original)}</a>
+             <span style="font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`
+          ).join(' &nbsp;|&nbsp; ')}
+        </div>`;
+      }
+
+      // ── Solução — inclui anexos do analista internamente ───────────
+      let solucaoHTML = '';
+      if (t.descricao_final) {
+        solucaoHTML = `<div class="solucao-box">
+          <span style="color:var(--success);">Solução Original: ${esc(t.descricao_final)}</span>
+          ${t.link_referencia ? ` <a href="${esc(t.link_referencia)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">🔗</a>` : ''}
+          ${anexosAnalistaHTML}
+        </div>`;
+      }
+
+      // ── Ações ──────────────────────────────────────────────────────
       let acoes = '';
       if (t.status === 'aberto') {
         acoes = `<button class="btn-action primary" data-action="iniciar" data-id="${esc(t.id)}">▶ Iniciar</button>`;
@@ -662,8 +687,8 @@
             </div>
             <div class="ticket-setor-nome">${esc(t.setor)}${t.solicitante_nome ? ` · ${esc(t.solicitante_nome)}` : t.nome ? ` · ${esc(t.nome)}` : ''}</div>
             <div class="ticket-desc">${esc(t.descricao)}</div>
-            ${anexosHTML}
-            ${t.descricao_final ? `<div class="solucao-box"><span style="color:var(--success);">Solução Original: ${esc(t.descricao_final)}</span>${t.link_referencia ? ` <a href="${esc(t.link_referencia)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">🔗</a>` : ''}</div>` : ''}
+            ${anexosSolicitanteHTML}
+            ${solucaoHTML}
             ${reabAceitasInfo}
             ${pendenteInfo}
             <div class="ticket-meta">
@@ -703,7 +728,6 @@
     document.getElementById('concluir-orig-desc').value          = '';
     document.getElementById('concluir-orig-link').value          = '';
     document.getElementById('concluir-orig-justificativa').value = '';
-    // Limpa array acumulado e lista visual
     arquivosAcumulados['concluir-arquivo'] = [];
     atualizarListaArquivos('concluir-arquivo');
     _sincronizarInput('concluir-arquivo', 2);
@@ -739,7 +763,6 @@
     const just = document.getElementById('concluir-orig-justificativa').value;
     if (!desc.trim()) { toast('✗ Informe a descrição', 'error'); return; }
     try {
-      // 1. Conclui o ticket
       const res = await fetch(`${API}/${id}/finish`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
@@ -748,7 +771,6 @@
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
 
-      // AJUSTE 3: upload sequencial de todos os arquivos acumulados
       const files = arquivosAcumulados['concluir-arquivo'];
       if (files.length > 0) {
         for (const file of files) {
@@ -761,7 +783,6 @@
             body: formData
           });
           if (!upRes.ok) {
-            // Ticket já foi concluído; avisa mas não reverte
             toast('✓ Concluído · ⚠️ Falha no upload', 'error');
             fecharModal('modal-concluir');
             carregarTickets();
@@ -858,7 +879,6 @@
     setTimeout(() => el.classList.remove('show'), 3500);
   }
 
-  // Fechar modal ao clicar fora
   document.querySelectorAll('.modal-overlay').forEach(o =>
     o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
   );

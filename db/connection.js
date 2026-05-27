@@ -24,22 +24,6 @@ db.serialize(() => {
     )
   `);
 
-  // Seed: criar usuários padrão
-  //const usuariosPadrao = [
-  //  { nome: 'Requisitor', email: 'requisitor@iaf.com', nivel: 'requisitor', senha: '123456' },
-  //  { nome: 'Supervisor', email: 'supervisor@iaf.com', nivel: 'supervisor', senha: '123456' },
-  //  { nome: 'Control Desk', email: 'controldesk@iaf.com', nivel: 'controldesk', senha: '123456' },
-  //  { nome: 'Admin', email: 'admin@iaf.com', nivel: 'admin', senha: '123456' }
-  //];
-
-  //usuariosPadrao.forEach(u => {
-  //  const hash = bcrypt.hashSync(u.senha, 10);
-  //  db.run(
-  //   'INSERT OR IGNORE INTO usuarios (nome, email, senha_hash, nivel) VALUES (?, ?, ?, ?)',
-  //    [u.nome, u.email, hash, u.nivel]
-  //  );
-  //});
-
   // ==========================================
   // Tabela de tickets
   // ==========================================
@@ -127,6 +111,7 @@ db.serialize(() => {
       nome_servidor TEXT NOT NULL,
       tamanho_bytes INTEGER,
       tipo TEXT,
+      tipo_upload TEXT DEFAULT 'solicitante' CHECK(tipo_upload IN ('solicitante', 'analista')),
       uploaded_por INTEGER,
       uploaded_em TEXT DEFAULT (datetime('now', '-4 hours')),
       FOREIGN KEY (ticket_id) REFERENCES tickets(id)

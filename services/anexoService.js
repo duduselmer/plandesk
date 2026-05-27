@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
-const MAX_ANEXOS_POR_TICKET = 2;
+const MAX_ANEXOS_POR_TICKET = 4;
+const MAX_ANEXOS_POR_TIPO = 2;
 const DIAS_RETENCAO = 90;
 
 class AnexoService {
@@ -11,24 +12,24 @@ class AnexoService {
   /**
    * Salvar anexo no banco
    */
-  static salvarAnexo(ticketId, nomeOriginal, nomeServidor, tamanho, tipo, usuarioId) {
+static salvarAnexo(ticketId, nomeOriginal, nomeServidor, tamanho, tipo, usuarioId, tipoUpload) {
     return new Promise((resolve, reject) => {
-      // Verificar limite de 2 anexos por ticket
+      const tp = tipoUpload || 'solicitante';
+      
       db.get(
-        'SELECT COUNT(*) as count FROM anexos WHERE ticket_id = ?',
-        [ticketId],
+        'SELECT COUNT(*) as count FROM anexos WHERE ticket_id = ? AND tipo_upload = ?',
+        [ticketId, tp],
         (err, row) => {
           if (err) return reject(err);
-          if (row.count >= MAX_ANEXOS_POR_TICKET) {
-            // Remover o arquivo físico
+          if (row.count >= MAX_ANEXOS_POR_TIPO) {
             const filePath = path.join(UPLOADS_DIR, nomeServidor);
             if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-            return reject(new Error(`Limite máximo de ${MAX_ANEXOS_POR_TICKET} anexos por ticket atingido`));
+            return reject(new Error(`Limite máximo de ${MAX_ANEXOS_POR_TIPO} anexos atingido`));
           }
 
           db.run(
-            'INSERT INTO anexos (ticket_id, nome_original, nome_servidor, tamanho_bytes, tipo, uploaded_por) VALUES (?, ?, ?, ?, ?, ?)',
-            [ticketId, nomeOriginal, nomeServidor, tamanho, tipo, usuarioId],
+            'INSERT INTO anexos (ticket_id, nome_original, nome_servidor, tamanho_bytes, tipo, uploaded_por, tipo_upload) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [ticketId, nomeOriginal, nomeServidor, tamanho, tipo, usuarioId, tp],
             function(err) {
               if (err) return reject(err);
               resolve({ id: this.lastID, nome_original: nomeOriginal });
@@ -38,7 +39,7 @@ class AnexoService {
       );
     });
   }
-
+  
   /**
    * Listar anexos de um ticket
    */

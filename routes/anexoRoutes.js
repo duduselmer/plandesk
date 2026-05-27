@@ -35,18 +35,20 @@ router.post('/:ticketId/upload', upload.single('arquivo'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado' });
 
+    const tipoUpload = req.body.tipo_upload || 'solicitante';
+
     const resultado = await AnexoService.salvarAnexo(
       req.params.ticketId,
       req.file.originalname,
       req.file.filename,
       req.file.size,
       req.file.mimetype,
-      req.usuario.id
+      req.usuario.id,
+      tipoUpload
     );
 
     res.status(201).json(resultado);
   } catch (error) {
-    // Remover arquivo se houve erro
     if (req.file) {
       const filePath = path.join(uploadsDir, req.file.filename);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);

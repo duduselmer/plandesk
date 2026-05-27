@@ -531,9 +531,9 @@
     // Ações
     let acoes = '';
     if (t.status === 'aberto') {
-      // Usa data-* — evita escape frágil de strings em atributos onclick
-      acoes = `<button class="btn-sm" data-action="editar" data-id="${esc(t.id)}" data-setor="${esc(t.setor)}" data-desc="${esc(t.descricao)}">Editar</button>
-               <button class="btn-sm danger" data-action="excluir" data-id="${esc(t.id)}">Excluir</button>`;
+      // Usa data-* — evita escape frágil
+    acoes = `<button class="btn-sm" data-action="editar" data-id="${t.id}" data-setor="${esc(t.setor||'')}" data-desc="${esc(t.descricao||'')}">Editar</button>
+             <button class="btn-sm danger" data-action="excluir" data-id="${t.id}">Excluir</button>`;
     } else if (t.status === 'concluído') {
       acoes = `<button class="btn-sm success" data-action="receber" data-id="${esc(t.id)}">✅ Confirmar Recebimento</button>`;
       if (!temPendente && !temAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {

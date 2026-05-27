@@ -221,8 +221,11 @@
           <textarea id="descricao" class="fi" required></textarea>
         </label>
         <label>Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span>
-          <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple style="padding:0.5rem;" />
-          <small style="color:var(--muted);font-size:0.6rem;">PDF, Excel, Word, Imagens — até 25MB</small>
+          <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple 
+                 style="padding:0.5rem;" onchange="atualizarListaArquivos('arquivo')" />
+          <div id="arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div>
+          <div id="arquivo-lista" style="margin-top:0.3rem;"></div>
+          <small style="color:var(--muted);font-size:0.6rem;">PDF, Excel, Word, Imagens — até 25MB cada</small>
         </label>
         <button type="submit" class="btn-submit">Abrir Ticket →</button>
       </form>
@@ -259,7 +262,10 @@
     
     <!-- Novo anexo -->
     <label>Adicionar anexo <span style="color:var(--muted);font-size:0.6rem;">(máx 2 total)</span>
-      <input type="file" id="edit-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple style="padding:0.4rem;" />
+      <input type="file" id="edit-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple 
+             style="padding:0.4rem;" onchange="atualizarListaArquivos('edit-arquivo')" />
+      <div id="edit-arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div>
+      <div id="edit-arquivo-lista" style="margin-top:0.3rem;"></div>
     </label>
     
     <div class="modal-actions">
@@ -368,7 +374,7 @@
       }
       for (const file of arquivoInput.files) {
         if (file.size > 25 * 1024 * 1024) {
-          toast(`✗ Arquivo "${file.name}" excede 25MB`, 'error');
+          toast(`✗ Arquivo "${file.name}" excede o limite de 25MB (${(file.size/1024/1024).toFixed(1)}MB)`, 'error');
           btn.textContent = 'Abrir Ticket →'; btn.disabled = false;
           return;
         }
@@ -607,6 +613,64 @@ function renderTicket(t) {
     } catch(err) { toast('✗ '+err.message,'error'); }
   }
 
+    // Gerenciar fila de arquivos (acumula, não substitui)
+  function adicionarArquivos(inputId, maxArquivos) {
+    const input = document.getElementById(inputId);
+    const dt = new DataTransfer();
+    
+    // Manter arquivos já existentes
+    for (const file of input.files) {
+      dt.items.add(file);
+    }
+    
+    input.files = dt.files;
+    
+    // Se já atingiu o máximo, esconder o input
+    if (input.files.length >= maxArquivos) {
+      input.style.display = 'none';
+      document.getElementById(inputId + '-cheio').style.display = 'block';
+    }
+  }
+  
+  function removerArquivo(inputId, index, maxArquivos) {
+    const input = document.getElementById(inputId);
+    const dt = new DataTransfer();
+    
+    for (let i = 0; i < input.files.length; i++) {
+      if (i !== index) {
+        dt.items.add(input.files[i]);
+      }
+    }
+    
+    input.files = dt.files;
+    
+    // Mostrar input novamente se tiver espaço
+    if (input.files.length < maxArquivos) {
+      input.style.display = 'block';
+      document.getElementById(inputId + '-cheio').style.display = 'none';
+    }
+    
+    atualizarListaArquivos(inputId);
+  }
+  
+  function atualizarListaArquivos(inputId) {
+    const input = document.getElementById(inputId);
+    const lista = document.getElementById(inputId + '-lista');
+    if (!lista) return;
+    
+    if (input.files.length === 0) {
+      lista.innerHTML = '';
+      return;
+    }
+    
+    lista.innerHTML = Array.from(input.files).map((file, i) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.3rem 0;font-size:0.68rem;">
+        <span style="color:var(--text);">📎 ${file.name} (${(file.size/1024).toFixed(0)}KB)</span>
+        <button onclick="removerArquivo('${inputId}', ${i}, 2)" style="background:none;border:none;color:var(--danger);cursor:pointer;">🗑</button>
+      </div>
+    `).join('');
+  }
+
   async function abrirReabrir(id) {
     try {
       const res  = await fetch(`${API_REAB}/${id}/pode-reabrir`, { headers: getAuthHeaders() });
@@ -648,7 +712,8 @@ function renderTicket(t) {
     }
     for (const file of arquivoInput.files) {
       if (file.size > 25 * 1024 * 1024) {
-        toast(`✗ Arquivo "${file.name}" excede 25MB`, 'error');
+        toast(`✗ Arquivo "${file.name}" excede o limite de 25MB (${(file.size/1024/1024).toFixed(1)}MB)`, 'error');
+        btn.textContent = 'Abrir Ticket →'; btn.disabled = false;
         return;
       }
     }

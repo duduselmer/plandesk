@@ -48,7 +48,6 @@
     .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
     .nav-home { color: var(--muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
     .nav-home:hover { color: var(--text); }
-    /* CORRIGIDO: layout responsivo — empilha em mobile */
     main { display: grid; grid-template-columns: 380px 1fr; height: calc(100vh - 60px); }
     @media (max-width: 680px) {
       main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
@@ -109,9 +108,9 @@
       color: var(--text); padding: 0.35rem 0.85rem; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer;
       transition: all 0.2s;
     }
-    .btn-sm:hover         { border-color: var(--accent);   color: var(--accent); }
-    .btn-sm.danger:hover  { border-color: var(--danger);   color: var(--danger); }
-    .btn-sm.success:hover { border-color: var(--success);  color: var(--success); }
+    .btn-sm:hover         { border-color: var(--accent);  color: var(--accent); }
+    .btn-sm.danger:hover  { border-color: var(--danger);  color: var(--danger); }
+    .btn-sm.success:hover { border-color: var(--success); color: var(--success); }
     .solucao-box {
       background: rgba(79,247,160,0.05); border: 1px solid rgba(79,247,160,0.2);
       border-radius: 8px; padding: 0.75rem 1rem;
@@ -130,9 +129,19 @@
     .reab-label.pendente { color: #a78bfa; }
     .reab-label.aceita   { color: var(--success); }
     .reab-label.recusada { color: var(--danger); }
-    .sla-mini        { font-size: 0.68rem; margin-top: 0.3rem; }
-    .sla-mini.ok       { color: var(--success); }
-    .sla-mini.estourado{ color: var(--danger); }
+    .sla-mini         { font-size: 0.68rem; margin-top: 0.3rem; }
+    .sla-mini.ok        { color: var(--success); }
+    .sla-mini.estourado { color: var(--danger); }
+    /* Anexos */
+    .anexos-lista {
+      margin-top: 0.5rem; font-size: 0.68rem; color: var(--muted);
+      display: flex; flex-direction: column; gap: 0.25rem;
+    }
+    .anexo-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.3rem 0; border-bottom: 1px solid var(--border);
+    }
+    .file-input-wrap { position: relative; }
     /* Modais */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(13,15,18,0.85);
@@ -142,7 +151,7 @@
     .modal {
       background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
       padding: 2rem; width: min(480px, 90vw); display: flex; flex-direction: column; gap: 1.25rem;
-      animation: fadeUp 0.25s ease;
+      animation: fadeUp 0.25s ease; max-height: 90vh; overflow-y: auto;
     }
     .modal h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
     .modal p  { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
@@ -172,7 +181,6 @@
     .btn-confirm:hover        { background: #3a7de8; }
     .btn-confirm.danger       { background: var(--danger); }
     .btn-confirm.danger:hover { background: #e03e3e; }
-    /* Toast */
     .toast {
       position: fixed; bottom: 2rem; left: 50%;
       transform: translateX(-50%) translateY(100px);
@@ -221,10 +229,11 @@
           <textarea id="descricao" class="fi" required></textarea>
         </label>
         <label>Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span>
-          <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple 
-                 style="padding:0.5rem;" onchange="atualizarListaArquivos('arquivo')" />
+          <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple
+                 style="padding:0.5rem;"
+                 onchange="adicionarArquivos('arquivo', 2)" />
           <div id="arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div>
-          <div id="arquivo-lista" style="margin-top:0.3rem;"></div>
+          <div id="arquivo-lista"></div>
           <small style="color:var(--muted);font-size:0.6rem;">PDF, Excel, Word, Imagens — até 25MB cada</small>
         </label>
         <button type="submit" class="btn-submit">Abrir Ticket →</button>
@@ -244,30 +253,31 @@
 
 <!-- Modal Editar -->
 <div class="modal-overlay" id="modal-editar">
-  <div class="modal" style="max-height:90vh;overflow-y:auto;">
+  <div class="modal">
     <h3>Editar Ticket</h3>
     <input type="hidden" id="edit-id" />
-    <label>Setor 
-      <select id="edit-setor">
-        <option>Carteira Assinatura</option><option>Carteira Rescisão</option>
-        <option>Carteira Athos</option><option>Monitoria</option>
-        <option>Control Desk</option><option>Gerente</option>
+    <label class="field">Setor
+      <select id="edit-setor" class="fi">
+        <option value="Carteira Assinatura">Carteira Assinatura</option>
+        <option value="Carteira Rescisão">Carteira Rescisão</option>
+        <option value="Carteira Athos">Carteira Athos</option>
+        <option value="Monitoria">Monitoria</option>
+        <option value="Control Desk">Control Desk</option>
+        <option value="Gerente">Gerente</option>
       </select>
     </label>
-    <label>Descrição <textarea id="edit-descricao"></textarea></label>
-    
-    <!-- Anexos existentes -->
-    <div style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;">📎 Anexos atuais:</div>
-    <div id="edit-anexos-lista" style="font-size:0.68rem;color:var(--muted);margin-bottom:0.5rem;"></div>
-    
-    <!-- Novo anexo -->
-    <label>Adicionar anexo <span style="color:var(--muted);font-size:0.6rem;">(máx 2 total)</span>
-      <input type="file" id="edit-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple 
-             style="padding:0.4rem;" onchange="atualizarListaArquivos('edit-arquivo')" />
-      <div id="edit-arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div>
-      <div id="edit-arquivo-lista" style="margin-top:0.3rem;"></div>
+    <label class="field">Descrição
+      <textarea id="edit-descricao" class="fi"></textarea>
     </label>
-    
+    <div style="font-size:0.72rem;color:var(--muted);">📎 Anexos atuais:</div>
+    <div id="edit-anexos-lista" class="anexos-lista"></div>
+    <label class="field">Adicionar anexo <span style="color:var(--muted);font-size:0.6rem;">(máx 2 total)</span>
+      <input type="file" id="edit-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple
+             style="padding:0.4rem;"
+             onchange="adicionarArquivos('edit-arquivo', 2)" />
+      <div id="edit-arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div>
+      <div id="edit-arquivo-lista"></div>
+    </label>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModal('modal-editar')">Cancelar</button>
       <button class="btn-confirm" onclick="salvarEdicao()">Salvar</button>
@@ -306,7 +316,7 @@
   </div>
 </div>
 
-<!-- Modal Cancelar Reabertura (CORRIGIDO: substitui confirm() nativo) -->
+<!-- Modal Cancelar Reabertura -->
 <div class="modal-overlay" id="modal-cancelar-reab">
   <div class="modal">
     <h3>Cancelar Solicitação</h3>
@@ -319,7 +329,6 @@
   </div>
 </div>
 
-<!-- CORRIGIDO: removido elemento #toast duplicado — mantido apenas um -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -329,9 +338,7 @@
   const NOME  = localStorage.getItem('plandesk_nome');
   const TELAS = JSON.parse(localStorage.getItem('plandesk_telas') || '[]');
 
-  if (!TOKEN || !TELAS.includes('solicitante')) {
-    window.location.href = '/login';
-  }
+  if (!TOKEN || !TELAS.includes('solicitante')) { window.location.href = '/login'; }
   document.getElementById('user-name').textContent = NOME || 'Solicitante';
 
   function getAuthHeaders() {
@@ -341,8 +348,9 @@
 
   const API      = '/api/ticket';
   const API_REAB = '/api/reabertura';
+  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
 
-  // ── Sanitização HTML (CORRIGIDO: previne XSS em todos os templates) ──
+  // ── Sanitização HTML ──────────────────────────────────────────────
   function esc(str) {
     if (str == null) return '';
     return String(str)
@@ -353,322 +361,342 @@
       .replace(/'/g,  '&#x27;');
   }
 
-  // ── Cache de dados para evitar re-fetch desnecessário ──────────────
-  // Armazena dados dos tickets com timestamp para TTL simples
-  let _ticketsCache = null;
-  let _ticketsCacheTime = 0;
-  const CACHE_TTL = 15000; // 15s
+  // ── Gerenciamento de arquivos ─────────────────────────────────────
+  // Arrays globais que acumulam os arquivos entre seleções sucessivas.
+  // Isso resolve o problema do navegador substituir `input.files` a cada
+  // abertura do seletor de arquivos.
+  const arquivosAcumulados = {
+    'arquivo':      [],
+    'edit-arquivo': []
+  };
 
+  function adicionarArquivos(inputId, maxArquivos) {
+    const input = document.getElementById(inputId);
+    const novos = Array.from(input.files);
+    const acumulado = arquivosAcumulados[inputId];
+
+    for (const file of novos) {
+      if (acumulado.length >= maxArquivos) {
+        toast(`✗ Máximo de ${maxArquivos} arquivo(s) permitido(s)`, 'error');
+        break;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast(`✗ "${file.name}" excede 25 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)`, 'error');
+        continue;
+      }
+      // Evitar duplicatas por nome + tamanho
+      const duplicado = acumulado.some(f => f.name === file.name && f.size === file.size);
+      if (!duplicado) acumulado.push(file);
+    }
+
+    // Sincronizar input.files com o array acumulado
+    _sincronizarInput(inputId, maxArquivos);
+    atualizarListaArquivos(inputId);
+  }
+
+  function removerArquivo(inputId, index, maxArquivos) {
+    arquivosAcumulados[inputId].splice(index, 1);
+    _sincronizarInput(inputId, maxArquivos);
+    atualizarListaArquivos(inputId);
+  }
+
+  // Escreve o array acumulado de volta no input via DataTransfer
+  // e controla a visibilidade do indicador "cheio"
+  function _sincronizarInput(inputId, maxArquivos) {
+    const input    = document.getElementById(inputId);
+    const acumulado= arquivosAcumulados[inputId];
+    const dt       = new DataTransfer();
+    acumulado.forEach(f => dt.items.add(f));
+    input.files = dt.files;
+
+    const cheioEl = document.getElementById(inputId + '-cheio');
+    const atingiu = acumulado.length >= maxArquivos;
+    input.style.display          = atingiu ? 'none'  : '';
+    if (cheioEl) cheioEl.style.display = atingiu ? 'block' : 'none';
+  }
+
+  function atualizarListaArquivos(inputId) {
+    const lista = document.getElementById(inputId + '-lista');
+    if (!lista) return;
+    const files = arquivosAcumulados[inputId];
+    if (!files.length) { lista.innerHTML = ''; return; }
+    lista.innerHTML = files.map((file, i) => `
+      <div class="anexo-row">
+        <span style="color:var(--text);">📎 ${esc(file.name)} (${(file.size / 1024).toFixed(0)} KB)</span>
+        <button onclick="removerArquivo('${inputId}', ${i}, 2)"
+                style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.85rem;"
+                title="Remover">🗑</button>
+      </div>`).join('');
+  }
+
+  // Limpa o array e a UI do input após envio
+  function limparArquivos(inputId) {
+    arquivosAcumulados[inputId] = [];
+    const input   = document.getElementById(inputId);
+    const cheioEl = document.getElementById(inputId + '-cheio');
+    const lista   = document.getElementById(inputId + '-lista');
+    if (input)   { input.value = ''; input.style.display = ''; }
+    if (cheioEl) { cheioEl.style.display = 'none'; }
+    if (lista)   { lista.innerHTML = ''; }
+  }
+
+  // ── Upload helper ─────────────────────────────────────────────────
+  async function uploadArquivos(ticketId, inputId) {
+    const files = arquivosAcumulados[inputId];
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append('arquivo', file);
+      try {
+        const res = await fetch(`/api/anexo/${ticketId}/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL },
+          body: formData
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          toast(`⚠️ Upload de "${esc(file.name)}" falhou: ${esc(err.error)}`, 'error');
+        }
+      } catch (e) {
+        console.error('Upload falhou:', file.name, e);
+      }
+    }
+  }
+
+  // ── Criar ticket ──────────────────────────────────────────────────
   async function criarTicket(e) {
     e.preventDefault();
     const btn = e.target.querySelector('button[type=submit]');
     btn.textContent = 'Enviando...'; btn.disabled = true;
-    
     try {
-      // Validar arquivos antes de enviar
-      const arquivoInput = document.getElementById('arquivo');
-      if (arquivoInput.files.length > 2) {
-        toast('✗ Máximo de 2 arquivos por ticket', 'error');
-        btn.textContent = 'Abrir Ticket →'; btn.disabled = false;
-        return;
-      }
-      for (const file of arquivoInput.files) {
-        if (file.size > 25 * 1024 * 1024) {
-          toast(`✗ Arquivo "${file.name}" excede o limite de 25MB (${(file.size/1024/1024).toFixed(1)}MB)`, 'error');
-          btn.textContent = 'Abrir Ticket →'; btn.disabled = false;
-          return;
-        }
-      }
-  
-      const res = await fetch(API, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({
-        setor: document.getElementById('setor').value,
-        descricao: document.getElementById('descricao').value
-      })});
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          setor:     document.getElementById('setor').value,
+          descricao: document.getElementById('descricao').value
+        })
+      });
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
-  
-      // Upload de arquivos
-      if (arquivoInput.files.length > 0) {
-        for (const file of arquivoInput.files) {
-          const formData = new FormData();
-          formData.append('arquivo', file);
-          try {
-            const uploadRes = await fetch(`/api/anexo/${d.id}/upload`, {
-              method: 'POST',
-              headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL },
-              body: formData
-            });
-            if (!uploadRes.ok) {
-              const err = await uploadRes.json();
-              toast('⚠️ Upload falhou: ' + err.error, 'error');
-            }
-          } catch (uploadErr) {
-            console.error('Upload falhou:', file.name, uploadErr);
-          }
-        }
-      }
-  
+
+      // Upload dos arquivos acumulados para o ticket recém-criado
+      await uploadArquivos(d.id, 'arquivo');
+
       toast('✓ Ticket criado!', 'success');
       document.getElementById('form-ticket').reset();
+      limparArquivos('arquivo');
       carregarTickets();
-    } catch(err) {
+    } catch (err) {
       toast('✗ ' + err.message, 'error');
     } finally {
-      btn.textContent = 'Abrir Ticket →';
-      btn.disabled = false;
+      btn.textContent = 'Abrir Ticket →'; btn.disabled = false;
     }
   }
 
+  // ── Carregar tickets ──────────────────────────────────────────────
   async function carregarTickets() {
     const container = document.getElementById('tickets-container');
     container.innerHTML = '<div class="empty-state">Carregando...</div>';
     try {
-      const res = await fetch(API, { headers: getAuthHeaders() });
+      const res     = await fetch(API, { headers: getAuthHeaders() });
       const tickets = await res.json();
       if (!tickets.length) { container.innerHTML = '<div class="empty-state">Nenhum ticket.</div>'; return; }
-  
-      // Carregar reaberturas E anexos para cada ticket
+
+      // Fetch paralelo de reaberturas e anexos
       const ticketsCompleto = await Promise.all(tickets.map(async t => {
         try {
           const [rRes, aRes] = await Promise.all([
             fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAuthHeaders() }),
-            fetch(`/api/anexo/${t.id}/listar`, { headers: getAuthHeaders() })
+            fetch(`/api/anexo/${t.id}/listar`,        { headers: getAuthHeaders() })
           ]);
           t.reaberturas = await rRes.json();
-          t.anexos = await aRes.json();
-        } catch { 
-          t.reaberturas = []; 
-          t.anexos = []; 
-        }
+          t.anexos      = await aRes.json();
+        } catch { t.reaberturas = []; t.anexos = []; }
         return t;
       }));
       container.innerHTML = ticketsCompleto.map(renderTicket).join('');
     } catch { container.innerHTML = '<div class="empty-state">Erro ao carregar.</div>'; }
   }
 
-function renderTicket(t) {
-  const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido', 'recebido': 'badge-concluido' };
-  const prioBadge = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
+  // ── Render ticket ─────────────────────────────────────────────────
+  function renderTicket(t) {
+    const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido', 'recebido': 'badge-concluido' };
+    const prioBadge   = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
+    const reabs        = t.reaberturas || [];
+    const anexos       = t.anexos || [];
+    const temPendente  = reabs.some(r => r.status === 'pendente');
+    const temAndamento = reabs.some(r => r.status === 'aceita' && !r.concluido_em);
+    const aceitasCount = reabs.filter(r => r.status === 'aceita').length;
 
-  const reabs = t.reaberturas || [];
-  const anexos = t.anexos || [];
-  const temPendente = reabs.some(r => r.status === 'pendente');
-  const temEmAndamento = reabs.some(r => r.status === 'aceita' && !r.concluido_em);
-  const aceitasCount = reabs.filter(r => r.status === 'aceita').length;
-
-  let acoes = '';
-  if (t.status === 'aberto') {
-    acoes = `<button class="btn-sm" onclick="abrirEditar(${t.id},'${(t.setor||'').replace(/'/g,"\\'")}',\`${(t.descricao||'').replace(/`/g,'\\`')}\`)">Editar</button>
-             <button class="btn-sm danger" onclick="abrirExcluir(${t.id})">Excluir</button>`;
-  } else if (t.status === 'concluído') {
-    acoes = `<button class="btn-sm success" onclick="confirmarRecebimento(${t.id})">✅ Confirmar Recebimento</button>`;
-    if (!temPendente && !temEmAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
-      acoes += `<button class="btn-sm" onclick="abrirReabrir(${t.id})" style="margin-left:0.5rem;">🔄 Solicitar Reabertura</button>`;
+    // Ações
+    let acoes = '';
+    if (t.status === 'aberto') {
+      // Usa data-* — evita escape frágil de strings em atributos onclick
+      acoes = `<button class="btn-sm" data-action="editar" data-id="${esc(t.id)}" data-setor="${esc(t.setor)}" data-desc="${esc(t.descricao)}">Editar</button>
+               <button class="btn-sm danger" data-action="excluir" data-id="${esc(t.id)}">Excluir</button>`;
+    } else if (t.status === 'concluído') {
+      acoes = `<button class="btn-sm success" data-action="receber" data-id="${esc(t.id)}">✅ Confirmar Recebimento</button>`;
+      if (!temPendente && !temAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
+        acoes += `<button class="btn-sm" data-action="reabrir" data-id="${esc(t.id)}">🔄 Solicitar Reabertura</button>`;
+      }
+    } else if (t.status === 'recebido') {
+      if (!temPendente && !temAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
+        acoes = `<button class="btn-sm success" data-action="reabrir" data-id="${esc(t.id)}">Solicitar Reabertura</button>`;
+      } else if (temPendente) {
+        acoes = `<span class="badge badge-pendente">⏳ Aguardando analista</span>`;
+      } else if (temAndamento) {
+        acoes = `<span class="badge badge-andamento">⏳ Ciclo em andamento</span>`;
+      } else {
+        acoes = `<span style="font-size:0.65rem;color:var(--muted);">✅ Finalizado</span>`;
+      }
     }
-  } else if (t.status === 'recebido') {
-    if (!temPendente && !temEmAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
-      acoes = `<button class="btn-sm success" onclick="abrirReabrir(${t.id})">Solicitar Reabertura</button>`;
-    } else if (temPendente) {
-      acoes = `<span class="badge badge-pendente">⏳ Aguardando analista</span>`;
-    } else if (temEmAndamento) {
-      acoes = `<span class="badge badge-andamento">⏳ Ciclo em andamento</span>`;
-    } else {
-      acoes = `<span style="font-size:0.65rem;color:var(--muted);">✅ Finalizado</span>`;
+
+    // Solução
+    let solucao = '';
+    if (t.descricao_final) {
+      solucao = `<div class="solucao-box">
+        <div class="solucao-label">✅ Solução Original</div>
+        <div class="solucao-text">${esc(t.descricao_final)}</div>
+        ${t.link_referencia ? `<a href="${esc(t.link_referencia)}" target="_blank" rel="noopener noreferrer" class="link-ref">🔗 Link</a>` : ''}
+      </div>`;
     }
-  }
 
-  // Solução original
-  let solucao = '';
-  if (t.descricao_final) {
-    solucao = `<div class="solucao-box"><div class="solucao-label">✅ Solução Original</div><div class="solucao-text">${t.descricao_final}</div>${t.link_referencia?`<a href="${t.link_referencia}" target="_blank" class="link-ref">🔗 Link</a>`:''}</div>`;
-  }
+    // Anexos
+    let anexosHTML = '';
+    if (anexos.length) {
+      anexosHTML = `<div class="anexos-lista" style="flex-direction:row;flex-wrap:wrap;gap:0.5rem;">
+        <span style="color:var(--muted);">📎</span>
+        ${anexos.map(a => `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
+           style="color:var(--accent);text-decoration:none;">${esc(a.nome_original)}</a>
+           <span style="color:var(--muted);font-size:0.6rem;">(${(a.tamanho_bytes / 1024).toFixed(0)} KB)</span>`).join(' &nbsp;·&nbsp; ')}
+      </div>`;
+    }
 
-  // Anexos
-  let anexosHTML = '';
-  if (anexos.length > 0) {
-    anexosHTML = `<div style="margin-top:0.5rem;font-size:0.68rem;color:var(--muted);">
-      📎 Anexos: ${anexos.map(a => `<a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);text-decoration:none;">${a.nome_original}</a> <span style="font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`).join(' | ')}
+    // Reaberturas
+    let reabHTML = '';
+    reabs.forEach(r => {
+      let cls = 'reabertura-box', lblCls = '', statusLabel = '', detalhes = '';
+      if (r.status === 'pendente') {
+        cls += ' reab-pendente'; lblCls = 'pendente'; statusLabel = '⏳ Pendente';
+        detalhes = `Motivo: &ldquo;${esc(r.motivo_solicitacao)}&rdquo;<br>
+          <small>${new Date(r.solicitado_em).toLocaleString('pt-BR')}</small>
+          <br><button class="btn-sm danger" style="font-size:0.6rem;margin-top:0.3rem;"
+            data-action="cancelar-reab" data-id="${esc(r.id)}">Cancelar</button>`;
+      } else if (r.status === 'aceita') {
+        cls += ' reab-aceita'; lblCls = 'aceita';
+        statusLabel = r.concluido_em ? `✅ Ciclo ${esc(r.ciclo)} Concluído` : `✅ Ciclo ${esc(r.ciclo)} Em Andamento`;
+        detalhes    = `Motivo: &ldquo;${esc(r.motivo_solicitacao)}&rdquo;<br>Prioridade: ${esc(r.prioridade)}`;
+        if (r.concluido_em) {
+          detalhes += `<br><span style="color:var(--success);">Solução: ${esc(r.descricao_final || 'N/D')}</span>`;
+          detalhes += `<br><span class="sla-mini ${r.sla_estourado ? 'estourado' : 'ok'}">SLA: ${esc(r.sla_consumido_min || 0)}/${esc(r.sla_total_min)} min</span>`;
+          if (r.link_referencia) detalhes += `<br><a href="${esc(r.link_referencia)}" target="_blank" rel="noopener noreferrer" class="link-ref">🔗 Link</a>`;
+        } else {
+          detalhes += `<br><span class="sla-mini ok">SLA: ${esc(r.sla_consumido_min || 0)}/${esc(r.sla_total_min)} min</span>`;
+        }
+      } else if (r.status === 'recusada') {
+        cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '🚫 Recusada';
+        detalhes = `Motivo: &ldquo;${esc(r.motivo_solicitacao)}&rdquo;<br>
+          <span style="color:var(--danger);">Recusa: ${esc(r.justificativa_recusa || 'Sem justificativa')}</span>`;
+      } else if (r.status === 'cancelada') {
+        cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '✗ Cancelada';
+        detalhes = 'Cancelada por você';
+      }
+      reabHTML += `<div class="${cls}">
+        <div class="reab-label ${lblCls}">${statusLabel} · ${new Date(r.solicitado_em).toLocaleString('pt-BR')}</div>
+        <div style="font-size:0.7rem;color:var(--muted);">${detalhes}</div>
+      </div>`;
+    });
+
+    return `<div class="ticket-card">
+      <div class="ticket-header">
+        <span class="ticket-id">#${esc(t.id)} · ${esc(t.setor)}</span>
+        <div class="ticket-badges">
+          ${t.prioridade ? `<span class="badge ${esc(prioBadge[t.prioridade])}">${esc(t.prioridade)}</span>` : ''}
+          <span class="badge ${statusBadge[t.status] || 'badge-aberto'}">${esc(t.status)}</span>
+          ${t.ciclo_atual > 1 ? `<span class="badge badge-pendente">Ciclo ${esc(t.ciclo_atual)}</span>` : ''}
+        </div>
+      </div>
+      <div class="ticket-desc">${esc(t.descricao)}</div>
+      ${anexosHTML}
+      ${solucao}
+      ${reabHTML ? `<div style="margin-top:0.25rem;">${reabHTML}</div>` : ''}
+      <div class="ticket-meta">
+        <span>📅 ${new Date(t.criado_em).toLocaleString('pt-BR')}</span>
+        ${t.analista_responsavel ? `<span>👤 ${esc(t.analista_responsavel)}</span>` : ''}
+      </div>
+      ${acoes ? `<div class="ticket-actions">${acoes}</div>` : ''}
     </div>`;
   }
 
-  // Reaberturas
-  let reabHTML = '';
-  reabs.forEach(r => {
-    let cls = 'reabertura-box';
-    let lblCls = '';
-    let statusLabel = '';
-    let detalhes = '';
-
-    if (r.status === 'pendente') {
-      cls += ' reab-pendente'; lblCls = 'pendente';
-      statusLabel = '⏳ Pendente';
-      detalhes = `Motivo: "${r.motivo_solicitacao}"<br><small>${new Date(r.solicitado_em).toLocaleString('pt-BR')}</small>
-                  <br><button class="btn-sm danger" style="font-size:0.6rem;margin-top:0.3rem;" onclick="cancelarReabertura(${r.id})">Cancelar</button>`;
-    } else if (r.status === 'aceita') {
-      cls += ' reab-aceita'; lblCls = 'aceita';
-      statusLabel = r.concluido_em ? `✅ Ciclo ${r.ciclo} Concluído` : `✅ Ciclo ${r.ciclo} Em Andamento`;
-      detalhes = `Motivo: "${r.motivo_solicitacao}"<br>Prioridade: ${r.prioridade}`;
-      if (r.concluido_em) {
-        detalhes += `<br><span style="color:var(--success);">Solução: ${r.descricao_final||'N/D'}</span>`;
-        detalhes += `<br><span class="sla-mini ${r.sla_estourado?'estourado':'ok'}">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`;
-        if (r.link_referencia) detalhes += `<br><a href="${r.link_referencia}" target="_blank" class="link-ref">🔗 Link</a>`;
-      } else {
-        detalhes += `<br><span class="sla-mini ok">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`;
-      }
-    } else if (r.status === 'recusada') {
-      cls += ' reab-recusada'; lblCls = 'recusada';
-      statusLabel = '🚫 Recusada';
-      detalhes = `Motivo: "${r.motivo_solicitacao}"<br><span style="color:var(--danger);">Recusa: ${r.justificativa_recusa||'Sem justificativa'}</span>`;
-    } else if (r.status === 'cancelada') {
-      cls += ' reab-recusada'; lblCls = 'recusada';
-      statusLabel = '✗ Cancelada';
-      detalhes = 'Cancelada por você';
-    }
-
-    reabHTML += `<div class="${cls}"><div class="reab-label ${lblCls}">${statusLabel} · ${new Date(r.solicitado_em).toLocaleString('pt-BR')}</div><div style="font-size:0.7rem;color:var(--muted);">${detalhes}</div></div>`;
-  });
-
-  return `<div class="ticket-card">
-    <div class="ticket-header">
-      <span class="ticket-id">#${t.id} · ${t.setor}</span>
-      <div class="ticket-badges">
-        ${t.prioridade?`<span class="badge ${prioBadge[t.prioridade]}">${t.prioridade}</span>`:''}
-        <span class="badge ${statusBadge[t.status]||'badge-aberto'}">${t.status}</span>
-        ${t.ciclo_atual>1?`<span class="badge badge-pendente">Ciclo ${t.ciclo_atual}</span>`:''}
-      </div>
-    </div>
-    <div class="ticket-desc">${t.descricao}</div>
-    ${anexosHTML}
-    ${solucao}
-    ${reabHTML ? `<div style="margin-top:0.25rem;">${reabHTML}</div>` : ''}
-    <div class="ticket-meta">
-      <span>📅 ${new Date(t.criado_em).toLocaleString('pt-BR')}</span>
-      ${t.analista_responsavel?`<span>👤 ${t.analista_responsavel}</span>`:''}
-    </div>
-    ${acoes?`<div class="ticket-actions">${acoes}</div>`:''}
-  </div>`;
-}
-
-  // CORRIGIDO: delegação de eventos no container — evita event listeners perdidos ao re-renderizar
+  // ── Delegação de eventos ──────────────────────────────────────────
   document.getElementById('tickets-container').addEventListener('click', async function (e) {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
-    const action = btn.dataset.action;
-    const id     = btn.dataset.id;
-    if      (action === 'editar')       abrirEditar(id, btn.dataset.setor, btn.dataset.desc);
-    else if (action === 'excluir')      abrirExcluir(id);
-    else if (action === 'reabrir')      abrirReabrir(id);
-    else if (action === 'receber')      confirmarRecebimento(id);
+    const { action, id, setor, desc } = btn.dataset;
+    if      (action === 'editar')        abrirEditar(id, setor, desc);
+    else if (action === 'excluir')       abrirExcluir(id);
+    else if (action === 'reabrir')       abrirReabrir(id);
+    else if (action === 'receber')       confirmarRecebimento(id);
     else if (action === 'cancelar-reab') abrirCancelarReabertura(id);
   });
 
+  // ── Modais ────────────────────────────────────────────────────────
   async function abrirEditar(id, setor, desc) {
-    document.getElementById('edit-id').value = id; 
-    document.getElementById('edit-setor').value = setor;
+    document.getElementById('edit-id').value        = id;
+    document.getElementById('edit-setor').value     = setor;
     document.getElementById('edit-descricao').value = desc;
-    document.getElementById('edit-arquivo').value = '';
-    
-    // Carregar anexos existentes
+    limparArquivos('edit-arquivo');
+
+    // Carregar lista de anexos existentes no ticket
     const anexosLista = document.getElementById('edit-anexos-lista');
     try {
-      const res = await fetch(`/api/anexo/${id}/listar`, { headers: getAuthHeaders() });
+      const res    = await fetch(`/api/anexo/${id}/listar`, { headers: getAuthHeaders() });
       const anexos = await res.json();
-      if (anexos.length > 0) {
-        anexosLista.innerHTML = anexos.map(a => `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--border);">
-            <a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);text-decoration:none;">${a.nome_original}</a>
-            <button onclick="excluirAnexo(${a.id})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.8rem;">🗑</button>
-          </div>
-        `).join('');
-      } else {
-        anexosLista.innerHTML = '<span style="color:var(--muted);">Nenhum anexo</span>';
-      }
-    } catch { anexosLista.innerHTML = ''; }
-    
+      _renderAnexosEdicao(anexos, anexosLista);
+    } catch { anexosLista.innerHTML = '<span style="color:var(--muted);">Erro ao carregar anexos.</span>'; }
+
     document.getElementById('modal-editar').classList.add('open');
   }
 
-  function abrirExcluir(id) {
-    document.getElementById('excluir-id').value = id;
-    document.getElementById('modal-excluir').classList.add('open');
+  function _renderAnexosEdicao(anexos, container) {
+    if (!anexos.length) {
+      container.innerHTML = '<span style="color:var(--muted);">Nenhum anexo</span>';
+      return;
+    }
+    container.innerHTML = anexos.map(a => `
+      <div class="anexo-row">
+        <a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
+           style="color:var(--accent);text-decoration:none;">${esc(a.nome_original)}</a>
+        <button data-action="excluir-anexo" data-id="${esc(a.id)}"
+                style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.8rem;"
+                title="Remover">🗑</button>
+      </div>`).join('');
   }
 
+  // Delegação de eventos dentro do modal editar (anexos)
+  document.getElementById('edit-anexos-lista').addEventListener('click', async function (e) {
+    const btn = e.target.closest('[data-action="excluir-anexo"]');
+    if (!btn) return;
+    await excluirAnexo(btn.dataset.id);
+  });
+
   async function excluirAnexo(anexoId) {
-    if (!confirm('Remover este anexo?')) return;
     try {
       const res = await fetch(`/api/anexo/${anexoId}`, { method: 'DELETE', headers: getAuthHeaders() });
       if (!res.ok) throw new Error((await res.json()).error);
       toast('✓ Anexo removido', 'success');
-      // Recarregar lista de anexos no modal
-      const ticketId = document.getElementById('edit-id').value;
-      const anexosLista = document.getElementById('edit-anexos-lista');
-      const resLista = await fetch(`/api/anexo/${ticketId}/listar`, { headers: getAuthHeaders() });
-      const anexos = await resLista.json();
-      anexosLista.innerHTML = anexos.length > 0 ? anexos.map(a => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--border);">
-          <a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);text-decoration:none;">${a.nome_original}</a>
-          <button onclick="excluirAnexo(${a.id})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.8rem;">🗑</button>
-        </div>
-      `).join('') : '<span style="color:var(--muted);">Nenhum anexo</span>';
-    } catch(err) { toast('✗ '+err.message,'error'); }
+      // Recarregar lista dentro do modal sem fechar
+      const ticketId    = document.getElementById('edit-id').value;
+      const resLista    = await fetch(`/api/anexo/${ticketId}/listar`, { headers: getAuthHeaders() });
+      const anexos      = await resLista.json();
+      _renderAnexosEdicao(anexos, document.getElementById('edit-anexos-lista'));
+    } catch (err) { toast('✗ ' + err.message, 'error'); }
   }
 
-    // Gerenciar fila de arquivos (acumula, não substitui)
-  function adicionarArquivos(inputId, maxArquivos) {
-    const input = document.getElementById(inputId);
-    const dt = new DataTransfer();
-    
-    // Manter arquivos já existentes
-    for (const file of input.files) {
-      dt.items.add(file);
-    }
-    
-    input.files = dt.files;
-    
-    // Se já atingiu o máximo, esconder o input
-    if (input.files.length >= maxArquivos) {
-      input.style.display = 'none';
-      document.getElementById(inputId + '-cheio').style.display = 'block';
-    }
-  }
-  
-  function removerArquivo(inputId, index, maxArquivos) {
-    const input = document.getElementById(inputId);
-    const dt = new DataTransfer();
-    
-    for (let i = 0; i < input.files.length; i++) {
-      if (i !== index) {
-        dt.items.add(input.files[i]);
-      }
-    }
-    
-    input.files = dt.files;
-    
-    // Mostrar input novamente se tiver espaço
-    if (input.files.length < maxArquivos) {
-      input.style.display = 'block';
-      document.getElementById(inputId + '-cheio').style.display = 'none';
-    }
-    
-    atualizarListaArquivos(inputId);
-  }
-  
-  function atualizarListaArquivos(inputId) {
-    const input = document.getElementById(inputId);
-    const lista = document.getElementById(inputId + '-lista');
-    if (!lista) return;
-    
-    if (input.files.length === 0) {
-      lista.innerHTML = '';
-      return;
-    }
-    
-    lista.innerHTML = Array.from(input.files).map((file, i) => `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.3rem 0;font-size:0.68rem;">
-        <span style="color:var(--text);">📎 ${file.name} (${(file.size/1024).toFixed(0)}KB)</span>
-        <button onclick="removerArquivo('${inputId}', ${i}, 2)" style="background:none;border:none;color:var(--danger);cursor:pointer;">🗑</button>
-      </div>
-    `).join('');
+  function abrirExcluir(id) {
+    document.getElementById('excluir-id').value    = id;
+    document.getElementById('excluir-motivo').value= '';
+    document.getElementById('modal-excluir').classList.add('open');
   }
 
   async function abrirReabrir(id) {
@@ -688,70 +716,27 @@ function renderTicket(t) {
     document.getElementById('modal-cancelar-reab').classList.add('open');
   }
 
-  async function confirmarCancelarReabertura() {
-    const rid = document.getElementById('cancelar-reab-id').value;
-    try {
-      const res = await fetch(`${API_REAB}/reaberturas/${rid}/cancelar`, { method: 'PATCH', headers: getAuthHeaders() });
-      if (!res.ok) throw new Error((await res.json()).error);
-      fecharModal('modal-cancelar-reab');
-      toast('✓ Cancelada', 'success');
-      carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
   function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
 
+  // ── Ações assíncronas ─────────────────────────────────────────────
   async function salvarEdicao() {
     const id = document.getElementById('edit-id').value;
-    
-    // Validar arquivos antes de enviar
-    const arquivoInput = document.getElementById('edit-arquivo');
-    if (arquivoInput.files.length > 2) {
-      toast('✗ Máximo de 2 arquivos por vez', 'error');
-      return;
-    }
-    for (const file of arquivoInput.files) {
-      if (file.size > 25 * 1024 * 1024) {
-        toast(`✗ Arquivo "${file.name}" excede o limite de 25MB (${(file.size/1024/1024).toFixed(1)}MB)`, 'error');
-        btn.textContent = 'Abrir Ticket →'; btn.disabled = false;
-        return;
-      }
-    }
-  
     try {
       const res = await fetch(`${API}/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
+        method: 'PUT', headers: getAuthHeaders(),
         body: JSON.stringify({
-          setor: document.getElementById('edit-setor').value,
+          setor:     document.getElementById('edit-setor').value,
           descricao: document.getElementById('edit-descricao').value
         })
       });
       if (!res.ok) throw new Error((await res.json()).error);
-  
-      // Upload de novos arquivos
-      if (arquivoInput.files.length > 0) {
-        for (const file of arquivoInput.files) {
-          const formData = new FormData();
-          formData.append('arquivo', file);
-          const uploadRes = await fetch(`/api/anexo/${id}/upload`, {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL },
-            body: formData
-          });
-          if (!uploadRes.ok) {
-            const err = await uploadRes.json();
-            toast('⚠️ Upload falhou: ' + err.error, 'error');
-          }
-        }
-      }
-  
+      // Upload dos novos arquivos acumulados
+      await uploadArquivos(id, 'edit-arquivo');
       fecharModal('modal-editar');
       toast('✓ Atualizado', 'success');
+      limparArquivos('edit-arquivo');
       carregarTickets();
-    } catch(err) {
-      toast('✗ ' + err.message, 'error');
-    }
+    } catch (err) { toast('✗ ' + err.message, 'error'); }
   }
 
   async function confirmarExclusao() {
@@ -780,6 +765,17 @@ function renderTicket(t) {
     } catch (err) { toast('✗ ' + err.message, 'error'); }
   }
 
+  async function confirmarCancelarReabertura() {
+    const rid = document.getElementById('cancelar-reab-id').value;
+    try {
+      const res = await fetch(`${API_REAB}/reaberturas/${rid}/cancelar`, { method: 'PATCH', headers: getAuthHeaders() });
+      if (!res.ok) throw new Error((await res.json()).error);
+      fecharModal('modal-cancelar-reab');
+      toast('✓ Cancelada', 'success');
+      carregarTickets();
+    } catch (err) { toast('✗ ' + err.message, 'error'); }
+  }
+
   async function confirmarRecebimento(id) {
     try {
       const res  = await fetch(`${API}/${id}/receber`, { method: 'PATCH', headers: getAuthHeaders() });
@@ -797,7 +793,6 @@ function renderTicket(t) {
     setTimeout(() => el.classList.remove('show'), 3500);
   }
 
-  // Fechar modal ao clicar fora
   document.querySelectorAll('.modal-overlay').forEach(o =>
     o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
   );

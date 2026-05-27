@@ -446,6 +446,7 @@
     for (const file of files) {
       const formData = new FormData();
       formData.append('arquivo', file);
+      formData.append('tipo_upload', 'solicitante');
       try {
         const res = await fetch(`/api/anexo/${ticketId}/upload`, {
           method: 'POST',

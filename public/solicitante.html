@@ -365,22 +365,29 @@
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
   
-    // Upload de arquivos se existirem
-    const arquivoInput = document.getElementById('arquivo');
-    if (arquivoInput.files.length > 0) {
-      for (const file of arquivoInput.files) {
-        const formData = new FormData();
-        formData.append('arquivo', file);
-        try {
-          await fetch(`/api/anexo/${d.id}/upload`, { 
-            method: 'POST', 
-            headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, 
-            body: formData 
-          });
-        } catch (uploadErr) { 
-          console.error('Upload falhou:', file.name, uploadErr); 
+      // Upload de arquivos se existirem
+      const arquivoInput = document.getElementById('arquivo');
+      if (arquivoInput.files.length > 0) {
+        for (const file of arquivoInput.files) {
+          const formData = new FormData();
+          formData.append('arquivo', file);
+          try {
+            await fetch(`/api/anexo/${d.id}/upload`, { 
+              method: 'POST', 
+              headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, 
+              body: formData 
+            });
+          } catch (uploadErr) { 
+            console.error('Upload falhou:', file.name, uploadErr); 
+          }
+        }
       }
-    }
+
+      toast('✓ Ticket criado!', 'success');
+      document.getElementById('form-ticket').reset();
+      carregarTickets();
+    } catch(err) { toast('✗ '+err.message, 'error'); }
+    finally { btn.textContent = 'Abrir Ticket →'; btn.disabled = false; }
   }
 
   async function carregarTickets() {

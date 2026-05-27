@@ -362,9 +362,6 @@
   }
 
   // ── Gerenciamento de arquivos ─────────────────────────────────────
-  // Arrays globais que acumulam os arquivos entre seleções sucessivas.
-  // Isso resolve o problema do navegador substituir `input.files` a cada
-  // abertura do seletor de arquivos.
   const arquivosAcumulados = {
     'arquivo':      [],
     'edit-arquivo': []
@@ -384,12 +381,10 @@
         toast(`✗ "${file.name}" excede 25 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)`, 'error');
         continue;
       }
-      // Evitar duplicatas por nome + tamanho
       const duplicado = acumulado.some(f => f.name === file.name && f.size === file.size);
       if (!duplicado) acumulado.push(file);
     }
 
-    // Sincronizar input.files com o array acumulado
     _sincronizarInput(inputId, maxArquivos);
     atualizarListaArquivos(inputId);
   }
@@ -400,8 +395,6 @@
     atualizarListaArquivos(inputId);
   }
 
-  // Escreve o array acumulado de volta no input via DataTransfer
-  // e controla a visibilidade do indicador "cheio"
   function _sincronizarInput(inputId, maxArquivos) {
     const input    = document.getElementById(inputId);
     const acumulado= arquivosAcumulados[inputId];
@@ -429,7 +422,6 @@
       </div>`).join('');
   }
 
-  // Limpa o array e a UI do input após envio
   function limparArquivos(inputId) {
     arquivosAcumulados[inputId] = [];
     const input   = document.getElementById(inputId);
@@ -480,7 +472,6 @@
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
 
-      // Upload dos arquivos acumulados para o ticket recém-criado
       await uploadArquivos(d.id, 'arquivo');
 
       toast('✓ Ticket criado!', 'success');
@@ -503,7 +494,6 @@
       const tickets = await res.json();
       if (!tickets.length) { container.innerHTML = '<div class="empty-state">Nenhum ticket.</div>'; return; }
 
-      // Fetch paralelo de reaberturas e anexos
       const ticketsCompleto = await Promise.all(tickets.map(async t => {
         try {
           const [rRes, aRes] = await Promise.all([
@@ -532,9 +522,8 @@
     // Ações
     let acoes = '';
     if (t.status === 'aberto') {
-      // Usa data-* — evita escape frágil
-    acoes = `<button class="btn-sm" data-action="editar" data-id="${t.id}" data-setor="${esc(t.setor||'')}" data-desc="${esc(t.descricao||'')}">Editar</button>
-             <button class="btn-sm danger" data-action="excluir" data-id="${t.id}">Excluir</button>`;
+      acoes = `<button class="btn-sm" data-action="editar" data-id="${t.id}" data-setor="${esc(t.setor||'')}" data-desc="${esc(t.descricao||'')}">Editar</button>
+               <button class="btn-sm danger" data-action="excluir" data-id="${t.id}">Excluir</button>`;
     } else if (t.status === 'concluído') {
       acoes = `<button class="btn-sm success" data-action="receber" data-id="${esc(t.id)}">✅ Confirmar Recebimento</button>`;
       if (!temPendente && !temAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
@@ -552,24 +541,40 @@
       }
     }
 
-    // Solução
-    let solucao = '';
-    if (t.descricao_final) {
-      solucao = `<div class="solucao-box">
-        <div class="solucao-label">✅ Solução Original</div>
-        <div class="solucao-text">${esc(t.descricao_final)}</div>
-        ${t.link_referencia ? `<a href="${esc(t.link_referencia)}" target="_blank" rel="noopener noreferrer" class="link-ref">🔗 Link</a>` : ''}
+    // Anexos do solicitante — exibidos após a descrição
+    let anexosSolicitanteHTML = '';
+    const anexosSolicitante = anexos.filter(a => a.tipo_upload === 'solicitante');
+    if (anexosSolicitante.length > 0) {
+      anexosSolicitanteHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;color:var(--muted);">
+        📎 Seus anexos: ${anexosSolicitante.map(a =>
+          `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
+              style="color:var(--accent);">${esc(a.nome_original)}</a>
+           <span style="color:var(--muted);font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`
+        ).join(' &nbsp;·&nbsp; ')}
       </div>`;
     }
 
-    // Anexos
-    let anexosHTML = '';
-    if (anexos.length) {
-      anexosHTML = `<div class="anexos-lista" style="flex-direction:row;flex-wrap:wrap;gap:0.5rem;">
-        <span style="color:var(--muted);">📎</span>
-        ${anexos.map(a => `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
-           style="color:var(--accent);text-decoration:none;">${esc(a.nome_original)}</a>
-           <span style="color:var(--muted);font-size:0.6rem;">(${(a.tamanho_bytes / 1024).toFixed(0)} KB)</span>`).join(' &nbsp;·&nbsp; ')}
+    // Anexos do analista — exibidos dentro da solucao-box
+    let anexosAnalistaHTML = '';
+    const anexosAnalista = anexos.filter(a => a.tipo_upload === 'analista');
+    if (anexosAnalista.length > 0) {
+      anexosAnalistaHTML = `<div style="margin-top:0.4rem;font-size:0.68rem;">
+        📎 Anexos da solução: ${anexosAnalista.map(a =>
+          `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
+              style="color:var(--accent);">${esc(a.nome_original)}</a>
+           <span style="color:var(--muted);font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`
+        ).join(' &nbsp;·&nbsp; ')}
+      </div>`;
+    }
+
+    // Solução — inclui anexos do analista internamente
+    let solucao = '';
+    if (t.descricao_final) {
+      solucao = `<div class="solucao-box">
+        <div class="solucao-label">✅ Solução do Analista</div>
+        <div class="solucao-text">${esc(t.descricao_final)}</div>
+        ${t.link_referencia ? `<a href="${esc(t.link_referencia)}" target="_blank" rel="noopener noreferrer" class="link-ref">🔗 Link</a>` : ''}
+        ${anexosAnalistaHTML}
       </div>`;
     }
 
@@ -618,7 +623,7 @@
         </div>
       </div>
       <div class="ticket-desc">${esc(t.descricao)}</div>
-      ${anexosHTML}
+      ${anexosSolicitanteHTML}
       ${solucao}
       ${reabHTML ? `<div style="margin-top:0.25rem;">${reabHTML}</div>` : ''}
       <div class="ticket-meta">
@@ -648,7 +653,6 @@
     document.getElementById('edit-descricao').value = desc;
     limparArquivos('edit-arquivo');
 
-    // Carregar lista de anexos existentes no ticket
     const anexosLista = document.getElementById('edit-anexos-lista');
     try {
       const res    = await fetch(`/api/anexo/${id}/listar`, { headers: getAuthHeaders() });
@@ -674,7 +678,6 @@
       </div>`).join('');
   }
 
-  // Delegação de eventos dentro do modal editar (anexos)
   document.getElementById('edit-anexos-lista').addEventListener('click', async function (e) {
     const btn = e.target.closest('[data-action="excluir-anexo"]');
     if (!btn) return;
@@ -686,7 +689,6 @@
       const res = await fetch(`/api/anexo/${anexoId}`, { method: 'DELETE', headers: getAuthHeaders() });
       if (!res.ok) throw new Error((await res.json()).error);
       toast('✓ Anexo removido', 'success');
-      // Recarregar lista dentro do modal sem fechar
       const ticketId    = document.getElementById('edit-id').value;
       const resLista    = await fetch(`/api/anexo/${ticketId}/listar`, { headers: getAuthHeaders() });
       const anexos      = await resLista.json();
@@ -731,7 +733,6 @@
         })
       });
       if (!res.ok) throw new Error((await res.json()).error);
-      // Upload dos novos arquivos acumulados
       await uploadArquivos(id, 'edit-arquivo');
       fecharModal('modal-editar');
       toast('✓ Atualizado', 'success');

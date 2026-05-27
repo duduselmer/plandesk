@@ -715,6 +715,7 @@
       if (arquivoInput.files.length > 0) {
         const formData = new FormData();
         formData.append('arquivo', arquivoInput.files[0]);
+        formData.append('tipo_upload', 'analista');
         const upRes = await fetch(`${API_ANEXO}/${id}/upload`, {
           method: 'POST',
           // Sem Content-Type — o browser define automaticamente com o boundary correto

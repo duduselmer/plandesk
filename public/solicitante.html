@@ -221,7 +221,7 @@
           <textarea id="descricao" class="fi" required></textarea>
         </label>
         <label>Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span>
-          <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" style="padding:0.5rem;" />
+          <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple style="padding:0.5rem;" />
           <small style="color:var(--muted);font-size:0.6rem;">PDF, Excel, Word, Imagens — até 25MB</small>
         </label>
         <button type="submit" class="btn-submit">Abrir Ticket →</button>
@@ -259,7 +259,7 @@
     
     <!-- Novo anexo -->
     <label>Adicionar anexo <span style="color:var(--muted);font-size:0.6rem;">(máx 2 total)</span>
-      <input type="file" id="edit-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" style="padding:0.4rem;" />
+      <input type="file" id="edit-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple style="padding:0.4rem;" />
     </label>
     
     <div class="modal-actions">
@@ -365,16 +365,24 @@
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
   
-      // Upload de arquivo se existir
+      // Upload de arquivos se existirem
       const arquivoInput = document.getElementById('arquivo');
       if (arquivoInput.files.length > 0) {
-        const formData = new FormData();
-        formData.append('arquivo', arquivoInput.files[0]);
-        try {
-          await fetch(`/api/anexo/${d.id}/upload`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, body: formData });
-        } catch (uploadErr) { console.error('Upload falhou:', uploadErr); }
+        for (const file of arquivoInput.files) {
+          const formData = new FormData();
+          formData.append('arquivo', file);
+          try {
+            await fetch(`/api/anexo/${d.id}/upload`, { 
+              method: 'POST', 
+              headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, 
+              body: formData 
+            });
+          } catch (uploadErr) { 
+            console.error('Upload falhou:', file.name, uploadErr); 
+          }
+        }
       }
-  
+
       toast('✓ Ticket criado!', 'success');
       document.getElementById('form-ticket').reset();
       carregarTickets();
@@ -616,20 +624,20 @@ function renderTicket(t) {
       if(!res.ok) throw new Error((await res.json()).error);
       
       // Upload de novo arquivo se existir
-      const arquivoInput = document.getElementById('edit-arquivo');
-      if (arquivoInput.files.length > 0) {
-        const formData = new FormData();
-        formData.append('arquivo', arquivoInput.files[0]);
-        const uploadRes = await fetch(`/api/anexo/${id}/upload`, { 
-          method: 'POST', 
-          headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, 
-          body: formData 
-        });
-        if (!uploadRes.ok) {
-          const err = await uploadRes.json();
-          toast('⚠️ Ticket salvo, mas upload falhou: ' + err.error, 'error');
-        }
+    const arquivoInput = document.getElementById('edit-arquivo');
+    for (const file of arquivoInput.files) {
+      const formData = new FormData();
+      formData.append('arquivo', file);
+      const uploadRes = await fetch(`/api/anexo/${id}/upload`, { 
+        method: 'POST', 
+        headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, 
+        body: formData 
+      });
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json();
+        toast('⚠️ Upload falhou: ' + err.error, 'error');
       }
+    }
       
       fecharModal('modal-editar'); toast('✓ Atualizado','success'); carregarTickets();
     } catch(err) { toast('✗ '+err.message,'error'); }

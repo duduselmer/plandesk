@@ -108,12 +108,12 @@
     // IMPORTANTE: autorização real deve ser validada no servidor a cada requisição.
     // Nunca confie apenas nesta lista para proteger rotas ou dados.
     const TELAS_POR_NIVEL = {
-      requisitor:  ['solicitante'],
-      supervisor:  ['solicitante', 'historico'],
+      requisitor: ['solicitante'],
+      supervisor: ['solicitante', 'gestao', 'historico', 'configuracoes'],
       controldesk: ['solicitante', 'analista', 'gestao'],
-      admin:       ['solicitante', 'analista', 'gestao', 'historico']
+      gerente: ['solicitante', 'analista', 'gestao', 'historico', 'configuracoes'],
+      admin: ['solicitante', 'analista', 'gestao', 'historico', 'configuracoes']
     };
-    // CORRIGIDO: TELA_PADRAO era declarada mas nunca utilizada — removida.
 
     // Se já está logado, redireciona direto para o menu
     (function () {

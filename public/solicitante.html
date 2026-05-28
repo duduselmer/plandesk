@@ -214,15 +214,17 @@
         <div class="panel-subtitle">Preencha os dados para abrir um ticket</div>
       </div>
       <form class="form" id="form-ticket" onsubmit="criarTicket(event)">
-        <label>Setor <span>*</span>
+        <!-- 8B: setor de origem populado via API + setor de destino fixo -->
+        <label>Setor de origem <span>*</span>
           <select id="setor" class="fi" required>
             <option value="">Selecione...</option>
-            <option value="Carteira Assinatura">Carteira Assinatura</option>
-            <option value="Carteira Rescisão">Carteira Rescisão</option>
-            <option value="Carteira Athos">Carteira Athos</option>
-            <option value="Monitoria">Monitoria</option>
+          </select>
+        </label>
+        <label>Setor de destino <span>*</span>
+          <select id="setor-destino" class="fi" required>
+            <option value="">Selecione...</option>
             <option value="Control Desk">Control Desk</option>
-            <option value="Gerente">Gerente</option>
+            <option value="Planejamento">Planejamento</option>
           </select>
         </label>
         <label>Descrição <span>*</span>
@@ -256,14 +258,9 @@
   <div class="modal">
     <h3>Editar Ticket</h3>
     <input type="hidden" id="edit-id" />
-    <label class="field">Setor
+    <label class="field">Setor de origem
       <select id="edit-setor" class="fi">
-        <option value="Carteira Assinatura">Carteira Assinatura</option>
-        <option value="Carteira Rescisão">Carteira Rescisão</option>
-        <option value="Carteira Athos">Carteira Athos</option>
-        <option value="Monitoria">Monitoria</option>
-        <option value="Control Desk">Control Desk</option>
-        <option value="Gerente">Gerente</option>
+        <option value="">Selecione...</option>
       </select>
     </label>
     <label class="field">Descrição
@@ -349,6 +346,44 @@
   const API      = '/api/ticket';
   const API_REAB = '/api/reabertura';
   const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
+
+  // ── 8A: Carregar setores de origem do usuário ─────────────────────
+  let setoresOrigemUsuario = [];
+
+  async function carregarSetoresOrigem() {
+    try {
+      const res = await fetch('/api/usuarios/setores/origem', { headers: getAuthHeaders() });
+      const todosSetores = await res.json();
+
+      // Buscar setores vinculados ao usuário via payload do JWT
+      const tokenPayload = JSON.parse(atob(TOKEN.split('.')[1]));
+      const resUsuario = await fetch(`/api/usuarios/${tokenPayload.id}/setores-origem`, { headers: getAuthHeaders() });
+      setoresOrigemUsuario = await resUsuario.json();
+
+      // Se não tiver setores vinculados, usar todos (admin/gerente)
+      if (setoresOrigemUsuario.length === 0 && (NIVEL === 'admin' || NIVEL === 'gerente')) {
+        setoresOrigemUsuario = todosSetores;
+      }
+
+      preencherSelectSetores();
+    } catch (e) { console.error('Erro ao carregar setores:', e); }
+  }
+
+  function preencherSelectSetores() {
+    const selectOrigem    = document.getElementById('setor');
+    const selectEditSetor = document.getElementById('edit-setor');
+
+    const options = setoresOrigemUsuario.map(s =>
+      `<option value="${esc(s.nome)}">${esc(s.nome)}</option>`
+    ).join('');
+
+    if (selectOrigem) {
+      selectOrigem.innerHTML = '<option value="">Selecione...</option>' + options;
+    }
+    if (selectEditSetor) {
+      selectEditSetor.innerHTML = '<option value="">Selecione...</option>' + options;
+    }
+  }
 
   // ── Sanitização HTML ──────────────────────────────────────────────
   function esc(str) {
@@ -464,9 +499,11 @@
       const res = await fetch(API, {
         method: 'POST',
         headers: getAuthHeaders(),
+        // 8C: envia setor (origem) + setor_destino
         body: JSON.stringify({
-          setor:     document.getElementById('setor').value,
-          descricao: document.getElementById('descricao').value
+          setor:         document.getElementById('setor').value,
+          setor_destino: document.getElementById('setor-destino').value,
+          descricao:     document.getElementById('descricao').value
         })
       });
       const d = await res.json();
@@ -613,9 +650,12 @@
       </div>`;
     });
 
+    // Setor de destino no header (se disponível)
+    const setorDestino = t.setor_destino ? ` → ${esc(t.setor_destino)}` : '';
+
     return `<div class="ticket-card">
       <div class="ticket-header">
-        <span class="ticket-id">#${esc(t.id)} · ${esc(t.setor)}</span>
+        <span class="ticket-id">#${esc(t.id)} · ${esc(t.setor)}${setorDestino}</span>
         <div class="ticket-badges">
           ${t.prioridade ? `<span class="badge ${esc(prioBadge[t.prioridade])}">${esc(t.prioridade)}</span>` : ''}
           <span class="badge ${statusBadge[t.status] || 'badge-aberto'}">${esc(t.status)}</span>
@@ -799,6 +839,8 @@
     o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
   );
 
+  // 8D: inicializa setores e tickets em paralelo
+  carregarSetoresOrigem();
   carregarTickets();
 </script>
 </body>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlanDesk — Configurações</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #0d0f12; --surface: #141720; --surface2: #1c2030; --surface3: #222638; --border: #252a3a; --accent: #f7c94f; --accent-dim: rgba(247,201,79,0.12); --blue: #4f8ef7; --success: #4ff7a0; --danger: #f74f4f; --purple: #a78bfa; --text: #e8ecf5; --muted: #6b738a; --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none; }
+    .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+    nav { background: rgba(20,23,32,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .nav-brand { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #e8ecf5 30%, #f7c94f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-user { font-size: 0.75rem; color: var(--text); }
+    .nav-home { color: var(--muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; } .nav-home:hover { color: var(--text); }
+    .nav-badge { background: var(--accent-dim); border: 1px solid rgba(247,201,79,0.3); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .nav-logout { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); padding: 0.3rem 0.75rem; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; } .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
+    .layout { display: flex; flex: 1; height: calc(100vh - 60px); }
+    .sidebar { width: 200px; border-right: 1px solid var(--border); padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; background: var(--surface); }
+    .sidebar-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.6rem 1rem; font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; text-align: left; }
+    .sidebar-btn:hover, .sidebar-btn.ativo { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+    .content { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+    .aba { display: none; } .aba.ativa { display: flex; flex-direction: column; gap: 1.5rem; }
+    .section-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    th { text-align: left; padding: 0.5rem 0.75rem; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 400; }
+    td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .badge { padding: 0.18rem 0.55rem; border-radius: 99px; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+    .badge-ativo { background: rgba(79,247,160,0.15); color: var(--success); }
+    .badge-inativo { background: rgba(247,79,79,0.15); color: var(--danger); }
+    .badge-admin { background: rgba(247,201,79,0.15); color: var(--accent); }
+    .btn-sm { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 0.3rem 0.7rem; font-family: var(--font-mono); font-size: 0.68rem; cursor: pointer; transition: all 0.2s; } .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .btn-sm.success { border-color: var(--success); color: var(--success); } .btn-sm.success:hover { background: rgba(79,247,160,0.1); }
+    input.mini, select.mini { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--font-mono); font-size: 0.75rem; padding: 0.4rem 0.6rem; outline: none; } input.mini:focus, select.mini:focus { border-color: var(--accent); }
+    .chip-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 99px; padding: 0.2rem 0.6rem; font-size: 0.65rem; display: flex; align-items: center; gap: 0.3rem; }
+    .chip button { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.7rem; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(13,15,18,0.85); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; } .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; width: min(480px, 90vw); display: flex; flex-direction: column; gap: 1.25rem; animation: fadeUp 0.25s ease; }
+    .modal h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+    .btn-cancel { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.6rem 1.2rem; font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer; } .btn-cancel:hover { border-color: var(--text); color: var(--text); }
+    .btn-confirm { background: var(--accent); border: none; border-radius: 8px; color: #000; padding: 0.6rem 1.4rem; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; cursor: pointer; } .btn-confirm:hover { background: #e8b830; }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface3); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.8rem; z-index: 999; transition: transform 0.3s ease; min-width: 280px; text-align: center; } .toast.show { transform: translateX(-50%) translateY(0); } .toast.success { border-color: var(--success); color: var(--success); } .toast.error { border-color: var(--danger); color: var(--danger); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <nav>
+    <a href="/" class="nav-brand">PlanDesk</a>
+    <div class="nav-right">
+      <a href="/menu" class="nav-home">🏠 Início</a>
+      <span class="nav-user" id="user-name"></span>
+      <span class="nav-badge">⚙️ Configurações</span>
+      <button class="nav-logout" onclick="logout()">Sair</button>
+    </div>
+  </nav>
+  <div class="layout">
+    <div class="sidebar">
+      <button class="sidebar-btn ativo" onclick="mostrarAba('usuarios', this)">👥 Usuários</button>
+      <button class="sidebar-btn" onclick="mostrarAba('setores', this)">📂 Setores</button>
+      <button class="sidebar-btn" id="btn-niveis" onclick="mostrarAba('niveis', this)">🔐 Níveis</button>
+    </div>
+    <div class="content">
+      <!-- ABA USUÁRIOS -->
+      <div class="aba ativa" id="aba-usuarios">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="section-title">Usuários</div>
+          <button class="btn-sm success" onclick="abrirModalUsuario()">+ Novo</button>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>ID</th><th>Nome</th><th>Email</th><th>Nível</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tb-usuarios"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ABA SETORES -->
+      <div class="aba" id="aba-setores">
+        <div class="section-title">Setores de Origem (Solicitantes)</div>
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;"><input class="mini" id="novo-setor-origem" placeholder="Nome do setor..." /><button class="btn-sm success" onclick="criarSetorOrigem()">+ Adicionar</button></div>
+        <div class="chip-row" id="chips-origem"></div>
+        <div class="section-title" style="margin-top:1.5rem;">Setores de Destino (Analistas)</div>
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;"><input class="mini" id="novo-setor-destino" placeholder="Nome do setor..." /><button class="btn-sm success" onclick="criarSetorDestino()">+ Adicionar</button></div>
+        <div class="chip-row" id="chips-destino"></div>
+        <div class="section-title" style="margin-top:1.5rem;">Vincular Setores a Usuários</div>
+        <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+          <select class="mini" id="vinculo-usuario"><option value="">Selecione usuário...</option></select>
+          <select class="mini" id="vinculo-setor-origem"><option value="">Setor origem...</option></select>
+          <button class="btn-sm success" onclick="vincularSetorOrigem()">Vincular Origem</button>
+          <select class="mini" id="vinculo-setor-destino"><option value="">Setor destino...</option></select>
+          <button class="btn-sm success" onclick="vincularSetorDestino()">Vincular Destino</button>
+        </div>
+        <div id="vinculos-usuario" style="margin-top:1rem;font-size:0.75rem;"></div>
+      </div>
+
+      <!-- ABA NÍVEIS -->
+      <div class="aba" id="aba-niveis">
+        <div class="section-title">Níveis de Acesso</div>
+        <div class="table-wrap"><table><thead><tr><th>Nível</th><th>Poder</th><th>Telas</th></tr></thead><tbody id="tb-niveis"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Usuário -->
+<div class="modal-overlay" id="modal-usuario"><div class="modal"><h3 id="modal-usuario-titulo">Novo Usuário</h3><input type="hidden" id="mu-id" /><label class="field">Nome<input class="fi" id="mu-nome" /></label><label class="field">Email<input class="fi" id="mu-email" /></label><label class="field">Senha<input class="fi" type="password" id="mu-senha" placeholder="Deixe vazio para não alterar" /></label><label class="field">Nível<select class="fi" id="mu-nivel"><option value="requisitor">Requisitor</option><option value="supervisor">Supervisor</option><option value="controldesk">Control Desk</option><option value="gerente">Gerente</option><option value="admin">Admin</option></select></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-usuario')">Cancelar</button><button class="btn-confirm" onclick="salvarUsuario()">Salvar</button></div></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TOKEN = localStorage.getItem('plandesk_token'); const NIVEL = localStorage.getItem('plandesk_nivel'); const NOME = localStorage.getItem('plandesk_nome'); const TELAS = JSON.parse(localStorage.getItem('plandesk_telas')||'[]');
+if(!TOKEN||!TELAS.includes('configuracoes')){window.location.href='/login';}
+document.getElementById('user-name').textContent=NOME||'Admin';
+function getAuthHeaders(){return{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN,'x-nivel':NIVEL};}
+function logout(){localStorage.clear();window.location.href='/login';}
+const API='/api/usuarios'; let abaAtual='usuarios';
+
+function mostrarAba(aba,btn){
+  document.querySelectorAll('.aba').forEach(a=>a.classList.remove('ativa'));
+  document.getElementById('aba-'+aba).classList.add('ativa');
+  document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('ativo'));
+  btn.classList.add('ativo'); abaAtual=aba;
+  if(aba==='usuarios') carregarUsuarios();
+  else if(aba==='setores') carregarSetores();
+  else if(aba==='niveis') carregarNiveis();
+}
+
+// ── USUÁRIOS ──
+async function carregarUsuarios(){
+  try{const r=await fetch(API,{headers:getAuthHeaders()});const u=await r.json();
+  document.getElementById('tb-usuarios').innerHTML=u.map(u=>`<tr><td>${u.id}</td><td>${u.nome}</td><td>${u.email}</td><td>${u.nivel}</td><td><span class="badge ${u.ativo?'badge-ativo':'badge-inativo'}">${u.ativo?'Ativo':'Inativo'}</span></td><td><button class="btn-sm" onclick="editarUsuario(${u.id},'${u.nome}','${u.email}','${u.nivel}')">Editar</button> <button class="btn-sm danger" onclick="toggleUsuario(${u.id},${u.ativo})">${u.ativo?'Desativar':'Ativar'}</button></td></tr>`).join('');
+  }catch(e){toast('Erro ao carregar','error');}
+}
+function abrirModalUsuario(){document.getElementById('mu-id').value='';document.getElementById('mu-nome').value='';document.getElementById('mu-email').value='';document.getElementById('mu-senha').value='';document.getElementById('mu-nivel').value='requisitor';document.getElementById('modal-usuario-titulo').textContent='Novo Usuário';document.getElementById('modal-usuario').classList.add('open');}
+function editarUsuario(id,nome,email,nivel){document.getElementById('mu-id').value=id;document.getElementById('mu-nome').value=nome;document.getElementById('mu-email').value=email;document.getElementById('mu-senha').value='';document.getElementById('mu-nivel').value=nivel;document.getElementById('modal-usuario-titulo').textContent='Editar Usuário';document.getElementById('modal-usuario').classList.add('open');}
+async function salvarUsuario(){const id=document.getElementById('mu-id').value;const body={nome:document.getElementById('mu-nome').value,email:document.getElementById('mu-email').value,nivel:document.getElementById('mu-nivel').value};const senha=document.getElementById('mu-senha').value;if(senha)body.senha=senha;try{const r=id?await fetch(`${API}/${id}`,{method:'PUT',headers:getAuthHeaders(),body:JSON.stringify(body)}):await fetch(API,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({...body,senha:senha||'123456'})});if(!r.ok){const e=await r.json();throw new Error(e.error);}fecharModal('modal-usuario');toast('✓ Salvo','success');carregarUsuarios();}catch(e){toast('✗ '+e.message,'error');}}
+async function toggleUsuario(id,ativo){try{await fetch(`${API}/${id}`,{method:'PUT',headers:getAuthHeaders(),body:JSON.stringify({ativo:ativo?0:1})});toast('✓ '+(ativo?'Desativado':'Ativado'),'success');carregarUsuarios();}catch(e){toast('✗ '+e.message,'error');}}
+
+// ── SETORES ──
+async function carregarSetores(){
+  try{
+    const[o,d]=await Promise.all([fetch(`${API}/setores/origem`,{headers:getAuthHeaders()}),fetch(`${API}/setores/destino`,{headers:getAuthHeaders()})]);
+    const origens=await o.json(),destinos=await d.json();
+    document.getElementById('chips-origem').innerHTML=origens.map(s=>`<div class="chip">${s.nome}<button onclick="removerSetorOrigem(${s.id})">×</button></div>`).join('');
+    document.getElementById('chips-destino').innerHTML=destinos.map(s=>`<div class="chip">${s.nome}<button onclick="removerSetorDestino(${s.id})">×</button></div>`).join('');
+    const us=await(await fetch(API,{headers:getAuthHeaders()})).json();
+    document.getElementById('vinculo-usuario').innerHTML='<option value="">Selecione...</option>'+us.map(u=>`<option value="${u.id}">${u.nome}</option>`).join('');
+    document.getElementById('vinculo-setor-origem').innerHTML='<option value="">Setor origem...</option>'+origens.map(s=>`<option value="${s.id}">${s.nome}</option>`).join('');
+    document.getElementById('vinculo-setor-destino').innerHTML='<option value="">Setor destino...</option>'+destinos.map(s=>`<option value="${s.id}">${s.nome}</option>`).join('');
+  }catch(e){toast('Erro ao carregar','error');}
+}
+async function criarSetorOrigem(){const n=document.getElementById('novo-setor-origem').value;if(!n)return;try{await fetch(`${API}/setores/origem`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({nome:n})});document.getElementById('novo-setor-origem').value='';carregarSetores();}catch(e){toast('✗ '+e.message,'error');}}
+async function criarSetorDestino(){const n=document.getElementById('novo-setor-destino').value;if(!n)return;try{await fetch(`${API}/setores/destino`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({nome:n})});document.getElementById('novo-setor-destino').value='';carregarSetores();}catch(e){toast('✗ '+e.message,'error');}}
+async function removerSetorOrigem(id){try{await fetch(`${API}/setores/origem/${id}`,{method:'DELETE',headers:getAuthHeaders()});carregarSetores();}catch(e){toast('✗ '+e.message,'error');}}
+async function removerSetorDestino(id){try{await fetch(`${API}/setores/destino/${id}`,{method:'DELETE',headers:getAuthHeaders()});carregarSetores();}catch(e){toast('✗ '+e.message,'error');}}
+async function vincularSetorOrigem(){const uid=document.getElementById('vinculo-usuario').value,sid=document.getElementById('vinculo-setor-origem').value;if(!uid||!sid)return;try{await fetch(`${API}/${uid}/setores-origem`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({setor_id:sid})});carregarSetores();carregarVinculos(uid);}catch(e){toast('✗ '+e.message,'error');}}
+async function vincularSetorDestino(){const uid=document.getElementById('vinculo-usuario').value,sid=document.getElementById('vinculo-setor-destino').value;if(!uid||!sid)return;try{await fetch(`${API}/${uid}/setores-destino`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({setor_id:sid})});carregarSetores();carregarVinculos(uid);}catch(e){toast('✗ '+e.message,'error');}}
+async function carregarVinculos(uid){if(!uid){document.getElementById('vinculos-usuario').innerHTML='';return;}try{const[o,d]=await Promise.all([fetch(`${API}/${uid}/setores-origem`,{headers:getAuthHeaders()}),fetch(`${API}/${uid}/setores-destino`,{headers:getAuthHeaders()})]);const or=await o.json(),de=await d.json();document.getElementById('vinculos-usuario').innerHTML=`<div style="margin-bottom:0.5rem;"><strong>Origens:</strong> ${or.length?or.map(s=>`<span class="chip">${s.nome}<button onclick="desvincularOrigem(${uid},${s.id})">×</button></span>`).join(' '):'Nenhum'}</div><div><strong>Destinos:</strong> ${de.length?de.map(s=>`<span class="chip">${s.nome}<button onclick="desvincularDestino(${uid},${s.id})">×</button></span>`).join(' '):'Nenhum'}</div>`;}catch(e){toast('Erro ao carregar vínculos','error');}}
+async function desvincularOrigem(uid,sid){try{await fetch(`${API}/${uid}/setores-origem/${sid}`,{method:'DELETE',headers:getAuthHeaders()});carregarVinculos(uid);}catch(e){toast('✗ '+e.message,'error');}}
+async function desvincularDestino(uid,sid){try{await fetch(`${API}/${uid}/setores-destino/${sid}`,{method:'DELETE',headers:getAuthHeaders()});carregarVinculos(uid);}catch(e){toast('✗ '+e.message,'error');}}
+document.getElementById('vinculo-usuario').addEventListener('change',function(){carregarVinculos(this.value);});
+
+// ── NÍVEIS ──
+async function carregarNiveis(){try{const r=await fetch(`${API}/niveis/lista`,{headers:getAuthHeaders()});const n=await r.json();document.getElementById('tb-niveis').innerHTML=n.map(n=>`<tr><td>${n.nome}</td><td>${n.poder}</td><td>${n.telas.join(', ')}</td></tr>`).join('');}catch(e){toast('Erro ao carregar','error');}}
+
+// ── GERAIS ──
+function fecharModal(id){document.getElementById(id).classList.remove('open');}
+function toast(msg,type='success'){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast ${type} show`;setTimeout(()=>el.classList.remove('show'),3500);}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// Esconder aba níveis se não for admin
+if(NIVEL!=='admin'){document.getElementById('btn-niveis').style.display='none';}
+
+carregarUsuarios();
+</script>
+</body>
+</html>

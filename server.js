@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const ticketRoutes = require('./routes/ticketRoutes');
+const usuarioRoutes = require('./routes/usuarioRoutes');
 const reaberturaRoutes = require('./routes/reaberturaRoutes');
+const anexoRoutes = require('./routes/anexoRoutes');
 const authRoutes = require('./routes/authRoutes');
 const multer = require('multer');
 
@@ -52,8 +54,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/ticket', ticketRoutes);
 app.use('/api/reabertura', reaberturaRoutes);
-
-const anexoRoutes = require('./routes/anexoRoutes');
+app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/anexo', anexoRoutes);
 
 // Rotas das páginas
@@ -83,6 +84,10 @@ app.get('/gestao', (req, res) => {
 
 app.get('/historico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'historico.html'));
+});
+
+app.get('/configuracoes', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'configuracoes.html'));
 });
 
 // Tratamento de erros global

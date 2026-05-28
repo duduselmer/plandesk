@@ -118,7 +118,7 @@
   <main>
     <div class="panel-form">
       <div>
-        <div class="panel-title">Nova Solicitação</div>
+        <div class="panel-title">Nova Solicitacao</div>
         <div class="panel-subtitle">Preencha os dados para abrir um ticket</div>
       </div>
       <form class="form" id="form-ticket" onsubmit="criarTicket(event)">
@@ -215,7 +215,7 @@
 <!-- Modal Cancelar Reabertura -->
 <div class="modal-overlay" id="modal-cancelar-reab">
   <div class="modal">
-    <h3>Cancelar Solicitação</h3>
+    <h3>Cancelar Solicitacao</h3>
     <p>Tem certeza que deseja cancelar esta solicitação?</p>
     <input type="hidden" id="cancelar-reab-id" />
     <div class="modal-actions">
@@ -396,7 +396,7 @@
     reabs.forEach(r => {
       let cls = 'reabertura-box', lblCls = '', statusLabel = '', detalhes = '';
       if (r.status === 'pendente') { cls += ' reab-pendente'; lblCls = 'pendente'; statusLabel = '⏳ Pendente'; detalhes = `Motivo: "${r.motivo_solicitacao}"<br><small>${new Date(r.solicitado_em).toLocaleString('pt-BR')}</small><br><button class="btn-sm danger" style="font-size:0.6rem;margin-top:0.3rem;" data-action="cancelar-reab" data-id="${r.id}">Cancelar</button>`; }
-      else if (r.status === 'aceita') { cls += ' reab-aceita'; lblCls = 'aceita'; statusLabel = r.concluido_em ? `✅ Ciclo ${r.ciclo} Concluído` : `✅ Ciclo ${r.ciclo} Em Andamento`; detalhes = `Motivo: "${r.motivo_solicitacao}"<br>Prioridade: ${r.prioridade}`; if (r.concluido_em) { detalhes += `<br><span style="color:var(--success);">Solução: ${r.descricao_final||'N/D'}</span><br><span class="sla-mini ${r.sla_estourado?'estourado':'ok'}">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`; if (r.link_referencia) detalhes += `<br><a href="${r.link_referencia}" target="_blank" class="link-ref">🔗 Link</a>`; } else detalhes += `<br><span class="sla-mini ok">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`; } }
+      else if (r.status === 'aceita') { cls += ' reab-aceita'; lblCls = 'aceita'; statusLabel = r.concluido_em ? `✅ Ciclo ${r.ciclo} Concluido` : `✅ Ciclo ${r.ciclo} Em andamento`; detalhes = `Motivo: "${r.motivo_solicitacao}"<br>Prioridade: ${r.prioridade}`; if (r.concluido_em) { detalhes += `<br><span style="color:var(--success);">Solução: ${r.descricao_final||'N/D'}</span><br><span class="sla-mini ${r.sla_estourado?'estourado':'ok'}">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`; if (r.link_referencia) detalhes += `<br><a href="${r.link_referencia}" target="_blank" class="link-ref">🔗 Link</a>`; } else detalhes += `<br><span class="sla-mini ok">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`; } }
       else if (r.status === 'recusada') { cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '🚫 Recusada'; detalhes = `Motivo: "${r.motivo_solicitacao}"<br><span style="color:var(--danger);">Recusa: ${r.justificativa_recusa||'Sem justificativa'}</span>`; }
       else if (r.status === 'cancelada') { cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '✗ Cancelada'; detalhes = 'Cancelada por você'; }
       reabHTML += `<div class="${cls}"><div class="reab-label ${lblCls}">${statusLabel} · ${new Date(r.solicitado_em).toLocaleString('pt-BR')}</div><div style="font-size:0.7rem;color:var(--muted);">${detalhes}</div></div>`;

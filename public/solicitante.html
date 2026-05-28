@@ -16,184 +16,92 @@
       --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
     }
     html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); overflow-x: hidden; }
-    body::before {
-      content: ''; position: fixed; inset: 0;
-      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none;
-    }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none; }
     .app { position: relative; z-index: 1; min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
-    nav {
-      background: rgba(20,23,32,0.95); border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px); padding: 0 2rem; height: 60px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-    }
-    .nav-brand {
-      font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;
-      background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      text-decoration: none;
-    }
+    nav { background: rgba(20,23,32,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .nav-brand { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #e8ecf5 30%, #4f8ef7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
     .nav-right { display: flex; align-items: center; gap: 1rem; }
     .nav-user { font-size: 0.75rem; color: var(--text); }
-    .nav-perfil {
-      background: var(--accent-dim); border: 1px solid rgba(79,142,247,0.3); color: var(--accent);
-      padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
-    }
-    .nav-logout {
-      background: none; border: 1px solid var(--border); border-radius: 6px;
-      color: var(--muted); padding: 0.3rem 0.75rem;
-      font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s;
-    }
+    .nav-perfil { background: var(--accent-dim); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .nav-logout { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); padding: 0.3rem 0.75rem; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
     .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
     .nav-home { color: var(--muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
     .nav-home:hover { color: var(--text); }
     main { display: grid; grid-template-columns: 380px 1fr; height: calc(100vh - 60px); }
-    @media (max-width: 680px) {
-      main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
-      .panel-form { border-right: none; border-bottom: 1px solid var(--border); }
-    }
-    .panel-form {
-      border-right: 1px solid var(--border); overflow-y: auto;
-      padding: 2rem; display: flex; flex-direction: column; gap: 2rem; animation: slideIn 0.4s ease;
-    }
+    @media (max-width: 680px) { main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; } .panel-form { border-right: none; border-bottom: 1px solid var(--border); } }
+    .panel-form { border-right: 1px solid var(--border); overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 2rem; animation: slideIn 0.4s ease; }
     .panel-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; }
     .panel-subtitle { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
     .form { display: flex; flex-direction: column; gap: 1.25rem; }
     label { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
     label span { color: var(--accent); margin-left: 2px; }
-    input, select, textarea {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-      color: var(--text); font-family: var(--font-mono); font-size: 0.85rem;
-      padding: 0.75rem 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
-    }
+    input, select, textarea { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-mono); font-size: 0.85rem; padding: 0.75rem 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.1); }
     textarea { resize: vertical; min-height: 110px; }
-    .btn-submit {
-      background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.85rem;
-      font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s;
-    }
+    .btn-submit { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.85rem; font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
     .btn-submit:hover { background: #3a7de8; }
     .panel-list { overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
     .list-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .list-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
-    .btn-refresh {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-      color: var(--muted); padding: 0.45rem 1rem; font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer;
-      transition: all 0.2s;
-    }
+    .btn-refresh { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.45rem 1rem; font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
     .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
     .tickets-grid { display: flex; flex-direction: column; gap: 0.75rem; }
-    .ticket-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; animation: fadeUp 0.3s ease both;
-    }
+    .ticket-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; animation: fadeUp 0.3s ease both; }
     .ticket-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
     .ticket-id { font-size: 0.7rem; color: var(--muted); }
     .ticket-badges { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
     .badge { padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
-    .badge-aberto    { background: rgba(79,142,247,0.15);  color: var(--accent); }
-    .badge-andamento { background: rgba(247,201,79,0.15);  color: var(--warning); }
-    .badge-concluido { background: rgba(79,247,160,0.15);  color: var(--success); }
-    .badge-pendente  { background: rgba(167,139,250,0.15); color: #a78bfa; }
-    .badge-baixa     { background: rgba(107,115,138,0.2);  color: var(--muted); }
-    .badge-media     { background: rgba(79,142,247,0.15);  color: var(--accent); }
-    .badge-alta      { background: rgba(247,201,79,0.15);  color: var(--warning); }
-    .badge-critica   { background: rgba(247,79,79,0.15);   color: var(--danger); }
-    .ticket-desc  { font-size: 0.82rem; color: var(--text); line-height: 1.5; }
-    .ticket-meta  { display: flex; gap: 1rem; font-size: 0.68rem; color: var(--muted); flex-wrap: wrap; }
+    .badge-aberto { background: rgba(79,142,247,0.15); color: var(--accent); }
+    .badge-andamento { background: rgba(247,201,79,0.15); color: var(--warning); }
+    .badge-concluido { background: rgba(79,247,160,0.15); color: var(--success); }
+    .badge-pendente { background: rgba(167,139,250,0.15); color: #a78bfa; }
+    .badge-baixa { background: rgba(107,115,138,0.2); color: var(--muted); }
+    .badge-media { background: rgba(79,142,247,0.15); color: var(--accent); }
+    .badge-alta { background: rgba(247,201,79,0.15); color: var(--warning); }
+    .badge-critica { background: rgba(247,79,79,0.15); color: var(--danger); }
+    .ticket-desc { font-size: 0.82rem; color: var(--text); line-height: 1.5; }
+    .ticket-meta { display: flex; gap: 1rem; font-size: 0.68rem; color: var(--muted); flex-wrap: wrap; }
     .ticket-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.25rem; }
-    .btn-sm {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
-      color: var(--text); padding: 0.35rem 0.85rem; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-sm:hover         { border-color: var(--accent);  color: var(--accent); }
-    .btn-sm.danger:hover  { border-color: var(--danger);  color: var(--danger); }
+    .btn-sm { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 0.35rem 0.85rem; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer; transition: all 0.2s; }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
     .btn-sm.success:hover { border-color: var(--success); color: var(--success); }
-    .solucao-box {
-      background: rgba(79,247,160,0.05); border: 1px solid rgba(79,247,160,0.2);
-      border-radius: 8px; padding: 0.75rem 1rem;
-    }
+    .solucao-box { background: rgba(79,247,160,0.05); border: 1px solid rgba(79,247,160,0.2); border-radius: 8px; padding: 0.75rem 1rem; }
     .solucao-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
-    .solucao-text  { font-size: 0.78rem; color: var(--success); line-height: 1.5; white-space: pre-wrap; }
-    .link-ref {
-      display: inline-block; margin-top: 0.5rem; font-size: 0.72rem; color: var(--accent);
-      text-decoration: none; padding: 0.3rem 0.6rem; background: rgba(79,142,247,0.1); border-radius: 4px;
-    }
-    .reabertura-box  { padding: 0.75rem 1rem; border-radius: 8px; margin-top: 0.25rem; }
-    .reab-pendente   { background: rgba(167,139,250,0.05); border: 1px solid rgba(167,139,250,0.4); }
-    .reab-aceita     { background: rgba(79,247,160,0.05);  border: 1px solid rgba(79,247,160,0.3); }
-    .reab-recusada   { background: rgba(247,79,79,0.05);   border: 1px solid rgba(247,79,79,0.3); }
-    .reab-label      { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .solucao-text { font-size: 0.78rem; color: var(--success); line-height: 1.5; white-space: pre-wrap; }
+    .link-ref { display: inline-block; margin-top: 0.5rem; font-size: 0.72rem; color: var(--accent); text-decoration: none; padding: 0.3rem 0.6rem; background: rgba(79,142,247,0.1); border-radius: 4px; }
+    .reabertura-box { padding: 0.75rem 1rem; border-radius: 8px; margin-top: 0.25rem; }
+    .reab-pendente { background: rgba(167,139,250,0.05); border: 1px solid rgba(167,139,250,0.4); }
+    .reab-aceita { background: rgba(79,247,160,0.05); border: 1px solid rgba(79,247,160,0.3); }
+    .reab-recusada { background: rgba(247,79,79,0.05); border: 1px solid rgba(247,79,79,0.3); }
+    .reab-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem; }
     .reab-label.pendente { color: #a78bfa; }
-    .reab-label.aceita   { color: var(--success); }
+    .reab-label.aceita { color: var(--success); }
     .reab-label.recusada { color: var(--danger); }
-    .sla-mini         { font-size: 0.68rem; margin-top: 0.3rem; }
-    .sla-mini.ok        { color: var(--success); }
+    .sla-mini { font-size: 0.68rem; margin-top: 0.3rem; }
+    .sla-mini.ok { color: var(--success); }
     .sla-mini.estourado { color: var(--danger); }
-    /* Anexos */
-    .anexos-lista {
-      margin-top: 0.5rem; font-size: 0.68rem; color: var(--muted);
-      display: flex; flex-direction: column; gap: 0.25rem;
-    }
-    .anexo-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0.3rem 0; border-bottom: 1px solid var(--border);
-    }
-    .file-input-wrap { position: relative; }
-    /* Modais */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(13,15,18,0.85);
-      backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center;
-    }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(13,15,18,0.85); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-      padding: 2rem; width: min(480px, 90vw); display: flex; flex-direction: column; gap: 1.25rem;
-      animation: fadeUp 0.25s ease; max-height: 90vh; overflow-y: auto;
-    }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; width: min(480px, 90vw); display: flex; flex-direction: column; gap: 1.25rem; animation: fadeUp 0.25s ease; max-height: 90vh; overflow-y: auto; }
     .modal h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
-    .modal p  { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
-    label.field {
-      display: flex; flex-direction: column; gap: 0.5rem;
-      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
-    }
-    input.fi, select.fi, textarea.fi {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-      color: var(--text); font-family: var(--font-mono); font-size: 0.85rem;
-      padding: 0.75rem 1rem; outline: none; transition: border-color 0.2s; width: 100%;
-    }
-    input.fi:focus, select.fi:focus, textarea.fi:focus { border-color: var(--accent); }
-    textarea.fi { resize: vertical; min-height: 90px; }
+    .modal p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
     .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
-    .btn-cancel {
-      background: none; border: 1px solid var(--border); border-radius: 8px;
-      color: var(--muted); padding: 0.6rem 1.2rem; font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer;
-      transition: all 0.2s;
-    }
+    .btn-cancel { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.6rem 1.2rem; font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
     .btn-cancel:hover { border-color: var(--text); color: var(--text); }
-    .btn-confirm {
-      background: var(--accent); border: none; border-radius: 8px; color: #fff;
-      padding: 0.6rem 1.2rem; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .btn-confirm:hover        { background: #3a7de8; }
-    .btn-confirm.danger       { background: var(--danger); }
+    .btn-confirm { background: var(--accent); border: none; border-radius: 8px; color: #fff; padding: 0.6rem 1.2rem; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-confirm:hover { background: #3a7de8; }
+    .btn-confirm.danger { background: var(--danger); }
     .btn-confirm.danger:hover { background: #e03e3e; }
-    .toast {
-      position: fixed; bottom: 2rem; left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--surface3); border: 1px solid var(--border);
-      border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.8rem;
-      z-index: 999; transition: transform 0.3s ease; min-width: 280px; text-align: center;
-    }
-    .toast.show    { transform: translateX(-50%) translateY(0); }
+    .anexos-lista { margin-top: 0.5rem; font-size: 0.68rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.25rem; }
+    .anexo-row { display: flex; align-items: center; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface3); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.8rem; z-index: 999; transition: transform 0.3s ease; min-width: 280px; text-align: center; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
     .toast.success { border-color: var(--success); color: var(--success); }
-    .toast.error   { border-color: var(--danger);  color: var(--danger); }
-    .empty-state   { text-align: center; padding: 4rem 2rem; color: var(--muted); font-size: 0.8rem; }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); font-size: 0.8rem; }
     @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-    @keyframes fadeUp  { from { opacity: 0; transform: translateY(12px); }  to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -214,24 +122,23 @@
         <div class="panel-subtitle">Preencha os dados para abrir um ticket</div>
       </div>
       <form class="form" id="form-ticket" onsubmit="criarTicket(event)">
-        <label>Setor <span>*</span>
+        <label>Setor de origem <span>*</span>
           <select id="setor" class="fi" required>
+            <option value="">Carregando setores...</option>
+          </select>
+        </label>
+        <label>Setor de destino <span>*</span>
+          <select id="setor-destino" class="fi" required>
             <option value="">Selecione...</option>
-            <option value="Carteira Assinatura">Carteira Assinatura</option>
-            <option value="Carteira Rescisão">Carteira Rescisão</option>
-            <option value="Carteira Athos">Carteira Athos</option>
-            <option value="Monitoria">Monitoria</option>
             <option value="Control Desk">Control Desk</option>
-            <option value="Gerente">Gerente</option>
+            <option value="Planejamento">Planejamento</option>
           </select>
         </label>
         <label>Descrição <span>*</span>
           <textarea id="descricao" class="fi" required></textarea>
         </label>
         <label>Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span>
-          <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple
-                 style="padding:0.5rem;"
-                 onchange="adicionarArquivos('arquivo', 2)" />
+          <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple style="padding:0.5rem;" onchange="adicionarArquivos('arquivo', 2)" />
           <div id="arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div>
           <div id="arquivo-lista"></div>
           <small style="color:var(--muted);font-size:0.6rem;">PDF, Excel, Word, Imagens — até 25MB cada</small>
@@ -256,25 +163,14 @@
   <div class="modal">
     <h3>Editar Ticket</h3>
     <input type="hidden" id="edit-id" />
-    <label class="field">Setor
-      <select id="edit-setor" class="fi">
-        <option value="Carteira Assinatura">Carteira Assinatura</option>
-        <option value="Carteira Rescisão">Carteira Rescisão</option>
-        <option value="Carteira Athos">Carteira Athos</option>
-        <option value="Monitoria">Monitoria</option>
-        <option value="Control Desk">Control Desk</option>
-        <option value="Gerente">Gerente</option>
-      </select>
+    <label>Setor
+      <select id="edit-setor"></select>
     </label>
-    <label class="field">Descrição
-      <textarea id="edit-descricao" class="fi"></textarea>
-    </label>
+    <label>Descrição <textarea id="edit-descricao"></textarea></label>
     <div style="font-size:0.72rem;color:var(--muted);">📎 Anexos atuais:</div>
     <div id="edit-anexos-lista" class="anexos-lista"></div>
-    <label class="field">Adicionar anexo <span style="color:var(--muted);font-size:0.6rem;">(máx 2 total)</span>
-      <input type="file" id="edit-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple
-             style="padding:0.4rem;"
-             onchange="adicionarArquivos('edit-arquivo', 2)" />
+    <label>Adicionar anexo <span style="color:var(--muted);font-size:0.6rem;">(máx 2 total)</span>
+      <input type="file" id="edit-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple style="padding:0.4rem;" onchange="adicionarArquivos('edit-arquivo', 2)" />
       <div id="edit-arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div>
       <div id="edit-arquivo-lista"></div>
     </label>
@@ -290,8 +186,8 @@
   <div class="modal">
     <h3>Excluir Ticket</h3>
     <input type="hidden" id="excluir-id" />
-    <label class="field">Motivo <span style="color:var(--danger)">*</span>
-      <textarea id="excluir-motivo" class="fi"></textarea>
+    <label>Motivo <span style="color:var(--danger)">*</span>
+      <textarea id="excluir-motivo"></textarea>
     </label>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModal('modal-excluir')">Cancelar</button>
@@ -306,8 +202,8 @@
     <h3>Solicitar Reabertura</h3>
     <p>Tentativas restantes: <strong id="reabrir-tentativas-restantes"></strong></p>
     <input type="hidden" id="reabrir-id" />
-    <label class="field">Motivo <span style="color:var(--danger)">*</span>
-      <textarea id="reabrir-motivo" class="fi"></textarea>
+    <label>Motivo <span style="color:var(--danger)">*</span>
+      <textarea id="reabrir-motivo"></textarea>
     </label>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModal('modal-reabrir')">Cancelar</button>
@@ -320,7 +216,7 @@
 <div class="modal-overlay" id="modal-cancelar-reab">
   <div class="modal">
     <h3>Cancelar Solicitação</h3>
-    <p>Tem certeza que deseja cancelar esta solicitação de reabertura?</p>
+    <p>Tem certeza que deseja cancelar esta solicitação?</p>
     <input type="hidden" id="cancelar-reab-id" />
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModal('modal-cancelar-reab')">Não</button>
@@ -332,7 +228,6 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Autenticação ──────────────────────────────────────────────────
   const TOKEN = localStorage.getItem('plandesk_token');
   const NIVEL = localStorage.getItem('plandesk_nivel');
   const NOME  = localStorage.getItem('plandesk_nome');
@@ -341,50 +236,45 @@
   if (!TOKEN || !TELAS.includes('solicitante')) { window.location.href = '/login'; }
   document.getElementById('user-name').textContent = NOME || 'Solicitante';
 
-  function getAuthHeaders() {
-    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL };
-  }
+  function getAuthHeaders() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }; }
   function logout() { localStorage.clear(); window.location.href = '/login'; }
 
-  const API      = '/api/ticket';
+  const API = '/api/ticket';
   const API_REAB = '/api/reabertura';
-  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
+  const MAX_FILE_SIZE = 25 * 1024 * 1024;
+  const arquivosAcumulados = { 'arquivo': [], 'edit-arquivo': [] };
+  let setoresOrigemUsuario = [];
 
-  // ── Sanitização HTML ──────────────────────────────────────────────
-  function esc(str) {
-    if (str == null) return '';
-    return String(str)
-      .replace(/&/g,  '&amp;')
-      .replace(/</g,  '&lt;')
-      .replace(/>/g,  '&gt;')
-      .replace(/"/g,  '&quot;')
-      .replace(/'/g,  '&#x27;');
+  // ── Carregar setores ──
+  async function carregarSetoresOrigem() {
+    try {
+      const tokenPayload = JSON.parse(atob(TOKEN.split('.')[1]));
+      const res = await fetch(`/api/usuarios/${tokenPayload.id}/setores-origem`, { headers: getAuthHeaders() });
+      setoresOrigemUsuario = await res.json();
+      if (setoresOrigemUsuario.length === 0) {
+        const resTodos = await fetch('/api/usuarios/setores/origem', { headers: getAuthHeaders() });
+        setoresOrigemUsuario = await resTodos.json();
+      }
+      preencherSelectSetores();
+    } catch(e) { console.error('Erro ao carregar setores:', e); }
   }
 
-  // ── Gerenciamento de arquivos ─────────────────────────────────────
-  const arquivosAcumulados = {
-    'arquivo':      [],
-    'edit-arquivo': []
-  };
+  function preencherSelectSetores() {
+    const options = setoresOrigemUsuario.map(s => `<option value="${s.nome}">${s.nome}</option>`).join('');
+    document.getElementById('setor').innerHTML = '<option value="">Selecione...</option>' + options;
+    document.getElementById('edit-setor').innerHTML = options;
+  }
 
+  // ── Arquivos ──
   function adicionarArquivos(inputId, maxArquivos) {
     const input = document.getElementById(inputId);
     const novos = Array.from(input.files);
     const acumulado = arquivosAcumulados[inputId];
-
     for (const file of novos) {
-      if (acumulado.length >= maxArquivos) {
-        toast(`✗ Máximo de ${maxArquivos} arquivo(s) permitido(s)`, 'error');
-        break;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        toast(`✗ "${file.name}" excede 25 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)`, 'error');
-        continue;
-      }
-      const duplicado = acumulado.some(f => f.name === file.name && f.size === file.size);
-      if (!duplicado) acumulado.push(file);
+      if (acumulado.length >= maxArquivos) { toast(`✗ Máximo de ${maxArquivos} arquivo(s)`, 'error'); break; }
+      if (file.size > MAX_FILE_SIZE) { toast(`✗ "${file.name}" excede 25MB`, 'error'); continue; }
+      if (!acumulado.some(f => f.name === file.name && f.size === file.size)) acumulado.push(file);
     }
-
     _sincronizarInput(inputId, maxArquivos);
     atualizarListaArquivos(inputId);
   }
@@ -396,15 +286,13 @@
   }
 
   function _sincronizarInput(inputId, maxArquivos) {
-    const input    = document.getElementById(inputId);
-    const acumulado= arquivosAcumulados[inputId];
-    const dt       = new DataTransfer();
-    acumulado.forEach(f => dt.items.add(f));
+    const input = document.getElementById(inputId);
+    const dt = new DataTransfer();
+    arquivosAcumulados[inputId].forEach(f => dt.items.add(f));
     input.files = dt.files;
-
+    const atingiu = arquivosAcumulados[inputId].length >= maxArquivos;
+    input.style.display = atingiu ? 'none' : '';
     const cheioEl = document.getElementById(inputId + '-cheio');
-    const atingiu = acumulado.length >= maxArquivos;
-    input.style.display          = atingiu ? 'none'  : '';
     if (cheioEl) cheioEl.style.display = atingiu ? 'block' : 'none';
   }
 
@@ -415,93 +303,55 @@
     if (!files.length) { lista.innerHTML = ''; return; }
     lista.innerHTML = files.map((file, i) => `
       <div class="anexo-row">
-        <span style="color:var(--text);">📎 ${esc(file.name)} (${(file.size / 1024).toFixed(0)} KB)</span>
-        <button onclick="removerArquivo('${inputId}', ${i}, 2)"
-                style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.85rem;"
-                title="Remover">🗑</button>
+        <span>📎 ${file.name} (${(file.size/1024).toFixed(0)}KB)</span>
+        <button onclick="removerArquivo('${inputId}',${i},2)" style="background:none;border:none;color:var(--danger);cursor:pointer;">🗑</button>
       </div>`).join('');
   }
 
-  function limparArquivos(inputId) {
-    arquivosAcumulados[inputId] = [];
-    const input   = document.getElementById(inputId);
-    const cheioEl = document.getElementById(inputId + '-cheio');
-    const lista   = document.getElementById(inputId + '-lista');
-    if (input)   { input.value = ''; input.style.display = ''; }
-    if (cheioEl) { cheioEl.style.display = 'none'; }
-    if (lista)   { lista.innerHTML = ''; }
-  }
+  function limparArquivos(inputId) { arquivosAcumulados[inputId] = []; const input = document.getElementById(inputId); if (input) input.value = ''; atualizarListaArquivos(inputId); }
 
-  // ── Upload helper ─────────────────────────────────────────────────
   async function uploadArquivos(ticketId, inputId) {
-    const files = arquivosAcumulados[inputId];
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append('arquivo', file);
-      formData.append('tipo_upload', 'solicitante');
+    for (const file of arquivosAcumulados[inputId]) {
+      const formData = new FormData(); formData.append('arquivo', file); formData.append('tipo_upload', 'solicitante');
       try {
-        const res = await fetch(`/api/anexo/${ticketId}/upload`, {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL },
-          body: formData
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          toast(`⚠️ Upload de "${esc(file.name)}" falhou: ${esc(err.error)}`, 'error');
-        }
-      } catch (e) {
-        console.error('Upload falhou:', file.name, e);
-      }
+        await fetch(`/api/anexo/${ticketId}/upload`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }, body: formData });
+      } catch(e) { console.error('Upload falhou:', file.name, e); }
     }
   }
 
-  // ── Criar ticket ──────────────────────────────────────────────────
+  // ── Tickets ──
   async function criarTicket(e) {
     e.preventDefault();
     const btn = e.target.querySelector('button[type=submit]');
     btn.textContent = 'Enviando...'; btn.disabled = true;
     try {
-      const res = await fetch(API, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          setor:     document.getElementById('setor').value,
-          descricao: document.getElementById('descricao').value
-        })
-      });
+      const res = await fetch(API, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({
+        setor: document.getElementById('setor').value,
+        setor_destino: document.getElementById('setor-destino').value,
+        descricao: document.getElementById('descricao').value
+      })});
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
-
       await uploadArquivos(d.id, 'arquivo');
-
       toast('✓ Ticket criado!', 'success');
       document.getElementById('form-ticket').reset();
       limparArquivos('arquivo');
       carregarTickets();
-    } catch (err) {
-      toast('✗ ' + err.message, 'error');
-    } finally {
-      btn.textContent = 'Abrir Ticket →'; btn.disabled = false;
-    }
+    } catch(err) { toast('✗ '+err.message, 'error'); }
+    finally { btn.textContent = 'Abrir Ticket →'; btn.disabled = false; }
   }
 
-  // ── Carregar tickets ──────────────────────────────────────────────
   async function carregarTickets() {
     const container = document.getElementById('tickets-container');
     container.innerHTML = '<div class="empty-state">Carregando...</div>';
     try {
-      const res     = await fetch(API, { headers: getAuthHeaders() });
+      const res = await fetch(API, { headers: getAuthHeaders() });
       const tickets = await res.json();
       if (!tickets.length) { container.innerHTML = '<div class="empty-state">Nenhum ticket.</div>'; return; }
-
       const ticketsCompleto = await Promise.all(tickets.map(async t => {
         try {
-          const [rRes, aRes] = await Promise.all([
-            fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAuthHeaders() }),
-            fetch(`/api/anexo/${t.id}/listar`,        { headers: getAuthHeaders() })
-          ]);
-          t.reaberturas = await rRes.json();
-          t.anexos      = await aRes.json();
+          const [rRes, aRes] = await Promise.all([fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAuthHeaders() }), fetch(`/api/anexo/${t.id}/listar`, { headers: getAuthHeaders() })]);
+          t.reaberturas = await rRes.json(); t.anexos = await aRes.json();
         } catch { t.reaberturas = []; t.anexos = []; }
         return t;
       }));
@@ -509,176 +359,87 @@
     } catch { container.innerHTML = '<div class="empty-state">Erro ao carregar.</div>'; }
   }
 
-  // ── Render ticket ─────────────────────────────────────────────────
   function renderTicket(t) {
     const statusBadge = { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido', 'recebido': 'badge-concluido' };
-    const prioBadge   = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
-    const reabs        = t.reaberturas || [];
-    const anexos       = t.anexos || [];
-    const temPendente  = reabs.some(r => r.status === 'pendente');
-    const temAndamento = reabs.some(r => r.status === 'aceita' && !r.concluido_em);
+    const prioBadge = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
+    const reabs = t.reaberturas || [], anexos = t.anexos || [];
+    const temPendente = reabs.some(r => r.status === 'pendente'), temAndamento = reabs.some(r => r.status === 'aceita' && !r.concluido_em);
     const aceitasCount = reabs.filter(r => r.status === 'aceita').length;
 
-    // Ações
     let acoes = '';
     if (t.status === 'aberto') {
-      acoes = `<button class="btn-sm" data-action="editar" data-id="${t.id}" data-setor="${esc(t.setor||'')}" data-desc="${esc(t.descricao||'')}">Editar</button>
+      acoes = `<button class="btn-sm" data-action="editar" data-id="${t.id}" data-setor="${t.setor||''}" data-desc="${t.descricao||''}">Editar</button>
                <button class="btn-sm danger" data-action="excluir" data-id="${t.id}">Excluir</button>`;
     } else if (t.status === 'concluído') {
-      acoes = `<button class="btn-sm success" data-action="receber" data-id="${esc(t.id)}">✅ Confirmar Recebimento</button>`;
-      if (!temPendente && !temAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
-        acoes += `<button class="btn-sm" data-action="reabrir" data-id="${esc(t.id)}">🔄 Solicitar Reabertura</button>`;
-      }
+      acoes = `<button class="btn-sm success" data-action="receber" data-id="${t.id}">✅ Confirmar Recebimento</button>`;
+      if (!temPendente && !temAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) acoes += `<button class="btn-sm" data-action="reabrir" data-id="${t.id}">🔄 Solicitar Reabertura</button>`;
     } else if (t.status === 'recebido') {
-      if (!temPendente && !temAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) {
-        acoes = `<button class="btn-sm success" data-action="reabrir" data-id="${esc(t.id)}">Solicitar Reabertura</button>`;
-      } else if (temPendente) {
-        acoes = `<span class="badge badge-pendente">⏳ Aguardando analista</span>`;
-      } else if (temAndamento) {
-        acoes = `<span class="badge badge-andamento">⏳ Ciclo em andamento</span>`;
-      } else {
-        acoes = `<span style="font-size:0.65rem;color:var(--muted);">✅ Finalizado</span>`;
-      }
+      if (!temPendente && !temAndamento && !t.max_reaberturas_atingido && aceitasCount < 2) acoes = `<button class="btn-sm success" data-action="reabrir" data-id="${t.id}">Solicitar Reabertura</button>`;
+      else if (temPendente) acoes = `<span class="badge badge-pendente">⏳ Aguardando analista</span>`;
+      else if (temAndamento) acoes = `<span class="badge badge-andamento">⏳ Ciclo em andamento</span>`;
+      else acoes = `<span style="font-size:0.65rem;color:var(--muted);">✅ Finalizado</span>`;
     }
 
-    // Anexos do solicitante — exibidos após a descrição
-    let anexosSolicitanteHTML = '';
-    const anexosSolicitante = anexos.filter(a => a.tipo_upload === 'solicitante');
-    if (anexosSolicitante.length > 0) {
-      anexosSolicitanteHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;color:var(--muted);">
-        📎 Seus anexos: ${anexosSolicitante.map(a =>
-          `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
-              style="color:var(--accent);">${esc(a.nome_original)}</a>
-           <span style="color:var(--muted);font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`
-        ).join(' &nbsp;·&nbsp; ')}
-      </div>`;
-    }
-
-    // Anexos do analista — exibidos dentro da solucao-box
-    let anexosAnalistaHTML = '';
-    const anexosAnalista = anexos.filter(a => a.tipo_upload === 'analista');
-    if (anexosAnalista.length > 0) {
-      anexosAnalistaHTML = `<div style="margin-top:0.4rem;font-size:0.68rem;">
-        📎 Anexos da solução: ${anexosAnalista.map(a =>
-          `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
-              style="color:var(--accent);">${esc(a.nome_original)}</a>
-           <span style="color:var(--muted);font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`
-        ).join(' &nbsp;·&nbsp; ')}
-      </div>`;
-    }
-
-    // Solução — inclui anexos do analista internamente
     let solucao = '';
     if (t.descricao_final) {
-      solucao = `<div class="solucao-box">
-        <div class="solucao-label">✅ Solução do Analista</div>
-        <div class="solucao-text">${esc(t.descricao_final)}</div>
-        ${t.link_referencia ? `<a href="${esc(t.link_referencia)}" target="_blank" rel="noopener noreferrer" class="link-ref">🔗 Link</a>` : ''}
-        ${anexosAnalistaHTML}
-      </div>`;
+      const anexosAnalista = anexos.filter(a => a.tipo_upload === 'analista');
+      let anexosAnalistaHTML = '';
+      if (anexosAnalista.length > 0) anexosAnalistaHTML = `<div style="margin-top:0.4rem;font-size:0.68rem;">📎 Anexos da solução: ${anexosAnalista.map(a => `<a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);">${a.nome_original}</a> (${(a.tamanho_bytes/1024).toFixed(0)}KB)`).join(' | ')}</div>`;
+      solucao = `<div class="solucao-box"><div class="solucao-label">✅ Solução do Analista</div><div class="solucao-text">${t.descricao_final}</div>${t.link_referencia?`<a href="${t.link_referencia}" target="_blank" class="link-ref">🔗 Link</a>`:''}${anexosAnalistaHTML}</div>`;
     }
 
-    // Reaberturas
+    const anexosSolicitante = anexos.filter(a => a.tipo_upload === 'solicitante');
+    let anexosHTML = '';
+    if (anexosSolicitante.length > 0) anexosHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;color:var(--muted);">📎 Seus anexos: ${anexosSolicitante.map(a => `<a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);">${a.nome_original}</a> (${(a.tamanho_bytes/1024).toFixed(0)}KB)`).join(' | ')}</div>`;
+
     let reabHTML = '';
     reabs.forEach(r => {
       let cls = 'reabertura-box', lblCls = '', statusLabel = '', detalhes = '';
-      if (r.status === 'pendente') {
-        cls += ' reab-pendente'; lblCls = 'pendente'; statusLabel = '⏳ Pendente';
-        detalhes = `Motivo: &ldquo;${esc(r.motivo_solicitacao)}&rdquo;<br>
-          <small>${new Date(r.solicitado_em).toLocaleString('pt-BR')}</small>
-          <br><button class="btn-sm danger" style="font-size:0.6rem;margin-top:0.3rem;"
-            data-action="cancelar-reab" data-id="${esc(r.id)}">Cancelar</button>`;
-      } else if (r.status === 'aceita') {
-        cls += ' reab-aceita'; lblCls = 'aceita';
-        statusLabel = r.concluido_em ? `✅ Ciclo ${esc(r.ciclo)} Concluído` : `✅ Ciclo ${esc(r.ciclo)} Em Andamento`;
-        detalhes    = `Motivo: &ldquo;${esc(r.motivo_solicitacao)}&rdquo;<br>Prioridade: ${esc(r.prioridade)}`;
-        if (r.concluido_em) {
-          detalhes += `<br><span style="color:var(--success);">Solução: ${esc(r.descricao_final || 'N/D')}</span>`;
-          detalhes += `<br><span class="sla-mini ${r.sla_estourado ? 'estourado' : 'ok'}">SLA: ${esc(r.sla_consumido_min || 0)}/${esc(r.sla_total_min)} min</span>`;
-          if (r.link_referencia) detalhes += `<br><a href="${esc(r.link_referencia)}" target="_blank" rel="noopener noreferrer" class="link-ref">🔗 Link</a>`;
-        } else {
-          detalhes += `<br><span class="sla-mini ok">SLA: ${esc(r.sla_consumido_min || 0)}/${esc(r.sla_total_min)} min</span>`;
-        }
-      } else if (r.status === 'recusada') {
-        cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '🚫 Recusada';
-        detalhes = `Motivo: &ldquo;${esc(r.motivo_solicitacao)}&rdquo;<br>
-          <span style="color:var(--danger);">Recusa: ${esc(r.justificativa_recusa || 'Sem justificativa')}</span>`;
-      } else if (r.status === 'cancelada') {
-        cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '✗ Cancelada';
-        detalhes = 'Cancelada por você';
-      }
-      reabHTML += `<div class="${cls}">
-        <div class="reab-label ${lblCls}">${statusLabel} · ${new Date(r.solicitado_em).toLocaleString('pt-BR')}</div>
-        <div style="font-size:0.7rem;color:var(--muted);">${detalhes}</div>
-      </div>`;
+      if (r.status === 'pendente') { cls += ' reab-pendente'; lblCls = 'pendente'; statusLabel = '⏳ Pendente'; detalhes = `Motivo: "${r.motivo_solicitacao}"<br><small>${new Date(r.solicitado_em).toLocaleString('pt-BR')}</small><br><button class="btn-sm danger" style="font-size:0.6rem;margin-top:0.3rem;" data-action="cancelar-reab" data-id="${r.id}">Cancelar</button>`; }
+      else if (r.status === 'aceita') { cls += ' reab-aceita'; lblCls = 'aceita'; statusLabel = r.concluido_em ? `✅ Ciclo ${r.ciclo} Concluído` : `✅ Ciclo ${r.ciclo} Em Andamento`; detalhes = `Motivo: "${r.motivo_solicitacao}"<br>Prioridade: ${r.prioridade}`; if (r.concluido_em) { detalhes += `<br><span style="color:var(--success);">Solução: ${r.descricao_final||'N/D'}</span><br><span class="sla-mini ${r.sla_estourado?'estourado':'ok'}">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`; if (r.link_referencia) detalhes += `<br><a href="${r.link_referencia}" target="_blank" class="link-ref">🔗 Link</a>`; } else detalhes += `<br><span class="sla-mini ok">SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span>`; } }
+      else if (r.status === 'recusada') { cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '🚫 Recusada'; detalhes = `Motivo: "${r.motivo_solicitacao}"<br><span style="color:var(--danger);">Recusa: ${r.justificativa_recusa||'Sem justificativa'}</span>`; }
+      else if (r.status === 'cancelada') { cls += ' reab-recusada'; lblCls = 'recusada'; statusLabel = '✗ Cancelada'; detalhes = 'Cancelada por você'; }
+      reabHTML += `<div class="${cls}"><div class="reab-label ${lblCls}">${statusLabel} · ${new Date(r.solicitado_em).toLocaleString('pt-BR')}</div><div style="font-size:0.7rem;color:var(--muted);">${detalhes}</div></div>`;
     });
 
     return `<div class="ticket-card">
-      <div class="ticket-header">
-        <span class="ticket-id">#${esc(t.id)} · ${esc(t.setor)}</span>
-        <div class="ticket-badges">
-          ${t.prioridade ? `<span class="badge ${esc(prioBadge[t.prioridade])}">${esc(t.prioridade)}</span>` : ''}
-          <span class="badge ${statusBadge[t.status] || 'badge-aberto'}">${esc(t.status)}</span>
-          ${t.ciclo_atual > 1 ? `<span class="badge badge-pendente">Ciclo ${esc(t.ciclo_atual)}</span>` : ''}
-        </div>
-      </div>
-      <div class="ticket-desc">${esc(t.descricao)}</div>
-      ${anexosSolicitanteHTML}
+      <div class="ticket-header"><span class="ticket-id">#${t.id} · ${t.setor} → ${t.setor_destino||'N/D'}</span><div class="ticket-badges">${t.prioridade?`<span class="badge ${prioBadge[t.prioridade]}">${t.prioridade}</span>`:''}<span class="badge ${statusBadge[t.status]||'badge-aberto'}">${t.status}</span>${t.ciclo_atual>1?`<span class="badge badge-pendente">Ciclo ${t.ciclo_atual}</span>`:''}</div></div>
+      <div class="ticket-desc">${t.descricao}</div>
+      ${anexosHTML}
       ${solucao}
-      ${reabHTML ? `<div style="margin-top:0.25rem;">${reabHTML}</div>` : ''}
-      <div class="ticket-meta">
-        <span>📅 ${new Date(t.criado_em).toLocaleString('pt-BR')}</span>
-        ${t.analista_responsavel ? `<span>👤 ${esc(t.analista_responsavel)}</span>` : ''}
-      </div>
-      ${acoes ? `<div class="ticket-actions">${acoes}</div>` : ''}
+      ${reabHTML?`<div style="margin-top:0.25rem;">${reabHTML}</div>`:''}
+      <div class="ticket-meta"><span>📅 ${new Date(t.criado_em).toLocaleString('pt-BR')}</span>${t.analista_responsavel?`<span>👤 ${t.analista_responsavel}</span>`:''}</div>
+      ${acoes?`<div class="ticket-actions">${acoes}</div>`:''}
     </div>`;
   }
 
-  // ── Delegação de eventos ──────────────────────────────────────────
-  document.getElementById('tickets-container').addEventListener('click', async function (e) {
+  // Event delegation
+  document.getElementById('tickets-container').addEventListener('click', async function(e) {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
     const { action, id, setor, desc } = btn.dataset;
-    if      (action === 'editar')        abrirEditar(id, setor, desc);
-    else if (action === 'excluir')       abrirExcluir(id);
-    else if (action === 'reabrir')       abrirReabrir(id);
-    else if (action === 'receber')       confirmarRecebimento(id);
+    if (action === 'editar') abrirEditar(id, setor, desc);
+    else if (action === 'excluir') abrirExcluir(id);
+    else if (action === 'reabrir') abrirReabrir(id);
+    else if (action === 'receber') confirmarRecebimento(id);
     else if (action === 'cancelar-reab') abrirCancelarReabertura(id);
   });
 
-  // ── Modais ────────────────────────────────────────────────────────
   async function abrirEditar(id, setor, desc) {
-    document.getElementById('edit-id').value        = id;
-    document.getElementById('edit-setor').value     = setor;
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-setor').value = setor;
     document.getElementById('edit-descricao').value = desc;
     limparArquivos('edit-arquivo');
-
     const anexosLista = document.getElementById('edit-anexos-lista');
     try {
-      const res    = await fetch(`/api/anexo/${id}/listar`, { headers: getAuthHeaders() });
+      const res = await fetch(`/api/anexo/${id}/listar`, { headers: getAuthHeaders() });
       const anexos = await res.json();
-      _renderAnexosEdicao(anexos, anexosLista);
-    } catch { anexosLista.innerHTML = '<span style="color:var(--muted);">Erro ao carregar anexos.</span>'; }
-
+      anexosLista.innerHTML = anexos.length ? anexos.map(a => `<div class="anexo-row"><a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);">${a.nome_original}</a><button data-action="excluir-anexo" data-id="${a.id}" style="background:none;border:none;color:var(--danger);cursor:pointer;">🗑</button></div>`).join('') : '<span style="color:var(--muted);">Nenhum anexo</span>';
+    } catch { anexosLista.innerHTML = ''; }
     document.getElementById('modal-editar').classList.add('open');
   }
 
-  function _renderAnexosEdicao(anexos, container) {
-    if (!anexos.length) {
-      container.innerHTML = '<span style="color:var(--muted);">Nenhum anexo</span>';
-      return;
-    }
-    container.innerHTML = anexos.map(a => `
-      <div class="anexo-row">
-        <a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
-           style="color:var(--accent);text-decoration:none;">${esc(a.nome_original)}</a>
-        <button data-action="excluir-anexo" data-id="${esc(a.id)}"
-                style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.8rem;"
-                title="Remover">🗑</button>
-      </div>`).join('');
-  }
-
-  document.getElementById('edit-anexos-lista').addEventListener('click', async function (e) {
+  document.getElementById('edit-anexos-lista').addEventListener('click', async function(e) {
     const btn = e.target.closest('[data-action="excluir-anexo"]');
     if (!btn) return;
     await excluirAnexo(btn.dataset.id);
@@ -686,119 +447,31 @@
 
   async function excluirAnexo(anexoId) {
     try {
-      const res = await fetch(`/api/anexo/${anexoId}`, { method: 'DELETE', headers: getAuthHeaders() });
-      if (!res.ok) throw new Error((await res.json()).error);
+      await fetch(`/api/anexo/${anexoId}`, { method: 'DELETE', headers: getAuthHeaders() });
       toast('✓ Anexo removido', 'success');
-      const ticketId    = document.getElementById('edit-id').value;
-      const resLista    = await fetch(`/api/anexo/${ticketId}/listar`, { headers: getAuthHeaders() });
-      const anexos      = await resLista.json();
-      _renderAnexosEdicao(anexos, document.getElementById('edit-anexos-lista'));
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
+      const ticketId = document.getElementById('edit-id').value;
+      const res = await fetch(`/api/anexo/${ticketId}/listar`, { headers: getAuthHeaders() });
+      const anexos = await res.json();
+      document.getElementById('edit-anexos-lista').innerHTML = anexos.length ? anexos.map(a => `<div class="anexo-row"><a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);">${a.nome_original}</a><button data-action="excluir-anexo" data-id="${a.id}" style="background:none;border:none;color:var(--danger);cursor:pointer;">🗑</button></div>`).join('') : '<span style="color:var(--muted);">Nenhum anexo</span>';
+    } catch(err) { toast('✗ '+err.message, 'error'); }
   }
 
-  function abrirExcluir(id) {
-    document.getElementById('excluir-id').value    = id;
-    document.getElementById('excluir-motivo').value= '';
-    document.getElementById('modal-excluir').classList.add('open');
-  }
-
-  async function abrirReabrir(id) {
-    try {
-      const res  = await fetch(`${API_REAB}/${id}/pode-reabrir`, { headers: getAuthHeaders() });
-      const data = await res.json();
-      if (!data.pode) { toast('✗ ' + data.motivo, 'error'); return; }
-      document.getElementById('reabrir-id').value = id;
-      document.getElementById('reabrir-tentativas-restantes').textContent = data.tentativasRestantes;
-      document.getElementById('reabrir-motivo').value = '';
-      document.getElementById('modal-reabrir').classList.add('open');
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
-  function abrirCancelarReabertura(rid) {
-    document.getElementById('cancelar-reab-id').value = rid;
-    document.getElementById('modal-cancelar-reab').classList.add('open');
-  }
-
+  function abrirExcluir(id) { document.getElementById('excluir-id').value = id; document.getElementById('modal-excluir').classList.add('open'); }
+  async function abrirReabrir(id) { try { const res = await fetch(`${API_REAB}/${id}/pode-reabrir`, { headers: getAuthHeaders() }); const data = await res.json(); if (!data.pode) { toast('✗ '+data.motivo, 'error'); return; } document.getElementById('reabrir-id').value = id; document.getElementById('reabrir-tentativas-restantes').textContent = data.tentativasRestantes; document.getElementById('modal-reabrir').classList.add('open'); } catch(err) { toast('✗ '+err.message, 'error'); } }
+  function abrirCancelarReabertura(rid) { document.getElementById('cancelar-reab-id').value = rid; document.getElementById('modal-cancelar-reab').classList.add('open'); }
   function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
 
-  // ── Ações assíncronas ─────────────────────────────────────────────
-  async function salvarEdicao() {
-    const id = document.getElementById('edit-id').value;
-    try {
-      const res = await fetch(`${API}/${id}`, {
-        method: 'PUT', headers: getAuthHeaders(),
-        body: JSON.stringify({
-          setor:     document.getElementById('edit-setor').value,
-          descricao: document.getElementById('edit-descricao').value
-        })
-      });
-      if (!res.ok) throw new Error((await res.json()).error);
-      await uploadArquivos(id, 'edit-arquivo');
-      fecharModal('modal-editar');
-      toast('✓ Atualizado', 'success');
-      limparArquivos('edit-arquivo');
-      carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
+  async function salvarEdicao() { const id = document.getElementById('edit-id').value; try { await fetch(`${API}/${id}`, { method:'PUT', headers:getAuthHeaders(), body:JSON.stringify({ setor:document.getElementById('edit-setor').value, descricao:document.getElementById('edit-descricao').value }) }); await uploadArquivos(id, 'edit-arquivo'); fecharModal('modal-editar'); toast('✓ Atualizado','success'); limparArquivos('edit-arquivo'); carregarTickets(); } catch(err) { toast('✗ '+err.message,'error'); } }
+  async function confirmarExclusao() { const id = document.getElementById('excluir-id').value; const m = document.getElementById('excluir-motivo').value; if(!m.trim()){ toast('✗ Informe o motivo','error'); return; } try { await fetch(`${API}/${id}/delete`, { method:'PATCH', headers:getAuthHeaders(), body:JSON.stringify({ motivo:m }) }); fecharModal('modal-excluir'); toast('✓ Arquivado','success'); carregarTickets(); } catch(err) { toast('✗ '+err.message,'error'); } }
+  async function confirmarReabertura() { const id = document.getElementById('reabrir-id').value; const motivo = document.getElementById('reabrir-motivo').value; if(!motivo.trim()){ toast('✗ Informe o motivo','error'); return; } try { await fetch(`${API_REAB}/${id}/reaberturas/solicitar`, { method:'POST', headers:getAuthHeaders(), body:JSON.stringify({motivo}) }); fecharModal('modal-reabrir'); toast('✓ Solicitada!','success'); carregarTickets(); } catch(err) { toast('✗ '+err.message,'error'); } }
+  async function confirmarCancelarReabertura() { const rid = document.getElementById('cancelar-reab-id').value; try { await fetch(`${API_REAB}/reaberturas/${rid}/cancelar`, { method:'PATCH', headers:getAuthHeaders() }); fecharModal('modal-cancelar-reab'); toast('✓ Cancelada','success'); carregarTickets(); } catch(err) { toast('✗ '+err.message,'error'); } }
+  async function confirmarRecebimento(id) { try { await fetch(`${API}/${id}/receber`, { method:'PATCH', headers:getAuthHeaders() }); toast('✓ Recebimento confirmado!','success'); carregarTickets(); } catch(err) { toast('✗ '+err.message,'error'); } }
 
-  async function confirmarExclusao() {
-    const id = document.getElementById('excluir-id').value;
-    const m  = document.getElementById('excluir-motivo').value;
-    if (!m.trim()) { toast('✗ Informe o motivo', 'error'); return; }
-    try {
-      const res = await fetch(`${API}/${id}/delete`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify({ motivo: m }) });
-      if (!res.ok) throw new Error((await res.json()).error);
-      fecharModal('modal-excluir');
-      toast('✓ Arquivado', 'success');
-      carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
+  function toast(msg, type='success') { const el = document.getElementById('toast'); el.textContent = msg; el.className = `toast ${type} show`; setTimeout(() => el.classList.remove('show'), 3500); }
 
-  async function confirmarReabertura() {
-    const id    = document.getElementById('reabrir-id').value;
-    const motivo= document.getElementById('reabrir-motivo').value;
-    if (!motivo.trim()) { toast('✗ Informe o motivo', 'error'); return; }
-    try {
-      const res = await fetch(`${API_REAB}/${id}/reaberturas/solicitar`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ motivo }) });
-      if (!res.ok) throw new Error((await res.json()).error);
-      fecharModal('modal-reabrir');
-      toast('✓ Solicitada!', 'success');
-      carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
+  document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target === o) o.classList.remove('open'); }));
 
-  async function confirmarCancelarReabertura() {
-    const rid = document.getElementById('cancelar-reab-id').value;
-    try {
-      const res = await fetch(`${API_REAB}/reaberturas/${rid}/cancelar`, { method: 'PATCH', headers: getAuthHeaders() });
-      if (!res.ok) throw new Error((await res.json()).error);
-      fecharModal('modal-cancelar-reab');
-      toast('✓ Cancelada', 'success');
-      carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
-  async function confirmarRecebimento(id) {
-    try {
-      const res  = await fetch(`${API}/${id}/receber`, { method: 'PATCH', headers: getAuthHeaders() });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      toast('✓ Recebimento confirmado!', 'success');
-      carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
-  function toast(msg, type = 'success') {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className   = `toast ${type} show`;
-    setTimeout(() => el.classList.remove('show'), 3500);
-  }
-
-  document.querySelectorAll('.modal-overlay').forEach(o =>
-    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
-  );
-
+  carregarSetoresOrigem();
   carregarTickets();
 </script>
 </body>

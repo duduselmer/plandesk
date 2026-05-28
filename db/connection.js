@@ -18,12 +18,81 @@ db.serialize(() => {
       nome TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       senha_hash TEXT NOT NULL,
-      nivel TEXT NOT NULL DEFAULT 'requisitor' CHECK(nivel IN ('requisitor', 'supervisor', 'controldesk', 'admin')),
+      nivel TEXT NOT NULL DEFAULT 'requisitor' CHECK(nivel IN ('requisitor', 'supervisor', 'controldesk', 'gerente', 'admin')),
       ativo INTEGER DEFAULT 1,
       criado_em TEXT DEFAULT (datetime('now', 'localtime'))
     )
   `);
 
+  // ==========================================
+  // Tabela de setores de origem (quem ABRE tickets)
+  // ==========================================
+  db.run(`
+    CREATE TABLE IF NOT EXISTS setores_origem (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT UNIQUE NOT NULL
+    )
+  `);
+
+  // ==========================================
+  // Tabela de setores de destino (quem ATENDE tickets)
+  // ==========================================
+  db.run(`
+    CREATE TABLE IF NOT EXISTS setores_destino (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT UNIQUE NOT NULL
+    )
+  `);
+
+  // ==========================================
+  // Vínculo usuário x setores de origem
+  // ==========================================
+  db.run(`
+    CREATE TABLE IF NOT EXISTS usuario_setores_origem (
+      usuario_id INTEGER NOT NULL,
+      setor_id INTEGER NOT NULL,
+      PRIMARY KEY (usuario_id, setor_id),
+      FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+      FOREIGN KEY (setor_id) REFERENCES setores_origem(id)
+    )
+  `);
+
+  // ==========================================
+  // Vínculo usuário x setores de destino (analistas)
+  // ==========================================
+  db.run(`
+    CREATE TABLE IF NOT EXISTS usuario_setores_destino (
+      usuario_id INTEGER NOT NULL,
+      setor_id INTEGER NOT NULL,
+      PRIMARY KEY (usuario_id, setor_id),
+      FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+      FOREIGN KEY (setor_id) REFERENCES setores_destino(id)
+    )
+  `);
+
+  // ==========================================
+  // Seeds: setores padrão
+  // ==========================================
+  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Carteira Assinatura')`);
+  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Carteira Rescisão')`);
+  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Carteira Athos')`);
+  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Monitoria')`);
+  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Control Desk')`);
+  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Gerente')`);
+  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Planejamento')`);
+
+  db.run(`INSERT OR IGNORE INTO setores_destino (nome) VALUES ('Control Desk')`);
+  db.run(`INSERT OR IGNORE INTO setores_destino (nome) VALUES ('Planejamento')`);
+
+  // Seeds: dar todos os setores de origem para admin (id=1)
+  db.run(`INSERT OR IGNORE INTO usuario_setores_origem (usuario_id, setor_id) 
+          SELECT 1, id FROM setores_origem`);
+  
+  // Seeds: dar setores de destino para controldesk e admin
+  db.run(`INSERT OR IGNORE INTO usuario_setores_destino (usuario_id, setor_id) 
+          SELECT id, (SELECT id FROM setores_destino WHERE nome = 'Control Desk') 
+          FROM usuarios WHERE nivel IN ('controldesk', 'admin', 'gerente')`);
+  
   // ==========================================
   // Tabela de tickets
   // ==========================================
@@ -31,7 +100,8 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS tickets (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       
-      setor TEXT NOT NULL CHECK(setor IN ('Carteira Assinatura', 'Carteira Rescisão', 'Carteira Athos', 'Monitoria', 'Control Desk', 'Gerente')),
+      setor TEXT NOT NULL,
+      setor_destino TEXT NOT NULL DEFAULT 'Control Desk' CHECK(setor_destino IN ('Control Desk', 'Planejamento')),
       nome TEXT,
       descricao TEXT NOT NULL,
       
@@ -123,6 +193,9 @@ db.serialize(() => {
   // Índices
   db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email)');
   db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_nivel ON usuarios(nivel)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_tickets_setor_destino ON tickets(setor_destino)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_usuario_setores_origem ON usuario_setores_origem(usuario_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_usuario_setores_destino ON usuario_setores_destino(usuario_id)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_prioridade ON tickets(prioridade)');
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_deletado ON tickets(deletado)');

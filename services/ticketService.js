@@ -2,13 +2,13 @@ const db = require('../db/connection');
 const SLAService = require('./slaService');
 
 class TicketService {
-  static criarTicket(setor, nome, descricao, criadoPor) {
+  static criarTicket(setor, setorDestino, nome, descricao, criadoPor) {
     return new Promise((resolve, reject) => {
       const sql = `
-        INSERT INTO tickets (setor, nome, descricao, status, criado_em, criado_por)
-        VALUES (?, ?, ?, 'aberto', datetime('now', 'localtime'), ?)
+        INSERT INTO tickets (setor, setor_destino, nome, descricao, status, criado_em, criado_por)
+        VALUES (?, ?, ?, ?, 'aberto', datetime('now', 'localtime'), ?)
       `;
-      db.run(sql, [setor, nome || null, descricao, criadoPor || null], function(err) {
+      db.run(sql, [setor, setorDestino || 'Control Desk', nome || null, descricao, criadoPor || null], function(err) {
         if (err) return reject(new Error('Erro ao criar ticket'));
         resolve({ id: this.lastID, message: 'Ticket criado com sucesso' });
       });
@@ -135,7 +135,7 @@ static excluirTicket(id, nivel, usuario, usuarioId, motivo) {
   static listarTickets(filtros = {}) {
     return new Promise((resolve, reject) => {
       let sql = `
-        SELECT t.id, t.setor, t.nome, t.descricao, t.status, t.prioridade, 
+        SELECT t.id, t.setor, t.setor_destino, t.nome, t.descricao, t.status, t.prioridade, 
                t.criado_em, t.criado_por, t.iniciado_em, t.concluido_em,
                t.sla_total_min, t.sla_consumido_min, t.sla_estourado, t.sla_justificativa,
                t.analista_responsavel, t.descricao_final, t.link_referencia,
@@ -148,6 +148,7 @@ static excluirTicket(id, nivel, usuario, usuarioId, motivo) {
       const params = [];
       if (filtros.status) { sql += ' AND t.status = ?'; params.push(filtros.status); }
       if (filtros.setor) { sql += ' AND t.setor = ?'; params.push(filtros.setor); }
+      if (filtros.setores_destino && filtros.setores_destino.length > 0) { sql += ` AND t.setor_destino IN (${filtros.setores_destino.map(() => '?').join(',')})`; params.push(...filtros.setores_destino); }
       if (filtros.prioridade) { sql += ' AND t.prioridade = ?'; params.push(filtros.prioridade); }
       if (filtros.criado_por) { sql += ' AND t.criado_por = ?'; params.push(filtros.criado_por); }
       sql += `

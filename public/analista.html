@@ -8,210 +8,105 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0d0f12; --surface: #141720; --surface2: #1c2030; --surface3: #222638;
-      --border: #252a3a; --accent: #f7c94f; --accent-dim: rgba(247,201,79,0.12);
-      --blue: #4f8ef7; --success: #4ff7a0; --danger: #f74f4f; --purple: #a78bfa;
-      --text: #e8ecf5; --muted: #6b738a;
-      --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
-    }
+    :root { --bg: #0d0f12; --surface: #141720; --surface2: #1c2030; --surface3: #222638; --border: #252a3a; --accent: #f7c94f; --accent-dim: rgba(247,201,79,0.12); --blue: #4f8ef7; --success: #4ff7a0; --danger: #f74f4f; --purple: #a78bfa; --text: #e8ecf5; --muted: #6b738a; --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace; }
     html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); overflow-x: hidden; }
-    body::before {
-      content: ''; position: fixed; inset: 0;
-      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none;
-    }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.25; z-index: 0; pointer-events: none; }
     .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
-    nav {
-      background: rgba(20,23,32,0.95); border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px); padding: 0 2rem; height: 60px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-    }
-    .nav-brand {
-      font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;
-      background: linear-gradient(135deg, #e8ecf5 30%, #f7c94f 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none;
-    }
+    nav { background: rgba(20,23,32,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .nav-brand { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #e8ecf5 30%, #f7c94f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
     .nav-right { display: flex; align-items: center; gap: 1rem; }
-    .nav-user  { font-size: 0.75rem; color: var(--text); }
-    .nav-perfil {
-      background: var(--accent-dim); border: 1px solid rgba(247,201,79,0.3); color: var(--accent);
-      padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
-    }
-    .nav-logout {
-      background: none; border: 1px solid var(--border); border-radius: 6px;
-      color: var(--muted); padding: 0.3rem 0.75rem;
-      font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s;
-    }
+    .nav-user { font-size: 0.75rem; color: var(--text); }
+    .nav-home { color: var(--muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
+    .nav-home:hover { color: var(--text); }
+    .nav-perfil { background: var(--accent-dim); border: 1px solid rgba(247,201,79,0.3); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .nav-logout { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); padding: 0.3rem 0.75rem; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
     .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
-    .filtros {
-      border-bottom: 1px solid var(--border); padding: 1rem 2rem;
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--surface);
-    }
-    .filtro-btn {
-      background: none; border: 1px solid var(--border); border-radius: 8px;
-      color: var(--muted); padding: 0.35rem 1rem;
-      font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
-    }
+    .filtros { border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--surface); }
+    .filtro-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.35rem 1rem; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em; }
     .filtro-btn.ativo { background: var(--accent-dim); border-color: rgba(247,201,79,0.4); color: var(--accent); }
     .filtro-btn:hover:not(.ativo) { border-color: var(--text); color: var(--text); }
-    .btn-refresh {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-      color: var(--muted); padding: 0.35rem 1rem;
-      font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer; transition: all 0.2s; margin-left: auto;
-    }
+    .btn-refresh { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.35rem 1rem; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer; transition: all 0.2s; margin-left: auto; }
     .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
     .content { flex: 1; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; }
     .count-label { font-size: 0.72rem; color: var(--muted); }
-    .ticket-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 1.5rem; display: grid; grid-template-columns: 1fr auto; gap: 1rem;
-      transition: border-color 0.2s; animation: fadeUp 0.3s ease both;
-    }
+    .ticket-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; display: grid; grid-template-columns: 1fr auto; gap: 1rem; transition: border-color 0.2s; animation: fadeUp 0.3s ease both; }
     .ticket-card:hover { border-color: var(--surface3); }
     .ticket-card.prioridade-critica { border-left: 3px solid var(--danger); }
-    .ticket-card.prioridade-alta    { border-left: 3px solid var(--accent); }
-    .ticket-card.prioridade-media   { border-left: 3px solid var(--blue); }
-    .ticket-card.prioridade-baixa   { border-left: 3px solid var(--muted); }
+    .ticket-card.prioridade-alta { border-left: 3px solid var(--accent); }
+    .ticket-card.prioridade-media { border-left: 3px solid var(--blue); }
+    .ticket-card.prioridade-baixa { border-left: 3px solid var(--muted); }
     .ticket-card.reabertura-pendente { border: 2px solid rgba(167,139,250,0.5); background: rgba(167,139,250,0.03); }
-    .ticket-main  { display: flex; flex-direction: column; gap: 0.75rem; }
-    .ticket-header{ display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-    .ticket-id    { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
-    .badge        { padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
-    .badge-aberto    { background: rgba(79,142,247,0.15);  color: var(--blue); }
-    .badge-andamento { background: rgba(247,201,79,0.15);  color: var(--accent); }
-    .badge-concluido { background: rgba(79,247,160,0.15);  color: var(--success); }
-    .badge-pendente  { background: rgba(167,139,250,0.15); color: var(--purple); }
-    .badge-baixa     { background: rgba(107,115,138,0.2);  color: var(--muted); }
-    .badge-media     { background: rgba(79,142,247,0.15);  color: var(--blue); }
-    .badge-alta      { background: rgba(247,201,79,0.15);  color: var(--accent); }
-    .badge-critica   { background: rgba(247,79,79,0.15);   color: var(--danger); }
+    .ticket-main { display: flex; flex-direction: column; gap: 0.75rem; }
+    .ticket-header { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .ticket-id { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+    .badge { padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
+    .badge-aberto { background: rgba(79,142,247,0.15); color: var(--blue); }
+    .badge-andamento { background: rgba(247,201,79,0.15); color: var(--accent); }
+    .badge-concluido { background: rgba(79,247,160,0.15); color: var(--success); }
+    .badge-pendente { background: rgba(167,139,250,0.15); color: var(--purple); }
+    .badge-baixa { background: rgba(107,115,138,0.2); color: var(--muted); }
+    .badge-media { background: rgba(79,142,247,0.15); color: var(--blue); }
+    .badge-alta { background: rgba(247,201,79,0.15); color: var(--accent); }
+    .badge-critica { background: rgba(247,79,79,0.15); color: var(--danger); }
     .ticket-setor-nome { font-size: 0.75rem; color: var(--muted); }
-    .ticket-desc       { font-size: 0.83rem; color: var(--text); line-height: 1.55; }
-    .ticket-meta       { display: flex; gap: 1rem; font-size: 0.68rem; color: var(--muted); flex-wrap: wrap; }
+    .ticket-desc { font-size: 0.83rem; color: var(--text); line-height: 1.55; }
+    .ticket-meta { display: flex; gap: 1rem; font-size: 0.68rem; color: var(--muted); flex-wrap: wrap; }
     .sla-block { display: flex; flex-direction: column; gap: 0.3rem; }
     .sla-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
     .sla-value { font-size: 0.8rem; }
-    .sla-value.ok       { color: var(--success); }
-    .sla-value.proximo  { color: var(--accent); }
-    .sla-value.estourado{ color: var(--danger); }
-    .sla-bar  { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; width: 120px; }
+    .sla-value.ok { color: var(--success); }
+    .sla-value.proximo { color: var(--accent); }
+    .sla-value.estourado { color: var(--danger); }
+    .sla-bar { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; width: 120px; }
     .sla-fill { height: 100%; border-radius: 99px; }
-    .ok       .sla-fill { background: var(--success); }
-    .proximo  .sla-fill { background: var(--accent); }
-    .estourado.sla-fill { background: var(--danger); }
+    .ok .sla-fill { background: var(--success); }
+    .proximo .sla-fill { background: var(--accent); }
+    .estourado .sla-fill { background: var(--danger); }
     .ticket-actions-col { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; min-width: 160px; }
-    .btn-action {
-      width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-      color: var(--text); padding: 0.5rem 1rem;
-      font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; text-align: center;
-    }
-    .btn-action:hover           { border-color: var(--accent); color: var(--accent); }
-    .btn-action.primary         { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
-    .btn-action.primary:hover   { background: #e8b830; }
-    .btn-action.success         { border-color: var(--success); color: var(--success); }
-    .btn-action.success:hover   { background: rgba(79,247,160,0.1); }
-    .btn-action.danger          { border-color: var(--danger); color: var(--danger); }
-    .btn-action.danger:hover    { background: rgba(247,79,79,0.1); }
-    .btn-action.purple          { border-color: var(--purple); color: var(--purple); }
-    .btn-action.purple:hover    { background: rgba(167,139,250,0.1); }
-    .btn-xs { font-size: 0.65rem; padding: 0.25rem 0.5rem; }
-    .reab-box {
-      background: rgba(167,139,250,0.04); border: 1px solid rgba(167,139,250,0.2);
-      border-radius: 6px; padding: 0.5rem 0.75rem; margin-top: 0.25rem; font-size: 0.72rem;
-    }
-    .reab-aceita-box {
-      background: rgba(79,247,160,0.04); border: 1px solid rgba(79,247,160,0.2);
-      border-radius: 6px; padding: 0.5rem 0.75rem; margin-top: 0.25rem; font-size: 0.72rem;
-    }
-    .solucao-box {
-      background: rgba(79,247,160,0.04); border: 1px solid rgba(79,247,160,0.15);
-      border-radius: 6px; padding: 0.5rem 0.75rem; margin-top: 0.25rem; font-size: 0.72rem;
-    }
-    .anexos-box {
-      display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.25rem;
-      font-size: 0.68rem; color: var(--muted);
-    }
-    .anexo-chip {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 6px; padding: 0.2rem 0.5rem;
-      text-decoration: none; color: var(--accent); transition: border-color 0.2s;
-    }
-    .anexo-chip:hover { border-color: var(--accent); }
-    .anexo-chip .anexo-size { color: var(--muted); font-size: 0.62rem; }
-    input[type="file"].fi {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-      color: var(--muted); font-family: var(--font-mono); font-size: 0.78rem;
-      padding: 0.5rem 0.75rem; cursor: pointer; width: 100%;
-    }
-    input[type="file"].fi::-webkit-file-upload-button {
-      background: var(--surface3); border: 1px solid var(--border); border-radius: 5px;
-      color: var(--text); font-family: var(--font-mono); font-size: 0.72rem;
-      padding: 0.2rem 0.6rem; cursor: pointer; margin-right: 0.5rem;
-    }
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(13,15,18,0.88);
-      backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center;
-    }
+    .btn-action { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 0.5rem 1rem; font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .btn-action:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-action.primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
+    .btn-action.primary:hover { background: #e8b830; }
+    .btn-action.success { border-color: var(--success); color: var(--success); }
+    .btn-action.success:hover { background: rgba(79,247,160,0.1); }
+    .btn-action.danger { border-color: var(--danger); color: var(--danger); }
+    .btn-action.danger:hover { background: rgba(247,79,79,0.1); }
+    .btn-action.purple { border-color: var(--purple); color: var(--purple); }
+    .btn-action.purple:hover { background: rgba(167,139,250,0.1); }
+    .btn-action.muted { color: var(--muted); font-size: 0.7rem; }
+    .btn-action.muted:hover { border-color: var(--danger); color: var(--danger); }
+    .reab-box { background: rgba(167,139,250,0.04); border: 1px solid rgba(167,139,250,0.2); border-radius: 6px; padding: 0.5rem 0.75rem; margin-top: 0.25rem; font-size: 0.72rem; }
+    .reab-aceita-box { background: rgba(79,247,160,0.04); border: 1px solid rgba(79,247,160,0.2); border-radius: 6px; padding: 0.5rem 0.75rem; margin-top: 0.25rem; font-size: 0.72rem; }
+    .solucao-box { background: rgba(79,247,160,0.04); border: 1px solid rgba(79,247,160,0.15); border-radius: 6px; padding: 0.5rem 0.75rem; margin-top: 0.25rem; font-size: 0.72rem; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(13,15,18,0.88); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-      padding: 2rem; width: min(520px, 90vw); display: flex; flex-direction: column; gap: 1.25rem;
-      animation: fadeUp 0.25s ease;
-    }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; width: min(520px, 90vw); display: flex; flex-direction: column; gap: 1.25rem; animation: fadeUp 0.25s ease; max-height: 90vh; overflow-y: auto; }
     .modal h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; }
-    .modal p  { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
-    label.field {
-      display: flex; flex-direction: column; gap: 0.5rem;
-      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
-    }
-    input.fi, select.fi, textarea.fi {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-      color: var(--text); font-family: var(--font-mono); font-size: 0.85rem;
-      padding: 0.75rem 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
-    }
+    .modal p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+    label.field { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    input.fi, select.fi, textarea.fi { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-mono); font-size: 0.85rem; padding: 0.75rem 1rem; outline: none; transition: border-color 0.2s; width: 100%; }
     input.fi:focus, select.fi:focus, textarea.fi:focus { border-color: var(--accent); }
     textarea.fi { resize: vertical; min-height: 90px; }
     .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
-    .btn-cancel {
-      background: none; border: 1px solid var(--border); border-radius: 8px;
-      color: var(--muted); padding: 0.6rem 1.2rem; font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
-    }
+    .btn-cancel { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.6rem 1.2rem; font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
     .btn-cancel:hover { border-color: var(--text); color: var(--text); }
-    .btn-confirm {
-      background: var(--accent); border: none; border-radius: 8px; color: #000;
-      padding: 0.6rem 1.4rem; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
-    }
-    .btn-confirm:hover          { background: #e8b830; }
-    .btn-confirm.danger         { background: var(--danger); color: #fff; }
-    .btn-confirm.danger:hover   { background: #e03e3e; }
-    .btn-confirm.success        { background: var(--success); color: #000; }
-    .btn-confirm.success:hover  { background: #3de88a; }
-    .btn-confirm.purple         { background: var(--purple); color: #fff; }
-    .btn-confirm.purple:hover   { background: #9370db; }
-    .sla-warning {
-      background: rgba(247,79,79,0.08); border: 1px solid rgba(247,79,79,0.3);
-      border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.78rem; color: var(--danger); display: none;
-    }
+    .btn-confirm { background: var(--accent); border: none; border-radius: 8px; color: #000; padding: 0.6rem 1.4rem; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-confirm:hover { background: #e8b830; }
+    .btn-confirm.danger { background: var(--danger); color: #fff; }
+    .btn-confirm.danger:hover { background: #e03e3e; }
+    .btn-confirm.success { background: var(--success); color: #000; }
+    .btn-confirm.success:hover { background: #3de88a; }
+    .btn-confirm.purple { background: var(--purple); color: #fff; }
+    .btn-confirm.purple:hover { background: #9370db; }
+    .sla-warning { background: rgba(247,79,79,0.08); border: 1px solid rgba(247,79,79,0.3); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.78rem; color: var(--danger); display: none; }
     .sla-warning.show { display: block; }
     .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); font-size: 0.8rem; }
     .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.4; }
-    .toast {
-      position: fixed; bottom: 2rem; left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--surface3); border: 1px solid var(--border);
-      border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.8rem;
-      z-index: 999; transition: transform 0.3s ease; min-width: 280px; text-align: center;
-    }
-    .toast.show    { transform: translateX(-50%) translateY(0); }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface3); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.8rem; z-index: 999; transition: transform 0.3s ease; min-width: 280px; text-align: center; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
     .toast.success { border-color: var(--success); color: var(--success); }
-    .toast.error   { border-color: var(--danger);  color: var(--danger); }
-    .reab-card {
-      background: var(--surface); border: 1px solid rgba(167,139,250,0.3);
-      border-radius: 12px; padding: 1.5rem; margin-bottom: 0.75rem;
-    }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+    .reab-card { background: var(--surface); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px; padding: 1.5rem; margin-bottom: 0.75rem; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -220,23 +115,21 @@
   <nav>
     <a href="/" class="nav-brand">PlanDesk</a>
     <div class="nav-right">
-      <a href="/menu" class="nav-home" style="color:var(--muted);text-decoration:none;font-size:0.75rem;">🏠 Início</a>
+      <a href="/menu" class="nav-home">🏠 Início</a>
       <span class="nav-user" id="user-name"></span>
       <span class="nav-perfil">🎯 Analista</span>
       <button class="nav-logout" onclick="logout()">Sair</button>
     </div>
   </nav>
-
   <div class="filtros">
     <span style="font-size:0.72rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;">Filtrar:</span>
-    <button class="filtro-btn ativo" data-filtro="">Todos</button>
-    <button class="filtro-btn" data-filtro="aberto">Abertos</button>
-    <button class="filtro-btn" data-filtro="em andamento">Em Andamento</button>
-    <button class="filtro-btn" data-filtro="concluído">Concluídos</button>
-    <button class="filtro-btn" data-filtro="pendentes" style="border-color:rgba(167,139,250,0.4);">⏳ Pendentes</button>
+    <button class="filtro-btn ativo" onclick="filtrar('')" data-filtro="">Todos</button>
+    <button class="filtro-btn" onclick="filtrar('aberto')" data-filtro="aberto">Abertos</button>
+    <button class="filtro-btn" onclick="filtrar('em andamento')" data-filtro="em andamento">Em Andamento</button>
+    <button class="filtro-btn" onclick="filtrar('concluído')" data-filtro="concluído">Concluídos</button>
+    <button class="filtro-btn" onclick="filtrar('pendentes')" data-filtro="pendentes" style="border-color:rgba(167,139,250,0.4);">⏳ Pendentes</button>
     <button class="btn-refresh" onclick="carregarTickets()">⟳ Atualizar</button>
   </div>
-
   <div class="content">
     <div class="count-label" id="count-label"></div>
     <div id="tickets-container"><div class="empty-state"><span class="icon">⟳</span>Carregando...</div></div>
@@ -244,653 +137,118 @@
 </div>
 
 <!-- Modal Iniciar -->
-<div class="modal-overlay" id="modal-iniciar">
-  <div class="modal">
-    <h3>Iniciar Atendimento</h3>
-    <p>Defina a prioridade e inicie o atendimento.</p>
-    <input type="hidden" id="iniciar-id" />
-    <label class="field">Prioridade <span style="color:var(--danger)">*</span>
-      <select class="fi" id="iniciar-prioridade">
-        <option value="">Selecione...</option>
-        <option value="Baixa">🟢 Baixa — 4 horas</option>
-        <option value="Média">🔵 Média — 2 horas</option>
-        <option value="Alta">🟡 Alta — 1 hora</option>
-        <option value="Crítica">🔴 Crítica — 30 minutos</option>
-      </select>
-    </label>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModal('modal-iniciar')">Cancelar</button>
-      <button class="btn-confirm" onclick="confirmarIniciar()">Iniciar</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="modal-iniciar"><div class="modal"><h3>Iniciar Atendimento</h3><p>Defina a prioridade e inicie o atendimento.</p><input type="hidden" id="iniciar-id" /><label class="field">Prioridade <span style="color:var(--danger)">*</span><select class="fi" id="iniciar-prioridade"><option value="">Selecione...</option><option value="Baixa">🟢 Baixa — 4 horas</option><option value="Média">🔵 Média — 2 horas</option><option value="Alta">🟡 Alta — 1 hora</option><option value="Crítica">🔴 Crítica — 30 minutos</option></select></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-iniciar')">Cancelar</button><button class="btn-confirm" onclick="confirmarIniciar()">Iniciar</button></div></div></div>
 
-<!-- Modal Concluir Ticket Original -->
-<div class="modal-overlay" id="modal-concluir">
-  <div class="modal">
-    <h3>Concluir Ticket</h3>
-    <input type="hidden" id="concluir-orig-id" />
-    <label class="field">Descrição da solução <span style="color:var(--danger)">*</span>
-      <textarea class="fi" id="concluir-orig-desc" placeholder="Descreva a solução..."></textarea>
-    </label>
-    <label class="field">Link de referência <span style="color:var(--muted);font-size:0.65rem;">(opcional)</span>
-      <input type="url" class="fi" id="concluir-orig-link" placeholder="https://..." />
-    </label>
-    <label class="field">Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span>
-      <input type="file" id="concluir-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple
-             style="padding:0.4rem;" onchange="adicionarArquivos('concluir-arquivo', 2)" />
-      <div id="concluir-arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div>
-      <div id="concluir-arquivo-lista" style="margin-top:0.3rem;"></div>
-    </label>
-    <div class="sla-warning" id="sla-warning-orig">⚠️ SLA estourado. Justificativa obrigatória.</div>
-    <label class="field" id="justificativa-label-orig" style="display:none;">Justificativa do SLA <span style="color:var(--danger)">*</span>
-      <textarea class="fi" id="concluir-orig-justificativa" placeholder="Explique o motivo..."></textarea>
-    </label>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModal('modal-concluir')">Cancelar</button>
-      <button class="btn-confirm success" onclick="confirmarConcluir()">Concluir</button>
-    </div>
-  </div>
-</div>
+<!-- Modal Concluir -->
+<div class="modal-overlay" id="modal-concluir"><div class="modal"><h3>Concluir Ticket</h3><input type="hidden" id="concluir-orig-id" /><label class="field">Descrição da solução <span style="color:var(--danger)">*</span><textarea class="fi" id="concluir-orig-desc" placeholder="Descreva a solução..."></textarea></label><label class="field">Link de referência <span style="color:var(--muted);font-size:0.65rem;">(opcional)</span><input type="url" class="fi" id="concluir-orig-link" placeholder="https://..." /></label><label class="field">Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span><input type="file" id="concluir-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple style="padding:0.4rem;" onchange="adicionarArquivos('concluir-arquivo',2)" /><div id="concluir-arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div><div id="concluir-arquivo-lista"></div></label><div class="sla-warning" id="sla-warning-orig">⚠️ SLA estourado. Justificativa obrigatória.</div><label class="field" id="justificativa-label-orig" style="display:none;">Justificativa do SLA <span style="color:var(--danger)">*</span><textarea class="fi" id="concluir-orig-justificativa" placeholder="Explique o motivo..."></textarea></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-concluir')">Cancelar</button><button class="btn-confirm success" onclick="confirmarConcluir()">Concluir</button></div></div></div>
 
-<!-- Modal Concluir Ciclo de Reabertura -->
-<div class="modal-overlay" id="modal-concluir-reab">
-  <div class="modal">
-    <h3>Concluir Ciclo de Reabertura</h3>
-    <p id="concluir-reab-info" style="font-size:0.75rem;color:var(--muted);"></p>
-    <input type="hidden" id="concluir-reab-id" />
-    <label class="field">Descrição da solução <span style="color:var(--danger)">*</span>
-      <textarea class="fi" id="concluir-reab-desc" placeholder="Descreva a solução deste ciclo..."></textarea>
-    </label>
-    <label class="field">Link de referência
-      <input type="url" class="fi" id="concluir-reab-link" placeholder="https://..." />
-    </label>
-    <div class="sla-warning" id="sla-warning-reab">⚠️ SLA estourado. Justificativa obrigatória.</div>
-    <label class="field" id="justificativa-label-reab" style="display:none;">Justificativa do SLA <span style="color:var(--danger)">*</span>
-      <textarea class="fi" id="concluir-reab-justificativa" placeholder="Explique o motivo..."></textarea>
-    </label>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModal('modal-concluir-reab')">Cancelar</button>
-      <button class="btn-confirm success" onclick="confirmarConcluirReab()">Concluir Ciclo</button>
-    </div>
-  </div>
-</div>
+<!-- Modal Concluir Reabertura -->
+<div class="modal-overlay" id="modal-concluir-reab"><div class="modal"><h3>Concluir Ciclo de Reabertura</h3><p id="concluir-reab-info" style="font-size:0.75rem;color:var(--muted);"></p><input type="hidden" id="concluir-reab-id" /><label class="field">Descrição da solução <span style="color:var(--danger)">*</span><textarea class="fi" id="concluir-reab-desc" placeholder="Descreva a solução deste ciclo..."></textarea></label><label class="field">Link de referência<input type="url" class="fi" id="concluir-reab-link" placeholder="https://..." /></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-concluir-reab')">Cancelar</button><button class="btn-confirm success" onclick="confirmarConcluirReab()">Concluir Ciclo</button></div></div></div>
 
 <!-- Modal Excluir -->
-<div class="modal-overlay" id="modal-excluir">
-  <div class="modal">
-    <h3>Arquivar Ticket</h3>
-    <input type="hidden" id="excluir-id" />
-    <label class="field">Motivo <span style="color:var(--danger)">*</span>
-      <textarea class="fi" id="excluir-motivo" placeholder="Motivo do arquivamento..."></textarea>
-    </label>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModal('modal-excluir')">Cancelar</button>
-      <button class="btn-confirm danger" onclick="confirmarExclusao()">Arquivar</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="modal-excluir"><div class="modal"><h3>Arquivar Ticket</h3><input type="hidden" id="excluir-id" /><label class="field">Motivo <span style="color:var(--danger)">*</span><textarea class="fi" id="excluir-motivo" placeholder="Motivo do arquivamento..."></textarea></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-excluir')">Cancelar</button><button class="btn-confirm danger" onclick="confirmarExclusao()">Arquivar</button></div></div></div>
 
 <!-- Modal Aceitar Reabertura -->
-<div class="modal-overlay" id="modal-aceitar-reab">
-  <div class="modal">
-    <h3>Aceitar Reabertura</h3>
-    <p id="aceitar-reab-info"></p>
-    <input type="hidden" id="aceitar-reab-id" />
-    <label class="field">Prioridade <span style="color:var(--danger)">*</span>
-      <select class="fi" id="aceitar-reab-prioridade">
-        <option value="">Selecione...</option>
-        <option value="Baixa">🟢 Baixa — 4 horas</option>
-        <option value="Média">🔵 Média — 2 horas</option>
-        <option value="Alta">🟡 Alta — 1 hora</option>
-        <option value="Crítica">🔴 Crítica — 30 minutos</option>
-      </select>
-    </label>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModal('modal-aceitar-reab')">Cancelar</button>
-      <button class="btn-confirm purple" onclick="confirmarAceitarReab()">Aceitar e Iniciar</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="modal-aceitar-reab"><div class="modal"><h3>Aceitar Reabertura</h3><p id="aceitar-reab-info"></p><input type="hidden" id="aceitar-reab-id" /><label class="field">Prioridade <span style="color:var(--danger)">*</span><select class="fi" id="aceitar-reab-prioridade"><option value="">Selecione...</option><option value="Baixa">🟢 Baixa — 4 horas</option><option value="Média">🔵 Média — 2 horas</option><option value="Alta">🟡 Alta — 1 hora</option><option value="Crítica">🔴 Crítica — 30 minutos</option></select></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-aceitar-reab')">Cancelar</button><button class="btn-confirm purple" onclick="confirmarAceitarReab()">Aceitar e Iniciar</button></div></div></div>
 
 <!-- Modal Recusar Reabertura -->
-<div class="modal-overlay" id="modal-recusar-reab">
-  <div class="modal">
-    <h3>Recusar Reabertura</h3>
-    <p id="recusar-reab-info"></p>
-    <input type="hidden" id="recusar-reab-id" />
-    <label class="field">Justificativa <span style="color:var(--danger)">*</span>
-      <textarea class="fi" id="recusar-reab-justificativa" placeholder="Motivo da recusa..."></textarea>
-    </label>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModal('modal-recusar-reab')">Cancelar</button>
-      <button class="btn-confirm danger" onclick="confirmarRecusarReab()">Recusar</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="modal-recusar-reab"><div class="modal"><h3>Recusar Reabertura</h3><p id="recusar-reab-info"></p><input type="hidden" id="recusar-reab-id" /><label class="field">Justificativa <span style="color:var(--danger)">*</span><textarea class="fi" id="recusar-reab-justificativa" placeholder="Motivo da recusa..."></textarea></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-recusar-reab')">Cancelar</button><button class="btn-confirm danger" onclick="confirmarRecusarReab()">Recusar</button></div></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Autenticação ──────────────────────────────────────────────────
-  const TOKEN = localStorage.getItem('plandesk_token');
-  const NIVEL = localStorage.getItem('plandesk_nivel');
-  const NOME  = localStorage.getItem('plandesk_nome');
-  const TELAS = JSON.parse(localStorage.getItem('plandesk_telas') || '[]');
+const TOKEN = localStorage.getItem('plandesk_token');
+const NIVEL = localStorage.getItem('plandesk_nivel');
+const NOME = localStorage.getItem('plandesk_nome');
+const TELAS = JSON.parse(localStorage.getItem('plandesk_telas') || '[]');
+if (!TOKEN || !TELAS.includes('analista')) { window.location.href = '/login'; }
+document.getElementById('user-name').textContent = NOME || 'Analista';
+function getAuthHeaders() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL }; }
+function logout() { localStorage.clear(); window.location.href = '/login'; }
 
-  if (!TOKEN || !TELAS.includes('analista')) { window.location.href = '/login'; }
-  document.getElementById('user-name').textContent = NOME || 'Analista';
+const API = '/api/ticket', API_REAB = '/api/reabertura', API_ANEXO = '/api/anexo';
+const MAX_FILE_SIZE = 25 * 1024 * 1024;
+const arquivosAcumulados = { 'concluir-arquivo': [] };
+let filtroAtual = '', ticketsCache = [], reaberturasCache = [], reaberturasAceitasCache = [];
 
-  function getAuthHeaders() {
-    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL };
-  }
-  function logout() { localStorage.clear(); window.location.href = '/login'; }
+function adicionarArquivos(inputId, max) { const input = document.getElementById(inputId); const novos = Array.from(input.files); const ac = arquivosAcumulados[inputId]; for (const f of novos) { if (ac.length >= max) { toast('✗ Máx '+max+' arquivos', 'error'); break; } if (f.size > MAX_FILE_SIZE) { toast('✗ "'+f.name+'" excede 25MB', 'error'); continue; } if (!ac.some(x => x.name===f.name && x.size===f.size)) ac.push(f); } _sinc(inputId, max); atualizarListaArquivos(inputId); }
+function removerArquivo(inputId, i, max) { arquivosAcumulados[inputId].splice(i,1); _sinc(inputId, max); atualizarListaArquivos(inputId); }
+function _sinc(inputId, max) { const input = document.getElementById(inputId); const dt = new DataTransfer(); arquivosAcumulados[inputId].forEach(f => dt.items.add(f)); input.files = dt.files; const atingiu = arquivosAcumulados[inputId].length >= max; input.style.display = atingiu ? 'none' : ''; const el = document.getElementById(inputId+'-cheio'); if (el) el.style.display = atingiu ? 'block' : 'none'; }
+function atualizarListaArquivos(inputId) { const lista = document.getElementById(inputId+'-lista'); if (!lista) return; const files = arquivosAcumulados[inputId]; if (!files.length) { lista.innerHTML = ''; return; } lista.innerHTML = files.map((f,i) => `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.3rem 0;font-size:0.68rem;border-bottom:1px solid var(--border);"><span>📎 ${f.name} (${(f.size/1024).toFixed(0)}KB)</span><button onclick="removerArquivo('${inputId}',${i},2)" style="background:none;border:none;color:var(--danger);cursor:pointer;">🗑</button></div>`).join(''); }
 
-  const API       = '/api/ticket';
-  const API_REAB  = '/api/reabertura';
-  const API_ANEXO = '/api/anexo';
-  let filtroAtual = '';
-  let ticketsCache = [];
-  let reaberturasCache = [];
-  let reaberturasAceitasCache = [];
-
-  // ── Gerenciamento de arquivos múltiplos ───────────────────────────
-  const MAX_FILE_SIZE = 25 * 1024 * 1024;
-  const arquivosAcumulados = { 'concluir-arquivo': [] };
-
-  function adicionarArquivos(inputId, maxArquivos) {
-    const input = document.getElementById(inputId);
-    const novos = Array.from(input.files);
-    const acumulado = arquivosAcumulados[inputId];
-
-    for (const file of novos) {
-      if (acumulado.length >= maxArquivos) { toast(`✗ Máximo de ${maxArquivos} arquivo(s)`, 'error'); break; }
-      if (file.size > MAX_FILE_SIZE) { toast(`✗ "${file.name}" excede 25MB`, 'error'); continue; }
-      const duplicado = acumulado.some(f => f.name === file.name && f.size === file.size);
-      if (!duplicado) acumulado.push(file);
+async function carregarTickets() {
+  document.getElementById('tickets-container').innerHTML = '<div class="empty-state"><span class="icon">⟳</span>Carregando...</div>';
+  try {
+    const [tRes, pRes] = await Promise.all([fetch(filtroAtual && filtroAtual !== 'pendentes' ? `${API}?status=${encodeURIComponent(filtroAtual)}` : API, { headers: getAuthHeaders() }), fetch(`${API_REAB}/pendentes/lista`, { headers: getAuthHeaders() })]);
+    ticketsCache = await tRes.json(); reaberturasCache = await pRes.json();
+    reaberturasAceitasCache = [];
+    for (const t of ticketsCache) {
+      try { const rRes = await fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAuthHeaders() }); const reabs = await rRes.json(); reabs.forEach(r => { r._ticket_id = t.id; }); reaberturasAceitasCache.push(...reabs.filter(r => r.status === 'aceita')); } catch {}
+      try { const aRes = await fetch(`/api/anexo/${t.id}/listar`, { headers: getAuthHeaders() }); t.anexos = await aRes.json(); } catch { t.anexos = []; }
     }
-    _sincronizarInput(inputId, maxArquivos);
-    atualizarListaArquivos(inputId);
-  }
+    if (filtroAtual === 'pendentes') { document.getElementById('count-label').textContent = `${reaberturasCache.length} reabertura(s) pendente(s)`; renderPendentes(reaberturasCache); }
+    else { document.getElementById('count-label').textContent = `${ticketsCache.length} ticket(s)`; renderTickets(ticketsCache); }
+  } catch { document.getElementById('tickets-container').innerHTML = '<div class="empty-state"><span class="icon">⚠️</span>Erro ao carregar.</div>'; }
+}
 
-  function removerArquivo(inputId, index, maxArquivos) {
-    arquivosAcumulados[inputId].splice(index, 1);
-    _sincronizarInput(inputId, maxArquivos);
-    atualizarListaArquivos(inputId);
-  }
+function filtrar(s) { filtroAtual = s; document.querySelectorAll('.filtro-btn').forEach(b => b.classList.toggle('ativo', b.dataset.filtro === s)); carregarTickets(); }
 
-  function _sincronizarInput(inputId, maxArquivos) {
-    const input = document.getElementById(inputId);
-    const acumulado = arquivosAcumulados[inputId];
-    const dt = new DataTransfer();
-    acumulado.forEach(f => dt.items.add(f));
-    input.files = dt.files;
-    const cheioEl = document.getElementById(inputId + '-cheio');
-    const atingiu = acumulado.length >= maxArquivos;
-    input.style.display = atingiu ? 'none' : '';
-    if (cheioEl) cheioEl.style.display = atingiu ? 'block' : 'none';
-  }
+function renderPendentes(pendentes) {
+  const c = document.getElementById('tickets-container');
+  if (!pendentes.length) { c.innerHTML = '<div class="empty-state"><span class="icon">✅</span>Nenhuma reabertura pendente.</div>'; return; }
+  c.innerHTML = pendentes.map((p,i) => `<div class="reab-card" style="animation-delay:${i*0.04}s"><div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;"><div><div style="font-size:0.75rem;color:var(--muted);">Ticket #${p.ticket_id} · ${p.setor}</div><div style="font-size:0.85rem;margin:0.5rem 0;">${p.descricao}</div><div class="reab-box"><span style="color:var(--purple);">⏳ Reabertura Ciclo ${p.ciclo} · Tentativa ${p.tentativa_ciclo}/2</span><br><span style="color:var(--muted);">Motivo: "${p.motivo_solicitacao}"</span><br><span style="font-size:0.65rem;color:var(--muted);">Solicitado: ${new Date(p.solicitado_em).toLocaleString('pt-BR')}</span></div>${p.solucao_anterior?`<div class="solucao-box"><span style="color:var(--success);">Solução anterior: ${p.solucao_anterior}</span></div>`:''}</div><div style="display:flex;gap:0.5rem;flex-direction:column;min-width:140px;"><button class="btn-action purple" onclick="abrirAceitarReab(${p.id},'${p.motivo_solicitacao.replace(/'/g,"\\'")}',${p.ticket_id},${p.ciclo})">✓ Aceitar</button><button class="btn-action danger" onclick="abrirRecusarReab(${p.id},'${p.motivo_solicitacao.replace(/'/g,"\\'")}',${p.ticket_id})">✗ Recusar</button></div></div></div>`).join('');
+}
 
-  function atualizarListaArquivos(inputId) {
-    const lista = document.getElementById(inputId + '-lista');
-    if (!lista) return;
-    const files = arquivosAcumulados[inputId];
-    if (!files.length) { lista.innerHTML = ''; return; }
-    lista.innerHTML = files.map((file, i) => `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.3rem 0;font-size:0.68rem;border-bottom:1px solid var(--border);">
-        <span>📎 ${file.name} (${(file.size/1024).toFixed(0)}KB)</span>
-        <button onclick="removerArquivo('${inputId}',${i},2)" style="background:none;border:none;color:var(--danger);cursor:pointer;">🗑</button>
-      </div>`).join('');
-  }
+function renderTickets(tickets) {
+  const c = document.getElementById('tickets-container');
+  if (!tickets.length) { c.innerHTML = '<div class="empty-state"><span class="icon">🎯</span>Nenhum ticket.</div>'; return; }
+  const prioMap = { 'Crítica':'critica','Alta':'alta','Média':'media','Baixa':'baixa' };
+  const stBadge = { 'aberto':'badge-aberto','em andamento':'badge-andamento','concluído':'badge-concluido' };
+  const prBadge = { 'Baixa':'badge-baixa','Média':'badge-media','Alta':'badge-alta','Crítica':'badge-critica' };
+  const pendMap = {}; reaberturasCache.forEach(r => { if (!pendMap[r.ticket_id]) pendMap[r.ticket_id] = []; pendMap[r.ticket_id].push(r); });
 
-  // ── Sanitização HTML ──────────────────────────────────────────────
-  function esc(str) {
-    if (str == null) return '';
-    return String(str)
-      .replace(/&/g,  '&amp;')
-      .replace(/</g,  '&lt;')
-      .replace(/>/g,  '&gt;')
-      .replace(/"/g,  '&quot;')
-      .replace(/'/g,  '&#x27;');
-  }
+  c.innerHTML = tickets.map((t,i) => {
+    const prio = prioMap[t.prioridade]||'', slaStatus = t.sla_status||'ok', cons = t.sla_consumido_atual??t.sla_consumido_min??0;
+    const slaPct = t.sla_total_min ? Math.min(100, Math.round(cons/t.sla_total_min*100)) : 0;
+    const pendentesDoTicket = pendMap[t.id]||[], temPendente = pendentesDoTicket.length > 0;
+    const reabAceitas = reaberturasAceitasCache.filter(r => r._ticket_id === t.id);
 
-  // ── Filtros ───────────────────────────────────────────────────────
-  document.querySelectorAll('.filtro-btn').forEach(btn => {
-    btn.addEventListener('click', () => filtrar(btn.dataset.filtro));
-  });
+    let slaBlock = ''; if (t.sla_total_min) slaBlock = `<div class="sla-block"><div class="sla-label">SLA Ciclo 1</div><div class="sla-value ${slaStatus}">${cons}/${t.sla_total_min} min</div><div class="sla-bar ${slaStatus}"><div class="sla-fill" style="width:${slaPct}%"></div></div></div>`;
+    let slasReab = ''; reabAceitas.forEach(r => { if (r.sla_total_min && !r.concluido_em) { const rC = r.sla_consumido_min||0, rP = Math.min(100,Math.round(rC/r.sla_total_min*100)), rS = r.sla_estourado?'estourado':'ok'; slasReab += `<div class="sla-block" style="margin-top:0.5rem;"><div class="sla-label">SLA Ciclo ${r.ciclo}</div><div class="sla-value ${rS}">${rC}/${r.sla_total_min} min</div><div class="sla-bar ${rS}"><div class="sla-fill" style="width:${rP}%"></div></div></div>`; } });
 
-  async function carregarTickets() {
-    const container = document.getElementById('tickets-container');
-    container.innerHTML = '<div class="empty-state"><span class="icon">⟳</span>Carregando...</div>';
+    let pendenteInfo = ''; if (temPendente) pendenteInfo = pendentesDoTicket.map(p => `<div class="reab-box"><span style="color:var(--purple);">⏳ Reabertura pendente - Ciclo ${p.ciclo}</span><br><span style="color:var(--muted);font-size:0.68rem;">Motivo: "${p.motivo_solicitacao}"</span><div style="margin-top:0.3rem;display:flex;gap:0.3rem;"><button class="btn-action purple" style="font-size:0.65rem;padding:0.25rem 0.5rem;" onclick="abrirAceitarReab(${p.id},'${p.motivo_solicitacao.replace(/'/g,"\\'")}',${t.id},${p.ciclo})">Aceitar</button><button class="btn-action danger" style="font-size:0.65rem;padding:0.25rem 0.5rem;" onclick="abrirRecusarReab(${p.id},'${p.motivo_solicitacao.replace(/'/g,"\\'")}',${t.id})">Recusar</button></div></div>`).join('');
 
-    try {
-      const [tRes, pRes] = await Promise.all([
-        fetch(filtroAtual && filtroAtual !== 'pendentes'
-          ? `${API}?status=${encodeURIComponent(filtroAtual)}`
-          : API, { headers: getAuthHeaders() }),
-        fetch(`${API_REAB}/pendentes/lista`, { headers: getAuthHeaders() })
-      ]);
+    let reabAceitasInfo = ''; reabAceitas.forEach(r => { if (!r.concluido_em) reabAceitasInfo += `<div class="reab-aceita-box"><span style="color:var(--success);">✅ Ciclo ${r.ciclo} em andamento</span><br><span style="color:var(--muted);font-size:0.68rem;">Prioridade: ${r.prioridade} · ${r.motivo_solicitacao}</span><button class="btn-action success" style="font-size:0.65rem;padding:0.25rem 0.5rem;margin-top:0.3rem;" onclick="abrirConcluirReab(${r.id},'Ciclo ${r.ciclo}: ${r.motivo_solicitacao.replace(/'/g,"\\'")}')">✓ Concluir Ciclo ${r.ciclo}</button></div>`; else reabAceitasInfo += `<div class="reab-aceita-box"><span style="color:var(--success);">✅ Ciclo ${r.ciclo} concluído</span><br><span style="color:var(--muted);font-size:0.68rem;">${r.descricao_final||'Sem descrição'} · SLA: ${r.sla_consumido_min||0}/${r.sla_total_min} min</span></div>`; });
 
-      ticketsCache     = await tRes.json();
-      reaberturasCache = await pRes.json();
+    let solucaoAnterior = ''; if (t.descricao_final) { const anexosAnalista = (t.anexos||[]).filter(a => a.tipo_upload === 'analista'); let anexosSolHTML = ''; if (anexosAnalista.length > 0) anexosSolHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;">📎 Anexos da solução: ${anexosAnalista.map(a => `<a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);">${a.nome_original}</a> (${(a.tamanho_bytes/1024).toFixed(0)}KB)`).join(' | ')}</div>`; solucaoAnterior = `<div class="solucao-box"><span style="color:var(--success);">Solução: ${t.descricao_final}</span>${t.link_referencia?` <a href="${t.link_referencia}" target="_blank" style="color:var(--accent);">🔗</a>`:''}${anexosSolHTML}</div>`; }
 
-      reaberturasAceitasCache = [];
+    const anexosSolicitante = (t.anexos||[]).filter(a => a.tipo_upload === 'solicitante');
+    let anexosHTML = ''; if (anexosSolicitante.length > 0) anexosHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;color:var(--muted);">📎 Anexos: ${anexosSolicitante.map(a => `<a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);">${a.nome_original}</a> (${(a.tamanho_bytes/1024).toFixed(0)}KB)`).join(' | ')}</div>`;
 
-      const [reabResults, anexoResults] = await Promise.all([
-        Promise.all(
-          ticketsCache.map(t =>
-            fetch(`${API_REAB}/${t.id}/reaberturas`, { headers: getAuthHeaders() })
-              .then(r => r.json())
-              .then(reabs => reabs.map(r => ({ ...r, _ticket_id: t.id })))
-              .catch(() => [])
-          )
-        ),
-        Promise.all(
-          ticketsCache.map(t =>
-            fetch(`${API_ANEXO}/${t.id}/listar`, { headers: getAuthHeaders() })
-              .then(r => r.ok ? r.json() : [])
-              .catch(() => [])
-          )
-        )
-      ]);
+    let acoes = ''; if (t.status === 'aberto') acoes = `<button class="btn-action primary" onclick="abrirIniciar(${t.id})">▶ Iniciar</button>`; else if (t.status === 'em andamento') acoes = `<button class="btn-action success" onclick="abrirConcluirOriginal(${t.id},${t.sla_estourado||(cons>t.sla_total_min?1:0)})">✓ Concluir</button>`; else if (t.status === 'concluído') acoes = `<button class="btn-action muted danger" onclick="abrirExcluir(${t.id})">🗑 Arquivar</button>`;
 
-      reabResults.forEach(reabs =>
-        reaberturasAceitasCache.push(...reabs.filter(r => r.status === 'aceita'))
-      );
+    return `<div class="ticket-card prioridade-${prio} ${temPendente?'reabertura-pendente':''}" style="animation-delay:${i*0.04}s"><div class="ticket-main"><div class="ticket-header"><span class="ticket-id">#${t.id}</span>${t.prioridade?`<span class="badge ${prBadge[t.prioridade]}">${t.prioridade}</span>`:''}<span class="badge ${stBadge[t.status]||''}">${t.status}</span>${t.ciclo_atual>1?`<span class="badge badge-pendente">Ciclo ${t.ciclo_atual}</span>`:''}${temPendente?'<span class="badge badge-pendente">⏳ Pendente</span>':''}</div><div class="ticket-setor-nome">${t.setor} → ${t.setor_destino||'N/D'}${t.solicitante_nome?` · ${t.solicitante_nome}`:t.nome?` · ${t.nome}`:''}</div><div class="ticket-desc">${t.descricao}</div>${anexosHTML}${solucaoAnterior}${reabAceitasInfo}${pendenteInfo}<div class="ticket-meta"><span>📅 ${new Date(t.criado_em).toLocaleString('pt-BR')}</span>${t.analista_responsavel?`<span>👤 ${t.analista_responsavel}</span>`:''}</div>${slaBlock}${slasReab}</div><div class="ticket-actions-col">${acoes}</div></div>`;
+  }).join('');
+}
 
-      ticketsCache.forEach((t, i) => { t.anexos = anexoResults[i] || []; });
+function abrirIniciar(id) { document.getElementById('iniciar-id').value=id; document.getElementById('modal-iniciar').classList.add('open'); }
+function abrirConcluirOriginal(id, slaEst) { document.getElementById('concluir-orig-id').value=id; document.getElementById('concluir-orig-desc').value=''; document.getElementById('concluir-orig-link').value=''; document.getElementById('concluir-orig-justificativa').value=''; arquivosAcumulados['concluir-arquivo']=[]; atualizarListaArquivos('concluir-arquivo'); const w=document.getElementById('sla-warning-orig'), j=document.getElementById('justificativa-label-orig'); if(slaEst){w.classList.add('show');j.style.display='flex';}else{w.classList.remove('show');j.style.display='none';} document.getElementById('modal-concluir').classList.add('open'); }
+function abrirExcluir(id) { document.getElementById('excluir-id').value=id; document.getElementById('modal-excluir').classList.add('open'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
 
-      if (filtroAtual === 'pendentes') {
-        document.getElementById('count-label').textContent = `${reaberturasCache.length} reabertura(s) pendente(s)`;
-        renderPendentes(reaberturasCache);
-      } else {
-        document.getElementById('count-label').textContent = `${ticketsCache.length} ticket(s) encontrado(s)`;
-        renderTickets(ticketsCache);
-      }
-    } catch {
-      container.innerHTML = '<div class="empty-state"><span class="icon">⚠️</span>Erro ao carregar.</div>';
-    }
-  }
+async function confirmarIniciar() { const id=document.getElementById('iniciar-id').value, p=document.getElementById('iniciar-prioridade').value; if(!p){toast('✗ Selecione prioridade','error');return;} try { const r=await fetch(`${API}/${id}/start`,{method:'PATCH',headers:getAuthHeaders(),body:JSON.stringify({prioridade:p})}); const d=await r.json(); if(!r.ok)throw new Error(d.error); fecharModal('modal-iniciar');toast('✓ Iniciado','success');carregarTickets(); } catch(err){toast('✗ '+err.message,'error');} }
+async function confirmarConcluir() { const id=document.getElementById('concluir-orig-id').value, desc=document.getElementById('concluir-orig-desc').value, link=document.getElementById('concluir-orig-link').value, just=document.getElementById('concluir-orig-justificativa').value; if(!desc.trim()){toast('✗ Informe a descrição','error');return;} try { const r=await fetch(`${API}/${id}/finish`,{method:'PATCH',headers:getAuthHeaders(),body:JSON.stringify({descricao_final:desc,link_referencia:link,justificativa:just})}); const d=await r.json(); if(!r.ok)throw new Error(d.error); for(const f of arquivosAcumulados['concluir-arquivo']){ const fd=new FormData();fd.append('arquivo',f);fd.append('tipo_upload','analista'); await fetch(`${API_ANEXO}/${id}/upload`,{method:'POST',headers:{'Authorization':'Bearer '+TOKEN,'x-nivel':NIVEL},body:fd}); } fecharModal('modal-concluir');toast('✓ Concluído','success');carregarTickets(); } catch(err){toast('✗ '+err.message,'error');} }
+async function confirmarExclusao() { const id=document.getElementById('excluir-id').value, m=document.getElementById('excluir-motivo').value; if(!m.trim()){toast('✗ Informe o motivo','error');return;} try { const r=await fetch(`${API}/${id}/delete`,{method:'PATCH',headers:getAuthHeaders(),body:JSON.stringify({motivo:m})}); const d=await r.json(); if(!r.ok)throw new Error(d.error); fecharModal('modal-excluir');toast('✓ Arquivado','success');carregarTickets(); } catch(err){toast('✗ '+err.message,'error');} }
+function abrirConcluirReab(reabId,info){ document.getElementById('concluir-reab-id').value=reabId;document.getElementById('concluir-reab-info').textContent=info;document.getElementById('concluir-reab-desc').value='';document.getElementById('concluir-reab-link').value='';document.getElementById('modal-concluir-reab').classList.add('open'); }
+async function confirmarConcluirReab(){ const id=document.getElementById('concluir-reab-id').value, desc=document.getElementById('concluir-reab-desc').value, link=document.getElementById('concluir-reab-link').value; if(!desc.trim()){toast('✗ Informe a descrição','error');return;} try { const r=await fetch(`${API_REAB}/reaberturas/${id}/concluir`,{method:'PATCH',headers:getAuthHeaders(),body:JSON.stringify({descricao_final:desc,link_referencia:link})}); const d=await r.json(); if(!r.ok)throw new Error(d.error); fecharModal('modal-concluir-reab');toast('✓ Ciclo concluído','success');carregarTickets(); } catch(err){toast('✗ '+err.message,'error');} }
+function abrirAceitarReab(id,motivo,ticketId,ciclo){ document.getElementById('aceitar-reab-id').value=id;document.getElementById('aceitar-reab-info').textContent=`Ticket #${ticketId} · Ciclo ${ciclo} · "${motivo}"`;document.getElementById('aceitar-reab-prioridade').value='';document.getElementById('modal-aceitar-reab').classList.add('open'); }
+function abrirRecusarReab(id,motivo,ticketId){ document.getElementById('recusar-reab-id').value=id;document.getElementById('recusar-reab-info').textContent=`Ticket #${ticketId} · "${motivo}"`;document.getElementById('recusar-reab-justificativa').value='';document.getElementById('modal-recusar-reab').classList.add('open'); }
+async function confirmarAceitarReab(){ const id=document.getElementById('aceitar-reab-id').value, p=document.getElementById('aceitar-reab-prioridade').value; if(!p){toast('✗ Selecione prioridade','error');return;} try { const r=await fetch(`${API_REAB}/reaberturas/${id}/aceitar`,{method:'PATCH',headers:getAuthHeaders(),body:JSON.stringify({prioridade:p})}); const d=await r.json(); if(!r.ok)throw new Error(d.error); fecharModal('modal-aceitar-reab');toast('✓ Reabertura aceita','success');carregarTickets(); } catch(err){toast('✗ '+err.message,'error');} }
+async function confirmarRecusarReab(){ const id=document.getElementById('recusar-reab-id').value, j=document.getElementById('recusar-reab-justificativa').value; if(!j.trim()){toast('✗ Informe a justificativa','error');return;} try { const r=await fetch(`${API_REAB}/reaberturas/${id}/recusar`,{method:'PATCH',headers:getAuthHeaders(),body:JSON.stringify({justificativa:j})}); const d=await r.json(); if(!r.ok)throw new Error(d.error); fecharModal('modal-recusar-reab');toast('✓ Reabertura recusada','success');carregarTickets(); } catch(err){toast('✗ '+err.message,'error');} }
 
-  function filtrar(status) {
-    filtroAtual = status;
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.toggle('ativo', b.dataset.filtro === status));
-    carregarTickets();
-  }
-
-  function renderPendentes(pendentes) {
-    const container = document.getElementById('tickets-container');
-    if (!pendentes.length) {
-      container.innerHTML = '<div class="empty-state"><span class="icon">✅</span>Nenhuma reabertura pendente.</div>';
-      return;
-    }
-    container.innerHTML = pendentes.map((p, i) => `
-      <div class="reab-card" style="animation-delay:${i * 0.04}s">
-        <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
-          <div>
-            <div style="font-size:0.75rem;color:var(--muted);">Ticket #${esc(p.ticket_id)} · ${esc(p.setor)}</div>
-            <div style="font-size:0.85rem;margin:0.5rem 0;">${esc(p.descricao)}</div>
-            <div class="reab-box">
-              <span style="color:var(--purple);">⏳ Reabertura Ciclo ${esc(p.ciclo)} · Tentativa ${esc(p.tentativa_ciclo)}/2</span><br>
-              <span style="color:var(--muted);">Motivo: &ldquo;${esc(p.motivo_solicitacao)}&rdquo;</span><br>
-              <span style="font-size:0.65rem;color:var(--muted);">Solicitado: ${new Date(p.solicitado_em).toLocaleString('pt-BR')}</span>
-            </div>
-            ${p.solucao_anterior ? `<div class="solucao-box"><span style="color:var(--success);">Solução anterior: ${esc(p.solucao_anterior)}</span></div>` : ''}
-          </div>
-          <div style="display:flex;gap:0.5rem;flex-direction:column;min-width:140px;">
-            <button class="btn-action purple" data-action="aceitar-reab" data-id="${esc(p.id)}" data-motivo="${esc(p.motivo_solicitacao)}" data-ticket="${esc(p.ticket_id)}" data-ciclo="${esc(p.ciclo)}">✓ Aceitar</button>
-            <button class="btn-action danger"  data-action="recusar-reab" data-id="${esc(p.id)}" data-motivo="${esc(p.motivo_solicitacao)}" data-ticket="${esc(p.ticket_id)}">✗ Recusar</button>
-          </div>
-        </div>
-      </div>`).join('');
-  }
-
-  function renderTickets(tickets) {
-    const container = document.getElementById('tickets-container');
-    if (!tickets.length) {
-      container.innerHTML = '<div class="empty-state"><span class="icon">🎯</span>Nenhum ticket.</div>';
-      return;
-    }
-    const prioMap    = { 'Crítica': 'critica', 'Alta': 'alta', 'Média': 'media', 'Baixa': 'baixa' };
-    const statusBadge= { 'aberto': 'badge-aberto', 'em andamento': 'badge-andamento', 'concluído': 'badge-concluido' };
-    const prioBadge  = { 'Baixa': 'badge-baixa', 'Média': 'badge-media', 'Alta': 'badge-alta', 'Crítica': 'badge-critica' };
-
-    const pendentesMap = {};
-    reaberturasCache.forEach(r => {
-      if (!pendentesMap[r.ticket_id]) pendentesMap[r.ticket_id] = [];
-      pendentesMap[r.ticket_id].push(r);
-    });
-
-    container.innerHTML = tickets.map((t, i) => {
-      const prio     = prioMap[t.prioridade] || '';
-      const slaStatus= t.sla_status || 'ok';
-      const cons     = t.sla_consumido_atual ?? t.sla_consumido_min ?? 0;
-      const slaPct   = t.sla_total_min ? Math.min(100, Math.round(cons / t.sla_total_min * 100)) : 0;
-      const pendentesDoTicket = pendentesMap[t.id] || [];
-      const temPendente       = pendentesDoTicket.length > 0;
-      const reabAceitas       = reaberturasAceitasCache.filter(r => r._ticket_id === t.id);
-
-      // ── SLA Ciclo 1 ────────────────────────────────────────────────
-      let slaBlock = '';
-      if (t.sla_total_min) {
-        slaBlock = `<div class="sla-block">
-          <div class="sla-label">SLA Ciclo 1</div>
-          <div class="sla-value ${slaStatus}">${esc(cons)}/${esc(t.sla_total_min)} min</div>
-          <div class="sla-bar ${slaStatus}"><div class="sla-fill" style="width:${slaPct}%"></div></div>
-        </div>`;
-      }
-
-      // ── SLA Ciclos de Reabertura ────────────────────────────────────
-      let slasReab = '';
-      reabAceitas.forEach(r => {
-        if (r.sla_total_min && !r.concluido_em) {
-          const rCons  = r.sla_consumido_min || 0;
-          const rPct   = Math.min(100, Math.round(rCons / r.sla_total_min * 100));
-          const rStatus= r.sla_estourado ? 'estourado' : 'ok';
-          slasReab += `<div class="sla-block" style="margin-top:0.5rem;">
-            <div class="sla-label">SLA Ciclo ${esc(r.ciclo)}</div>
-            <div class="sla-value ${rStatus}">${esc(rCons)}/${esc(r.sla_total_min)} min</div>
-            <div class="sla-bar ${rStatus}"><div class="sla-fill" style="width:${rPct}%"></div></div>
-          </div>`;
-        }
-      });
-
-      // ── Reaberturas pendentes inline ───────────────────────────────
-      let pendenteInfo = '';
-      if (temPendente) {
-        pendenteInfo = pendentesDoTicket.map(p => `
-          <div class="reab-box">
-            <span style="color:var(--purple);">⏳ Reabertura pendente - Ciclo ${esc(p.ciclo)}</span><br>
-            <span style="color:var(--muted);font-size:0.68rem;">Motivo: &ldquo;${esc(p.motivo_solicitacao)}&rdquo;</span>
-            <div style="margin-top:0.3rem;display:flex;gap:0.3rem;">
-              <button class="btn-action purple btn-xs" data-action="aceitar-reab" data-id="${esc(p.id)}" data-motivo="${esc(p.motivo_solicitacao)}" data-ticket="${esc(t.id)}" data-ciclo="${esc(p.ciclo)}">Aceitar</button>
-              <button class="btn-action danger btn-xs"  data-action="recusar-reab" data-id="${esc(p.id)}" data-motivo="${esc(p.motivo_solicitacao)}" data-ticket="${esc(t.id)}">Recusar</button>
-            </div>
-          </div>`).join('');
-      }
-
-      // ── Ciclos aceitos / concluídos ────────────────────────────────
-      let reabAceitasInfo = '';
-      reabAceitas.forEach(r => {
-        if (!r.concluido_em) {
-          reabAceitasInfo += `
-            <div class="reab-aceita-box">
-              <span style="color:var(--success);">✅ Ciclo ${esc(r.ciclo)} em andamento</span><br>
-              <span style="color:var(--muted);font-size:0.68rem;">Prioridade: ${esc(r.prioridade)} · ${esc(r.motivo_solicitacao)}</span>
-              <button class="btn-action success btn-xs" style="margin-top:0.3rem;" data-action="concluir-reab" data-id="${esc(r.id)}" data-info="Ciclo ${esc(r.ciclo)}: ${esc(r.motivo_solicitacao)}">✓ Concluir Ciclo ${esc(r.ciclo)}</button>
-            </div>`;
-        } else {
-          reabAceitasInfo += `
-            <div class="reab-aceita-box">
-              <span style="color:var(--success);">✅ Ciclo ${esc(r.ciclo)} concluído</span><br>
-              <span style="color:var(--muted);font-size:0.68rem;">${esc(r.descricao_final || 'Sem descrição')} · SLA: ${esc(r.sla_consumido_min || 0)}/${esc(r.sla_total_min)} min</span>
-            </div>`;
-        }
-      });
-
-      // ── Anexos do solicitante — exibidos após a descrição ──────────
-      let anexosSolicitanteHTML = '';
-      const anexosSolicitante = (t.anexos || []).filter(a => a.tipo_upload === 'solicitante');
-      if (anexosSolicitante.length > 0) {
-        anexosSolicitanteHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;color:var(--muted);">
-          📎 Anexos do solicitante: ${anexosSolicitante.map(a =>
-            `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
-                style="color:var(--accent);">${esc(a.nome_original)}</a>
-             <span style="font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`
-          ).join(' &nbsp;|&nbsp; ')}
-        </div>`;
-      }
-
-      // ── Anexos do analista — exibidos dentro da solucao-box ────────
-      let anexosAnalistaHTML = '';
-      const anexosAnalista = (t.anexos || []).filter(a => a.tipo_upload === 'analista');
-      if (anexosAnalista.length > 0) {
-        anexosAnalistaHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;">
-          📎 Anexos da solução: ${anexosAnalista.map(a =>
-            `<a href="/uploads/${esc(a.nome_servidor)}" target="_blank" rel="noopener noreferrer"
-                style="color:var(--accent);">${esc(a.nome_original)}</a>
-             <span style="font-size:0.6rem;">(${(a.tamanho_bytes/1024).toFixed(0)}KB)</span>`
-          ).join(' &nbsp;|&nbsp; ')}
-        </div>`;
-      }
-
-      // ── Solução — inclui anexos do analista internamente ───────────
-      let solucaoHTML = '';
-      if (t.descricao_final) {
-        solucaoHTML = `<div class="solucao-box">
-          <span style="color:var(--success);">Solução Original: ${esc(t.descricao_final)}</span>
-          ${t.link_referencia ? ` <a href="${esc(t.link_referencia)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">🔗</a>` : ''}
-          ${anexosAnalistaHTML}
-        </div>`;
-      }
-
-      // ── Ações ──────────────────────────────────────────────────────
-      let acoes = '';
-      if (t.status === 'aberto') {
-        acoes = `<button class="btn-action primary" data-action="iniciar" data-id="${esc(t.id)}">▶ Iniciar</button>`;
-      } else if (t.status === 'em andamento') {
-        const slaEst = t.sla_estourado || (cons > t.sla_total_min ? 1 : 0);
-        acoes = `<button class="btn-action success" data-action="concluir-orig" data-id="${esc(t.id)}" data-sla="${esc(slaEst)}">✓ Concluir</button>`;
-      } else if (t.status === 'concluído') {
-        acoes = `<button class="btn-action danger" data-action="excluir" data-id="${esc(t.id)}">🗑 Arquivar</button>`;
-      }
-
-      return `
-        <div class="ticket-card prioridade-${esc(prio)} ${temPendente ? 'reabertura-pendente' : ''}" style="animation-delay:${i * 0.04}s">
-          <div class="ticket-main">
-            <div class="ticket-header">
-              <span class="ticket-id">#${esc(t.id)}</span>
-              ${t.prioridade ? `<span class="badge ${esc(prioBadge[t.prioridade])}">${esc(t.prioridade)}</span>` : ''}
-              <span class="badge ${esc(statusBadge[t.status] || '')}">${esc(t.status)}</span>
-              ${t.ciclo_atual > 1 ? `<span class="badge badge-pendente">Ciclo ${esc(t.ciclo_atual)}</span>` : ''}
-              ${temPendente ? '<span class="badge badge-pendente">⏳ Pendente</span>' : ''}
-            </div>
-            <div class="ticket-setor-nome">${esc(t.setor)}${t.solicitante_nome ? ` · ${esc(t.solicitante_nome)}` : t.nome ? ` · ${esc(t.nome)}` : ''}</div>
-            <div class="ticket-desc">${esc(t.descricao)}</div>
-            ${anexosSolicitanteHTML}
-            ${solucaoHTML}
-            ${reabAceitasInfo}
-            ${pendenteInfo}
-            <div class="ticket-meta">
-              <span>📅 ${new Date(t.criado_em).toLocaleString('pt-BR')}</span>
-              ${t.analista_responsavel ? `<span>👤 ${esc(t.analista_responsavel)}</span>` : ''}
-            </div>
-            ${slaBlock}
-            ${slasReab}
-          </div>
-          <div class="ticket-actions-col">${acoes}</div>
-        </div>`;
-    }).join('');
-  }
-
-  // ── Delegação de eventos ──────────────────────────────────────────
-  document.getElementById('tickets-container').addEventListener('click', function (e) {
-    const btn = e.target.closest('[data-action]');
-    if (!btn) return;
-    const { action, id, motivo, ticket, ciclo, sla, info } = btn.dataset;
-    if      (action === 'iniciar')       abrirIniciar(id);
-    else if (action === 'concluir-orig') abrirConcluirOriginal(id, sla == '1');
-    else if (action === 'excluir')       abrirExcluir(id);
-    else if (action === 'concluir-reab') abrirConcluirReab(id, info);
-    else if (action === 'aceitar-reab')  abrirAceitarReab(id, motivo, ticket, ciclo);
-    else if (action === 'recusar-reab')  abrirRecusarReab(id, motivo, ticket);
-  });
-
-  // ── Ações Ticket Original ─────────────────────────────────────────
-  function abrirIniciar(id) {
-    document.getElementById('iniciar-id').value        = id;
-    document.getElementById('iniciar-prioridade').value = '';
-    document.getElementById('modal-iniciar').classList.add('open');
-  }
-
-  function abrirConcluirOriginal(id, slaEst) {
-    document.getElementById('concluir-orig-id').value            = id;
-    document.getElementById('concluir-orig-desc').value          = '';
-    document.getElementById('concluir-orig-link').value          = '';
-    document.getElementById('concluir-orig-justificativa').value = '';
-    arquivosAcumulados['concluir-arquivo'] = [];
-    atualizarListaArquivos('concluir-arquivo');
-    _sincronizarInput('concluir-arquivo', 2);
-    document.getElementById('sla-warning-orig').classList.toggle('show', slaEst);
-    document.getElementById('justificativa-label-orig').style.display = slaEst ? 'flex' : 'none';
-    document.getElementById('modal-concluir').classList.add('open');
-  }
-
-  function abrirExcluir(id) {
-    document.getElementById('excluir-id').value    = id;
-    document.getElementById('excluir-motivo').value = '';
-    document.getElementById('modal-excluir').classList.add('open');
-  }
-
-  function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
-
-  async function confirmarIniciar() {
-    const id = document.getElementById('iniciar-id').value;
-    const p  = document.getElementById('iniciar-prioridade').value;
-    if (!p) { toast('✗ Selecione prioridade', 'error'); return; }
-    try {
-      const res = await fetch(`${API}/${id}/start`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify({ prioridade: p }) });
-      const d   = await res.json();
-      if (!res.ok) throw new Error(d.error);
-      fecharModal('modal-iniciar'); toast('✓ Iniciado', 'success'); carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
-  async function confirmarConcluir() {
-    const id   = document.getElementById('concluir-orig-id').value;
-    const desc = document.getElementById('concluir-orig-desc').value;
-    const link = document.getElementById('concluir-orig-link').value;
-    const just = document.getElementById('concluir-orig-justificativa').value;
-    if (!desc.trim()) { toast('✗ Informe a descrição', 'error'); return; }
-    try {
-      const res = await fetch(`${API}/${id}/finish`, {
-        method: 'PATCH',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ descricao_final: desc, link_referencia: link, justificativa: just })
-      });
-      const d = await res.json();
-      if (!res.ok) throw new Error(d.error);
-
-      const files = arquivosAcumulados['concluir-arquivo'];
-      if (files.length > 0) {
-        for (const file of files) {
-          const formData = new FormData();
-          formData.append('arquivo', file);
-          formData.append('tipo_upload', 'analista');
-          const upRes = await fetch(`${API_ANEXO}/${id}/upload`, {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + TOKEN, 'x-nivel': NIVEL },
-            body: formData
-          });
-          if (!upRes.ok) {
-            toast('✓ Concluído · ⚠️ Falha no upload', 'error');
-            fecharModal('modal-concluir');
-            carregarTickets();
-            return;
-          }
-        }
-      }
-
-      fecharModal('modal-concluir'); toast('✓ Concluído', 'success'); carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
-  async function confirmarExclusao() {
-    const id = document.getElementById('excluir-id').value;
-    const m  = document.getElementById('excluir-motivo').value;
-    if (!m.trim()) { toast('✗ Informe o motivo', 'error'); return; }
-    try {
-      const res = await fetch(`${API}/${id}/delete`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify({ motivo: m }) });
-      const d   = await res.json();
-      if (!res.ok) throw new Error(d.error);
-      fecharModal('modal-excluir'); toast('✓ Arquivado', 'success'); carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
-  // ── Concluir Ciclo Reabertura ─────────────────────────────────────
-  function abrirConcluirReab(reabId, info) {
-    document.getElementById('concluir-reab-id').value           = reabId;
-    document.getElementById('concluir-reab-info').textContent   = info;
-    document.getElementById('concluir-reab-desc').value         = '';
-    document.getElementById('concluir-reab-link').value         = '';
-    document.getElementById('concluir-reab-justificativa').value = '';
-    document.getElementById('sla-warning-reab').classList.remove('show');
-    document.getElementById('justificativa-label-reab').style.display = 'none';
-    document.getElementById('modal-concluir-reab').classList.add('open');
-  }
-
-  async function confirmarConcluirReab() {
-    const id   = document.getElementById('concluir-reab-id').value;
-    const desc = document.getElementById('concluir-reab-desc').value;
-    const link = document.getElementById('concluir-reab-link').value;
-    const just = document.getElementById('concluir-reab-justificativa').value;
-    if (!desc.trim()) { toast('✗ Informe a descrição', 'error'); return; }
-    try {
-      const res = await fetch(`${API_REAB}/reaberturas/${id}/concluir`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify({ descricao_final: desc, link_referencia: link, justificativa: just }) });
-      const d   = await res.json();
-      if (!res.ok) throw new Error(d.error);
-      fecharModal('modal-concluir-reab'); toast('✓ Ciclo concluído', 'success'); carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
-  // ── Reaberturas ───────────────────────────────────────────────────
-  function abrirAceitarReab(id, motivo, ticketId, ciclo) {
-    document.getElementById('aceitar-reab-id').value         = id;
-    document.getElementById('aceitar-reab-info').textContent = `Ticket #${ticketId} · Ciclo ${ciclo} · "${motivo}"`;
-    document.getElementById('aceitar-reab-prioridade').value = '';
-    document.getElementById('modal-aceitar-reab').classList.add('open');
-  }
-
-  function abrirRecusarReab(id, motivo, ticketId) {
-    document.getElementById('recusar-reab-id').value            = id;
-    document.getElementById('recusar-reab-info').textContent    = `Ticket #${ticketId} · "${motivo}"`;
-    document.getElementById('recusar-reab-justificativa').value = '';
-    document.getElementById('modal-recusar-reab').classList.add('open');
-  }
-
-  async function confirmarAceitarReab() {
-    const id = document.getElementById('aceitar-reab-id').value;
-    const p  = document.getElementById('aceitar-reab-prioridade').value;
-    if (!p) { toast('✗ Selecione prioridade', 'error'); return; }
-    try {
-      const res = await fetch(`${API_REAB}/reaberturas/${id}/aceitar`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify({ prioridade: p }) });
-      const d   = await res.json();
-      if (!res.ok) throw new Error(d.error);
-      fecharModal('modal-aceitar-reab'); toast('✓ Reabertura aceita', 'success'); carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
-  async function confirmarRecusarReab() {
-    const id = document.getElementById('recusar-reab-id').value;
-    const j  = document.getElementById('recusar-reab-justificativa').value;
-    if (!j.trim()) { toast('✗ Informe a justificativa', 'error'); return; }
-    try {
-      const res = await fetch(`${API_REAB}/reaberturas/${id}/recusar`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify({ justificativa: j }) });
-      const d   = await res.json();
-      if (!res.ok) throw new Error(d.error);
-      fecharModal('modal-recusar-reab'); toast('✓ Reabertura recusada', 'success'); carregarTickets();
-    } catch (err) { toast('✗ ' + err.message, 'error'); }
-  }
-
-  function toast(msg, type) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className   = `toast ${type} show`;
-    setTimeout(() => el.classList.remove('show'), 3500);
-  }
-
-  document.querySelectorAll('.modal-overlay').forEach(o =>
-    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
-  );
-
-  function iniciarAutoRefresh() {
-    return setInterval(() => {
-      if (document.visibilityState === 'visible') carregarTickets();
-    }, 30000);
-  }
-
-  carregarTickets();
-  iniciarAutoRefresh();
+function toast(msg,type){ const el=document.getElementById('toast');el.textContent=msg;el.className=`toast ${type} show`;setTimeout(()=>el.classList.remove('show'),3500); }
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+carregarTickets(); setInterval(carregarTickets,30000);
 </script>
 </body>
 </html>

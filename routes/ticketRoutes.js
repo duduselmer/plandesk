@@ -8,18 +8,30 @@ router.use(autenticar);
 // Criar ticket
 router.post('/', async (req, res) => {
   try {
-    const { setor, nome, descricao } = req.body;
+    const { setor, setor_destino, nome, descricao } = req.body;
 
     if (!setor || !descricao) {
       return res.status(400).json({ error: 'Setor e descrição são obrigatórios' });
     }
 
-    const setoresValidos = ['Carteira Assinatura', 'Carteira Rescisão', 'Carteira Athos', 'Monitoria', 'Control Desk', 'Gerente'];
-    if (!setoresValidos.includes(setor)) {
-      return res.status(400).json({ error: 'Setor inválido' });
+    // Validar setor de origem dinamicamente
+    const UsuarioService = require('../services/usuarioService');
+    const setoresOrigem = await UsuarioService.listarSetoresOrigem();
+    const nomesSetores = setoresOrigem.map(s => s.nome);
+    if (!nomesSetores.includes(setor)) {
+      return res.status(400).json({ error: 'Setor de origem inválido' });
+    }
+    
+    // Validar setor de destino
+    if (setor_destino) {
+      const setoresDestino = await UsuarioService.listarSetoresDestino();
+      const nomesDestino = setoresDestino.map(s => s.nome);
+      if (!nomesDestino.includes(setor_destino)) {
+        return res.status(400).json({ error: 'Setor de destino inválido' });
+      }
     }
 
-    const resultado = await TicketService.criarTicket(setor, nome, descricao, req.usuario.id);
+    const resultado = await TicketService.criarTicket(setor, setor_destino, nome, descricao, req.usuario.id);
     res.status(201).json(resultado);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -37,6 +49,15 @@ router.get('/', async (req, res) => {
     // Se for requisitor ou supervisor, mostrar apenas seus tickets
     if (req.nivel === 'requisitor' || req.nivel === 'supervisor') {
       filtros.criado_por = req.usuario.id;
+    }
+
+    // Se for controldesk ou gerente, carregar setores de destino
+    if (req.nivel === 'controldesk' || req.nivel === 'gerente') {
+      const UsuarioService = require('../services/usuarioService');
+      const setores = await UsuarioService.listarSetoresDestinoDoUsuario(req.usuario.id);
+      if (setores.length > 0) {
+        filtros.setores_destino = setores.map(s => s.nome);
+      }
     }
 
     const tickets = await TicketService.listarTickets(filtros);

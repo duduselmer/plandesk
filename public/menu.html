@@ -37,6 +37,8 @@
     .card-gestao:hover { border-color: var(--accent3); }
     .card-historico { border-top: 3px solid var(--purple); }
     .card-historico:hover { border-color: var(--purple); }
+    .card-config { border-top: 3px solid var(--purple); }
+    .card-config:hover { border-color: var(--purple); }
     .card-icon { font-size: 2rem; }
     .card-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; }
     .card-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
@@ -73,10 +75,11 @@
     function logout() { localStorage.clear(); window.location.href = '/login'; }
 
     const cardsData = {
-      solicitante: { icon: '📋', nome: 'Solicitante', desc: 'Abrir e acompanhar tickets', href: '/solicitante', cls: 'card-solicitante' },
-      analista:    { icon: '🎯', nome: 'Analista', desc: 'Atender demandas e gerenciar SLA', href: '/analista', cls: 'card-analista' },
-      gestao:      { icon: '📊', nome: 'Gestão', desc: 'Dashboard e indicadores de performance', href: '/gestao', cls: 'card-gestao' },
-      historico:   { icon: '📜', nome: 'Histórico', desc: 'Auditoria e registro de demandas', href: '/historico', cls: 'card-historico' }
+      solicitante:   { icon: '📋', nome: 'Solicitante', desc: 'Abrir e acompanhar tickets', href: '/solicitante', cls: 'card-solicitante' },
+      analista:      { icon: '🎯', nome: 'Analista', desc: 'Atender demandas e gerenciar SLA', href: '/analista', cls: 'card-analista' },
+      gestao:        { icon: '📊', nome: 'Gestão', desc: 'Dashboard e indicadores de performance', href: '/gestao', cls: 'card-gestao' },
+      historico:     { icon: '📜', nome: 'Histórico', desc: 'Auditoria e registro de demandas', href: '/historico', cls: 'card-historico' },
+      configuracoes: { icon: '⚙️', nome: 'Configurações', desc: 'Gerenciar usuários, setores e níveis', href: '/configuracoes', cls: 'card-config' }
     };
 
     const container = document.getElementById('cards-container');

@@ -101,7 +101,7 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       
       setor TEXT NOT NULL,
-      setor_destino TEXT NOT NULL DEFAULT 'Control Desk',
+      setor_destino TEXT NOT NULL DEFAULT 'Control Desk' CHECK(setor_destino IN ('Control Desk', 'Planejamento')),
       nome TEXT,
       descricao TEXT NOT NULL,
       

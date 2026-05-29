@@ -137,7 +137,7 @@
 </div>
 
 <!-- Modal Iniciar -->
-<div class="modal-overlay" id="modal-iniciar"><div class="modal"><h3>Iniciar Atendimento</h3><p>Defina a prioridade e inicie o atendimento.</p><input type="hidden" id="iniciar-id" /><label class="field">Prioridade <span style="color:var(--danger)">*</span><select class="fi" id="iniciar-prioridade"><option value="">Selecione...</option><option value="Baixa">🟢 Baixa — 4 horas</option><option value="Média">🔵 Média — 2 horas</option><option value="Alta">🟡 Alta — 1 hora</option><option value="Crítica">🔴 Crítica — 30 minutos</option></select></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-iniciar')">Cancelar</button><button class="btn-confirm" onclick="confirmarIniciar()">Iniciar</button></div></div></div>
+<div class="modal-overlay" id="modal-iniciar"><div class="modal"><h3>Iniciar Atendimento</h3><p>Defina a prioridade e inicie o atendimento.</p><input type="hidden" id="iniciar-id" /><label class="field">Prioridade <span style="color:var(--danger)">*</span><select class="fi" id="iniciar-prioridade"><option value="">Selecione...</option><option value="Baixa">🟢 Baixa — 4 horas</option><option value="Média">🔵 Média — 2 horas</option><option value="Alta">🟡 Alta — 1 hora</option><option value="Crítica">🔴 Crítica — 30 minutos</option></select></label><div id="justificativa-prio-box" style="display:none;"><label class="field">Justificativa da alteração de prioridade <span style="color:var(--danger)">*</span><textarea class="fi" id="iniciar-justificativa" placeholder="Explique por que a prioridade foi alterada..."></textarea></label></div><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-iniciar')">Cancelar</button><button class="btn-confirm" onclick="confirmarIniciar()">Iniciar</button></div></div></div>
 
 <!-- Modal Concluir -->
 <div class="modal-overlay" id="modal-concluir"><div class="modal"><h3>Concluir Ticket</h3><input type="hidden" id="concluir-orig-id" /><label class="field">Descrição da solução <span style="color:var(--danger)">*</span><textarea class="fi" id="concluir-orig-desc" placeholder="Descreva a solução..."></textarea></label><label class="field">Link de referência <span style="color:var(--muted);font-size:0.65rem;">(opcional)</span><input type="url" class="fi" id="concluir-orig-link" placeholder="https://..." /></label><label class="field">Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span><input type="file" id="concluir-arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple style="padding:0.4rem;" onchange="adicionarArquivos('concluir-arquivo',2)" /><div id="concluir-arquivo-cheio" style="display:none;color:var(--success);font-size:0.68rem;">✅ 2 anexos selecionados</div><div id="concluir-arquivo-lista"></div></label><div class="sla-warning" id="sla-warning-orig">⚠️ SLA estourado. Justificativa obrigatória.</div><label class="field" id="justificativa-label-orig" style="display:none;">Justificativa do SLA <span style="color:var(--danger)">*</span><textarea class="fi" id="concluir-orig-justificativa" placeholder="Explique o motivo..."></textarea></label><div class="modal-actions"><button class="btn-cancel" onclick="fecharModal('modal-concluir')">Cancelar</button><button class="btn-confirm success" onclick="confirmarConcluir()">Concluir</button></div></div></div>
@@ -225,18 +225,55 @@ function renderTickets(tickets) {
     const anexosSolicitante = (t.anexos||[]).filter(a => a.tipo_upload === 'solicitante');
     let anexosHTML = ''; if (anexosSolicitante.length > 0) anexosHTML = `<div style="margin-top:0.3rem;font-size:0.68rem;color:var(--muted);">📎 Anexos: ${anexosSolicitante.map(a => `<a href="/uploads/${a.nome_servidor}" target="_blank" style="color:var(--accent);">${a.nome_original}</a> (${(a.tamanho_bytes/1024).toFixed(0)}KB)`).join(' | ')}</div>`;
 
-    let acoes = ''; if (t.status === 'aberto') acoes = `<button class="btn-action primary" onclick="abrirIniciar(${t.id})">▶ Iniciar</button>`; else if (t.status === 'em andamento') acoes = `<button class="btn-action success" onclick="abrirConcluirOriginal(${t.id},${t.sla_estourado||(cons>t.sla_total_min?1:0)})">✓ Concluir</button>`; else if (t.status === 'concluído') acoes = `<button class="btn-action muted danger" onclick="abrirExcluir(${t.id})">🗑 Arquivar</button>`;
+    // Passa prioridade_sugerida para abrirIniciar
+    let acoes = ''; if (t.status === 'aberto') acoes = `<button class="btn-action primary" onclick="abrirIniciar(${t.id}, '${t.prioridade_sugerida || ''}')">▶ Iniciar</button>`; else if (t.status === 'em andamento') acoes = `<button class="btn-action success" onclick="abrirConcluirOriginal(${t.id},${t.sla_estourado||(cons>t.sla_total_min?1:0)})">✓ Concluir</button>`; else if (t.status === 'concluído') acoes = `<button class="btn-action muted danger" onclick="abrirExcluir(${t.id})">🗑 Arquivar</button>`;
 
     return `<div class="ticket-card prioridade-${prio} ${temPendente?'reabertura-pendente':''}" style="animation-delay:${i*0.04}s"><div class="ticket-main"><div class="ticket-header"><span class="ticket-id">#${t.id}</span>${t.prioridade?`<span class="badge ${prBadge[t.prioridade]}">${t.prioridade}</span>`:''}<span class="badge ${stBadge[t.status]||''}">${t.status}</span>${t.ciclo_atual>1?`<span class="badge badge-pendente">Ciclo ${t.ciclo_atual}</span>`:''}${temPendente?'<span class="badge badge-pendente">⏳ Pendente</span>':''}</div><div class="ticket-setor-nome">${t.setor} → ${t.setor_destino||'N/D'}${t.solicitante_nome?` · ${t.solicitante_nome}`:t.nome?` · ${t.nome}`:''}</div><div class="ticket-desc">${t.descricao}</div>${anexosHTML}${solucaoAnterior}${reabAceitasInfo}${pendenteInfo}<div class="ticket-meta"><span>📅 ${new Date(t.criado_em).toLocaleString('pt-BR')}</span>${t.analista_responsavel?`<span>👤 ${t.analista_responsavel}</span>`:''}</div>${slaBlock}${slasReab}</div><div class="ticket-actions-col">${acoes}</div></div>`;
   }).join('');
 }
 
-function abrirIniciar(id) { document.getElementById('iniciar-id').value=id; document.getElementById('modal-iniciar').classList.add('open'); }
+function abrirIniciar(id, prioridadeSugerida) {
+  document.getElementById('iniciar-id').value = id;
+  const sel = document.getElementById('iniciar-prioridade');
+  sel.value = prioridadeSugerida || '';
+  sel.setAttribute('data-sugerida', prioridadeSugerida || '');
+  document.getElementById('iniciar-justificativa').value = '';
+  document.getElementById('justificativa-prio-box').style.display = 'none';
+  document.getElementById('modal-iniciar').classList.add('open');
+}
+
+document.getElementById('iniciar-prioridade').addEventListener('change', function() {
+  const sugerida = this.getAttribute('data-sugerida');
+  const box = document.getElementById('justificativa-prio-box');
+  if (sugerida && this.value !== sugerida) {
+    box.style.display = 'flex';
+  } else {
+    box.style.display = 'none';
+  }
+});
+
 function abrirConcluirOriginal(id, slaEst) { document.getElementById('concluir-orig-id').value=id; document.getElementById('concluir-orig-desc').value=''; document.getElementById('concluir-orig-link').value=''; document.getElementById('concluir-orig-justificativa').value=''; arquivosAcumulados['concluir-arquivo']=[]; atualizarListaArquivos('concluir-arquivo'); const w=document.getElementById('sla-warning-orig'), j=document.getElementById('justificativa-label-orig'); if(slaEst){w.classList.add('show');j.style.display='flex';}else{w.classList.remove('show');j.style.display='none';} document.getElementById('modal-concluir').classList.add('open'); }
 function abrirExcluir(id) { document.getElementById('excluir-id').value=id; document.getElementById('modal-excluir').classList.add('open'); }
 function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
 
-async function confirmarIniciar() { const id=document.getElementById('iniciar-id').value, p=document.getElementById('iniciar-prioridade').value; if(!p){toast('✗ Selecione prioridade','error');return;} try { const r=await fetch(`${API}/${id}/start`,{method:'PATCH',headers:getAuthHeaders(),body:JSON.stringify({prioridade:p})}); const d=await r.json(); if(!r.ok)throw new Error(d.error); fecharModal('modal-iniciar');toast('✓ Iniciado','success');carregarTickets(); } catch(err){toast('✗ '+err.message,'error');} }
+async function confirmarIniciar() {
+  const id = document.getElementById('iniciar-id').value;
+  const p = document.getElementById('iniciar-prioridade').value;
+  const sugerida = document.getElementById('iniciar-prioridade').getAttribute('data-sugerida');
+  const j = document.getElementById('iniciar-justificativa').value;
+  if (!p) { toast('✗ Selecione prioridade', 'error'); return; }
+  if (sugerida && p !== sugerida && !j.trim()) { toast('✗ Informe a justificativa da alteração', 'error'); return; }
+  try {
+    const res = await fetch(`${API}/${id}/start`, {
+      method: 'PATCH', headers: getAuthHeaders(),
+      body: JSON.stringify({ prioridade: p, justificativa_prioridade: (sugerida && p !== sugerida) ? j : null })
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error);
+    fecharModal('modal-iniciar'); toast('✓ Iniciado', 'success'); carregarTickets();
+  } catch (err) { toast('✗ ' + err.message, 'error'); }
+}
+
 async function confirmarConcluir() { const id=document.getElementById('concluir-orig-id').value, desc=document.getElementById('concluir-orig-desc').value, link=document.getElementById('concluir-orig-link').value, just=document.getElementById('concluir-orig-justificativa').value; if(!desc.trim()){toast('✗ Informe a descrição','error');return;} try { const r=await fetch(`${API}/${id}/finish`,{method:'PATCH',headers:getAuthHeaders(),body:JSON.stringify({descricao_final:desc,link_referencia:link,justificativa:just})}); const d=await r.json(); if(!r.ok)throw new Error(d.error); for(const f of arquivosAcumulados['concluir-arquivo']){ const fd=new FormData();fd.append('arquivo',f);fd.append('tipo_upload','analista'); await fetch(`${API_ANEXO}/${id}/upload`,{method:'POST',headers:{'Authorization':'Bearer '+TOKEN,'x-nivel':NIVEL},body:fd}); } fecharModal('modal-concluir');toast('✓ Concluído','success');carregarTickets(); } catch(err){toast('✗ '+err.message,'error');} }
 async function confirmarExclusao() { const id=document.getElementById('excluir-id').value, m=document.getElementById('excluir-motivo').value; if(!m.trim()){toast('✗ Informe o motivo','error');return;} try { const r=await fetch(`${API}/${id}/delete`,{method:'PATCH',headers:getAuthHeaders(),body:JSON.stringify({motivo:m})}); const d=await r.json(); if(!r.ok)throw new Error(d.error); fecharModal('modal-excluir');toast('✓ Arquivado','success');carregarTickets(); } catch(err){toast('✗ '+err.message,'error');} }
 function abrirConcluirReab(reabId,info){ document.getElementById('concluir-reab-id').value=reabId;document.getElementById('concluir-reab-info').textContent=info;document.getElementById('concluir-reab-desc').value='';document.getElementById('concluir-reab-link').value='';document.getElementById('modal-concluir-reab').classList.add('open'); }

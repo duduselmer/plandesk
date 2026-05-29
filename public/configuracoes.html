@@ -604,7 +604,20 @@ async function carregarSetores() {
     selU.innerHTML = '<option value="">Selecione...</option>' + us.map(u => `<option value="${u.id}">${u.nome}</option>`).join('');
     if (_vinculoUidAtivo) selU.value = _vinculoUidAtivo;
 
-    document.getElementById('vinculo-setor-origem').innerHTML  = '<option value="">Setor origem...</option>'  + origens.map(s  => `<option value="${s.id}">${s.nome}</option>`).join('');
+    document.getElementById('chips-origem').innerHTML = origens.map(s => {
+  const ativo = s.prioridade_solicitante ? true : false;
+  return `<div class="chip">
+    ${s.nome}
+    <span style="margin-left:0.5rem;font-size:0.6rem;color:${ativo ? 'var(--success)' : 'var(--muted)'};" title="${ativo ? 'Solicitante pode sugerir prioridade' : 'Analista define a prioridade'}">
+      ${ativo ? '🔓 Sugere' : '🔒 Analista'}
+    </span>
+    <button onclick="togglePrioridadeOrigem(${s.id}, ${ativo})" 
+            style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.7rem;" title="Alternar">
+      ⇄
+    </button>
+    <button onclick="removerSetorOrigem(${s.id})">×</button>
+  </div>`;
+}).join('');
     document.getElementById('vinculo-setor-destino').innerHTML = '<option value="">Setor destino...</option>' + destinos.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
 
     if (_vinculoUidAtivo) carregarVinculos(_vinculoUidAtivo);
@@ -822,6 +835,18 @@ async function salvarTodosSLA() {
   }
   btn.disabled = false; btn.textContent = 'Salvar todos';
   erros ? toast(`⚠️ ${erros} erro(s) ao salvar SLA`, 'error') : toast('✓ Todos os SLAs salvos', 'success');
+}
+
+async function togglePrioridadeOrigem(id, valorAtual) {
+  try {
+    await fetch(`${API}/setores/origem/${id}/toggle-prioridade`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ valor: valorAtual ? 0 : 1 })
+    });
+    carregarSetores();
+    carregarUsuarios(); // recarrega também para atualizar o select de origem do solicitante
+  } catch(e) { toast('✗ ' + e.message, 'error'); }
 }
 
 // ── Gerais ────────────────────────────────────────────────────────────────────

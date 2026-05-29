@@ -73,17 +73,14 @@ db.serialize(() => {
   // ==========================================
   // Seeds: setores padrão
   // ==========================================
-  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Carteira Assinatura')`);
-  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Carteira Rescisão')`);
-  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Carteira Athos')`);
-  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Monitoria')`);
-  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Control Desk')`);
-  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Gerente')`);
-  db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Planejamento')`);
-
-  db.run(`INSERT OR IGNORE INTO setores_destino (nome) VALUES ('Control Desk')`);
-  db.run(`INSERT OR IGNORE INTO setores_destino (nome) VALUES ('Planejamento')`);
-
+  // db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Carteira Assinatura')`);
+  // db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Carteira Rescisão')`);
+  // db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Carteira Athos')`);
+  // db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Monitoria')`);
+  // db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Control Desk')`);
+  // db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Gerente')`);
+  // db.run(`INSERT OR IGNORE INTO setores_origem (nome) VALUES ('Planejamento')`);
+  // db.run(`INSERT OR IGNORE INTO setores_destino (nome) VALUES ('Control Desk')`);
   
   // ==========================================
   // Tabela de tickets

@@ -113,12 +113,13 @@ router.put('/:id', async (req, res) => {
 // Iniciar atendimento (controldesk ou admin)
 router.patch('/:id/start', autorizar('controldesk'), async (req, res) => {
   try {
-    const { prioridade } = req.body;
+    const { prioridade, justificativa_prioridade } = req.body;
     if (!prioridade) {
       return res.status(400).json({ error: 'Prioridade é obrigatória' });
     }
-
-    const resultado = await TicketService.iniciarTicket(req.params.id, prioridade, req.usuario.nome);
+    const resultado = await TicketService.iniciarTicket(
+      req.params.id, prioridade, req.usuario.nome, justificativa_prioridade || null
+    );
     res.json(resultado);
   } catch (error) {
     res.status(400).json({ error: error.message });

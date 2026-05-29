@@ -11,22 +11,19 @@ router.post('/', async (req, res) => {
     const { setor, setor_destino, nome, descricao } = req.body;
 
     if (!setor || !descricao) {
-      return res.status(400).json({ error: 'Setor e descrição são obrigatórios' });
+      return res.status(400).json({ error: 'Setor de origem e descrição são obrigatórios' });
     }
 
-    // Validar setor de origem dinamicamente
+    // Validação dinâmica dos setores
     const UsuarioService = require('../services/usuarioService');
     const setoresOrigem = await UsuarioService.listarSetoresOrigem();
-    const nomesSetores = setoresOrigem.map(s => s.nome);
-    if (!nomesSetores.includes(setor)) {
+    if (!setoresOrigem.some(s => s.nome === setor)) {
       return res.status(400).json({ error: 'Setor de origem inválido' });
     }
-    
-    // Validar setor de destino
+
     if (setor_destino) {
       const setoresDestino = await UsuarioService.listarSetoresDestino();
-      const nomesDestino = setoresDestino.map(s => s.nome);
-      if (!nomesDestino.includes(setor_destino)) {
+      if (!setoresDestino.some(s => s.nome === setor_destino)) {
         return res.status(400).json({ error: 'Setor de destino inválido' });
       }
     }

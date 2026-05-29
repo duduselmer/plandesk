@@ -9,15 +9,63 @@ const PAUSAS = [
   { inicio: 16 * 60 + 30, fim: 16 * 60 + 40 }   // 16:30 - 16:40
 ];
 
-// SLA por prioridade (em minutos)
-const SLA_POR_PRIORIDADE = {
+// SLA padrão (usado como fallback)
+const SLA_PADRAO = {
   'Baixa': 240,
   'Média': 120,
   'Alta': 60,
   'Crítica': 30
 };
 
+const db = require('../db/connection');
+
+// Cache do SLA (30 segundos)
+let _slaCache = null;
+let _slaCacheTime = 0;
+
 class SLAService {
+  
+  /**
+   * Busca a configuração de SLA do banco (com cache de 30s)
+   * Se não houver configuração no banco, usa os defaults
+   */
+  static getSLAPorPrioridade() {
+    return new Promise((resolve) => {
+      if (_slaCache && (Date.now() - _slaCacheTime) < 30000) {
+        return resolve(_slaCache);
+      }
+      
+      db.all(
+        "SELECT chave, valor FROM configuracoes WHERE chave LIKE 'sla_%'",
+        [],
+        (err, rows) => {
+          const sla = { ...SLA_PADRAO };
+          
+          if (!err && rows) {
+            rows.forEach(row => {
+              const prio = row.chave.replace('sla_', '');
+              if (sla.hasOwnProperty(prio)) {
+                sla[prio] = parseInt(row.valor) || SLA_PADRAO[prio];
+              }
+            });
+          }
+          
+          _slaCache = sla;
+          _slaCacheTime = Date.now();
+          resolve(sla);
+        }
+      );
+    });
+  }
+
+  /**
+   * Calcula o SLA total baseado na prioridade (com consulta ao banco)
+   */
+  static async calcularSLATotal(prioridade) {
+    const sla = await this.getSLAPorPrioridade();
+    return sla[prioridade] || SLA_PADRAO[prioridade] || 60;
+  }
+
   /**
    * Verifica se um horário está dentro de uma pausa
    */
@@ -34,11 +82,11 @@ class SLAService {
   static estaEmHorarioUtil(data) {
     const minutosDoDia = data.getHours() * 60 + data.getMinutes();
     const diaSemana = data.getDay();
-    
+
     if (diaSemana === 0 || diaSemana === 6) return false;
     if (minutosDoDia < HORA_INICIO || minutosDoDia >= HORA_FIM) return false;
     if (this.estaEmPausa(data)) return false;
-    
+
     return true;
   }
 
@@ -49,30 +97,28 @@ class SLAService {
     let proximo = new Date(data);
     proximo.setSeconds(0, 0);
     proximo.setMinutes(proximo.getMinutes() + 1);
-    
+
     let tentativas = 0;
     const MAX_TENTATIVAS = 10000;
-    
+
     while (!this.estaEmHorarioUtil(proximo) && tentativas < MAX_TENTATIVAS) {
       tentativas++;
-      
+
       const minutosDoDia = proximo.getHours() * 60 + proximo.getMinutes();
-      
+
       if (minutosDoDia >= HORA_FIM || minutosDoDia < HORA_INICIO) {
-        // Próximo dia útil às 08:00
         proximo.setDate(proximo.getDate() + 1);
         proximo.setHours(8, 0, 0, 0);
-        
+
         while (proximo.getDay() === 0 || proximo.getDay() === 6) {
           proximo.setDate(proximo.getDate() + 1);
         }
       } else if (this.estaEmPausa(proximo)) {
-        // Avança para o fim da pausa
         const minutosAtual = proximo.getHours() * 60 + proximo.getMinutes();
         const pausaAtual = PAUSAS.find(p =>
           minutosAtual >= p.inicio && minutosAtual < p.fim
         );
-        
+
         if (pausaAtual) {
           const horas = Math.floor(pausaAtual.fim / 60);
           const minutos = pausaAtual.fim % 60;
@@ -80,17 +126,13 @@ class SLAService {
         }
       }
     }
-    
+
     return proximo;
   }
 
   /**
-   * Calcula o SLA total baseado na prioridade
+   * Calcula minutos úteis entre duas datas
    */
-  static calcularSLATotal(prioridade) {
-    return SLA_POR_PRIORIDADE[prioridade] || 60;
-  }
-
   static calcularMinutosUteis(dataInicio, dataFim) {
     if (!dataInicio || !dataFim) return 0;
 
@@ -98,23 +140,17 @@ class SLAService {
     const fim = new Date(dataFim);
     let minutos = 0;
 
-    // Se início fora do horário útil, ajusta para o próximo horário útil
     if (!this.estaEmHorarioUtil(inicio)) {
       inicio = this.proximoHorarioUtil(inicio);
     }
 
-    // Se fim antes do início ajustado, retorna 0
     if (inicio >= fim) return 0;
 
-    // Avança dia por dia útil
     while (inicio < fim) {
       const diaAtual = new Date(inicio);
-      diaAtual.setHours(Math.floor(HORA_FIM / 60), HORA_FIM % 60, 0, 0); // 17:48
+      diaAtual.setHours(Math.floor(HORA_FIM / 60), HORA_FIM % 60, 0, 0);
 
-      // Se o fim é antes do fim do expediente de hoje
       const limiteDia = fim < diaAtual ? fim : diaAtual;
-
-      // Subtrai pausas dentro do intervalo [inicio, limiteDia]
       let minNoDia = (limiteDia - inicio) / 60000;
 
       PAUSAS.forEach(pausa => {
@@ -123,25 +159,20 @@ class SLAService {
         const pausaFim = new Date(inicio);
         pausaFim.setHours(Math.floor(pausa.fim / 60), pausa.fim % 60, 0, 0);
 
-        // Se a pausa está dentro do intervalo [inicio, limiteDia]
         if (pausaInicio < limiteDia && pausaFim > inicio) {
           const sobreposicaoInicio = inicio > pausaInicio ? inicio : pausaInicio;
           const sobreposicaoFim = limiteDia < pausaFim ? limiteDia : pausaFim;
           const minutosPausa = (sobreposicaoFim - sobreposicaoInicio) / 60000;
-          if (minutosPausa > 0) {
-            minNoDia -= minutosPausa;
-          }
+          if (minutosPausa > 0) minNoDia -= minutosPausa;
         }
       });
 
       minutos += minNoDia;
 
-      // Próximo dia útil às 08:00
       inicio = new Date(diaAtual);
       inicio.setDate(inicio.getDate() + 1);
       inicio.setHours(8, 0, 0, 0);
 
-      // Pular fim de semana
       while (inicio.getDay() === 0 || inicio.getDay() === 6) {
         inicio.setDate(inicio.getDate() + 1);
       }
@@ -155,19 +186,12 @@ class SLAService {
    */
   static calcularStatusSLA(slaTotal, slaConsumido) {
     if (!slaTotal || slaConsumido === undefined || slaConsumido === null) return 'ok';
-    
+
     const percentualConsumido = (slaConsumido / slaTotal) * 100;
-    
+
     if (percentualConsumido >= 100) return 'estourado';
     if (percentualConsumido >= 80) return 'proximo';
     return 'ok';
-  }
-
-  /**
-   * Retorna tempos de SLA por prioridade para relatórios
-   */
-  static getSLAPorPrioridade() {
-    return { ...SLA_POR_PRIORIDADE };
   }
 
   /**

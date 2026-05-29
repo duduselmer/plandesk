@@ -349,37 +349,37 @@
 
   async function carregarSetoresOrigem() {
     try {
-      const res = await fetch('/api/usuarios/setores/origem', { headers: getAuthHeaders() });
-      const todosSetores = await res.json();
-
-      // Buscar setores vinculados ao usuário via payload do JWT
       const tokenPayload = JSON.parse(atob(TOKEN.split('.')[1]));
-      const resUsuario = await fetch(`/api/usuarios/${tokenPayload.id}/setores-origem`, { headers: getAuthHeaders() });
-      setoresOrigemUsuario = await resUsuario.json();
-
-      // Se não tiver setores vinculados, usar todos (admin/gerente)
-      if (setoresOrigemUsuario.length === 0 && (NIVEL === 'admin' || NIVEL === 'gerente')) {
-        setoresOrigemUsuario = todosSetores;
+      const res = await fetch(`/api/usuarios/${tokenPayload.id}/setores-origem`, { headers: getAuthHeaders() });
+      setoresOrigemUsuario = await res.json();
+      
+      // Garantir que é um array
+      if (!Array.isArray(setoresOrigemUsuario)) {
+        setoresOrigemUsuario = [];
       }
-
+      
+      if (setoresOrigemUsuario.length === 0) {
+        const resTodos = await fetch('/api/usuarios/setores/origem', { headers: getAuthHeaders() });
+        const todos = await resTodos.json();
+        setoresOrigemUsuario = Array.isArray(todos) ? todos : [];
+      }
+      
       preencherSelectSetores();
-    } catch (e) { console.error('Erro ao carregar setores:', e); }
+    } catch(e) { 
+      console.error('Erro ao carregar setores:', e);
+      setoresOrigemUsuario = [];
+      preencherSelectSetores();
+    }
   }
 
   function preencherSelectSetores() {
-    const selectOrigem    = document.getElementById('setor');
-    const selectEditSetor = document.getElementById('edit-setor');
-
-    const options = setoresOrigemUsuario.map(s =>
-      `<option value="${esc(s.nome)}">${esc(s.nome)}</option>`
-    ).join('');
-
-    if (selectOrigem) {
-      selectOrigem.innerHTML = '<option value="">Selecione...</option>' + options;
+    if (!Array.isArray(setoresOrigemUsuario) || setoresOrigemUsuario.length === 0) {
+      document.getElementById('setor').innerHTML = '<option value="">Nenhum setor disponível</option>';
+      return;
     }
-    if (selectEditSetor) {
-      selectEditSetor.innerHTML = '<option value="">Selecione...</option>' + options;
-    }
+    const options = setoresOrigemUsuario.map(s => `<option value="${s.nome}">${s.nome}</option>`).join('');
+    document.getElementById('setor').innerHTML = '<option value="">Selecione...</option>' + options;
+    document.getElementById('edit-setor').innerHTML = options;
   }
 
   async function carregarSetoresDestino() {

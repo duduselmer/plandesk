@@ -17,35 +17,45 @@ class TicketService {
     });
   }
 
-  static async iniciarTicket(id, prioridade, analista) {
+  static async iniciarTicket(id, prioridade, analista, justificativaPrioridade) {
     return new Promise((resolve, reject) => {
       const prioridadesValidas = ['Baixa', 'Média', 'Alta', 'Crítica'];
       if (!prioridadesValidas.includes(prioridade)) {
         return reject(new Error('Prioridade inválida'));
       }
       
-      // AGORA COM AWAIT
       SLAService.calcularSLATotal(prioridade).then(slaTotal => {
         const agora = new Date().toISOString();
 
         db.serialize(() => {
           db.run('BEGIN TRANSACTION');
-          db.get('SELECT id, status FROM tickets WHERE id = ? AND deletado = 0', [id], (err, ticket) => {
+          db.get('SELECT * FROM tickets WHERE id = ? AND deletado = 0', [id], (err, ticket) => {
             if (err) { db.run('ROLLBACK'); return reject(err); }
             if (!ticket) { db.run('ROLLBACK'); return reject(new Error('Ticket não encontrado')); }
             if (ticket.status !== 'aberto') { db.run('ROLLBACK'); return reject(new Error('Ticket não pode ser iniciado. Status: ' + ticket.status)); }
 
+            // Se tinha sugestão e o analista definiu diferente, justificativa é obrigatória
+            if (ticket.prioridade_sugerida && ticket.prioridade_sugerida !== prioridade && (!justificativaPrioridade || !justificativaPrioridade.trim())) {
+              db.run('ROLLBACK');
+              return reject(new Error('Justificativa obrigatória ao alterar a prioridade sugerida pelo solicitante'));
+            }
+
             const sql = `
               UPDATE tickets SET status = 'em andamento', prioridade = ?, iniciado_em = ?,
               sla_total_min = ?, sla_consumido_min = 0, sla_estourado = 0,
-              analista_responsavel = ?, ultima_atualizacao = ?
+              analista_responsavel = ?, justificativa_prioridade = ?, ultima_atualizacao = ?
               WHERE id = ? AND deletado = 0
             `;
-            db.run(sql, [prioridade, agora, slaTotal, analista, agora, id], function(err) {
+            db.run(sql, [prioridade, agora, slaTotal, analista, justificativaPrioridade || null, agora, id], function(err) {
               if (err) { db.run('ROLLBACK'); return reject(err); }
               if (this.changes === 0) { db.run('ROLLBACK'); return reject(new Error('Falha ao iniciar')); }
               db.run('COMMIT');
-              resolve({ message: 'Ticket iniciado', sla_total_min: slaTotal, prioridade });
+              resolve({ 
+                message: 'Ticket iniciado', 
+                sla_total_min: slaTotal, 
+                prioridade,
+                prioridade_alterada: ticket.prioridade_sugerida && ticket.prioridade_sugerida !== prioridade
+              });
             });
           });
         });
@@ -140,7 +150,8 @@ static excluirTicket(id, nivel, usuario, usuarioId, motivo) {
   static listarTickets(filtros = {}) {
     return new Promise((resolve, reject) => {
       let sql = `
-        SELECT t.id, t.setor, t.setor_destino, t.nome, t.descricao, t.status, t.prioridade, 
+        SELECT t.id, t.setor, t.setor_destino, t.nome, t.descricao, t.status, t.prioridade,
+               t.justificativa_prioridade, 
                t.criado_em, t.criado_por, t.iniciado_em, t.concluido_em,
                t.sla_total_min, t.sla_consumido_min, t.sla_estourado, t.sla_justificativa,
                t.analista_responsavel, t.descricao_final, t.link_referencia,

@@ -663,14 +663,11 @@ async function desvincularDestino(uid, sid) { _vinculoUidAtivo = String(uid); tr
 
 // ── NÍVEIS ────────────────────────────────────────────────────────────────────
 const TODAS_TELAS = [
-  { id: 'dashboard',     label: '📊 Dashboard'    },
-  { id: 'tickets',       label: '🎫 Tickets'       },
-  { id: 'analista',      label: '🔧 Analista'      },
-  { id: 'gestao',        label: '📈 Gestão'        },
+  { id: 'solicitante',   label: '📋 Solicitante'   },
+  { id: 'analista',      label: '🎯 Analista'      },
+  { id: 'gestao',        label: '📊 Gestão'        },
   { id: 'historico',     label: '📜 Histórico'     },
   { id: 'configuracoes', label: '⚙️ Configurações' },
-  { id: 'menu',          label: '🏠 Menu'          },
-  { id: 'relatorios',    label: '📋 Relatórios'    },
 ];
 
 async function carregarNiveis() {

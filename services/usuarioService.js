@@ -116,10 +116,12 @@ class UsuarioService {
   // Remover setor de origem
   static removerSetorOrigem(id) {
     return new Promise((resolve, reject) => {
-      db.run('DELETE FROM setores_origem WHERE id = ?', [id], function(err) {
+      db.run('DELETE FROM usuario_setores_origem WHERE setor_id = ?', [id], (err) => {
         if (err) return reject(err);
-        db.run('DELETE FROM usuario_setores_origem WHERE setor_id = ?', [id]);
-        resolve({ message: 'Setor removido' });
+        db.run('DELETE FROM setores_origem WHERE id = ?', [id], function(err) {
+          if (err) return reject(err);
+          resolve({ message: 'Setor removido' });
+        });
       });
     });
   }
@@ -127,10 +129,14 @@ class UsuarioService {
   // Remover setor de destino
   static removerSetorDestino(id) {
     return new Promise((resolve, reject) => {
-      db.run('DELETE FROM setores_destino WHERE id = ?', [id], function(err) {
+      // Primeiro remove os vínculos
+      db.run('DELETE FROM usuario_setores_destino WHERE setor_id = ?', [id], (err) => {
         if (err) return reject(err);
-        db.run('DELETE FROM usuario_setores_destino WHERE setor_id = ?', [id]);
-        resolve({ message: 'Setor removido' });
+        // Depois remove o setor
+        db.run('DELETE FROM setores_destino WHERE id = ?', [id], function(err) {
+          if (err) return reject(err);
+          resolve({ message: 'Setor removido' });
+        });
       });
     });
   }

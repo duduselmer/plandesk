@@ -41,7 +41,8 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS setores_destino (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nome TEXT UNIQUE NOT NULL
+      nome TEXT UNIQUE NOT NULL,
+      prioridade_solicitante INTEGER DEFAULT 0
     )
   `);
 
@@ -208,6 +209,10 @@ db.serialize(() => {
   db.run('CREATE INDEX IF NOT EXISTS idx_tickets_criado_por ON tickets(criado_por)');
   db.run('CREATE INDEX IF NOT EXISTS idx_reaberturas_ticket ON reaberturas(ticket_id)');
   db.run('CREATE INDEX IF NOT EXISTS idx_reaberturas_status ON reaberturas(status)');
+
+  db.run("ALTER TABLE setores_destino ADD COLUMN prioridade_solicitante INTEGER DEFAULT 0", (err) => {
+  // Ignora erro se coluna já existir
+});
 });
 
 module.exports = db;

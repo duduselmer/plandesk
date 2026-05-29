@@ -214,7 +214,6 @@
         <div class="panel-subtitle">Preencha os dados para abrir um ticket</div>
       </div>
       <form class="form" id="form-ticket" onsubmit="criarTicket(event)">
-        <!-- 8B: setor de origem populado via API + setor de destino fixo -->
         <label>Setor de origem <span>*</span>
           <select id="setor" class="fi" required>
             <option value="">Selecione...</option>
@@ -222,9 +221,7 @@
         </label>
         <label>Setor de destino <span>*</span>
           <select id="setor-destino" class="fi" required>
-            <option value="">Selecione...</option>
-            <option value="Control Desk">Control Desk</option>
-            <option value="Planejamento">Planejamento</option>
+            <option value="">Carregando...</option>
           </select>
         </label>
         <label>Descrição <span>*</span>
@@ -385,6 +382,16 @@
     }
   }
 
+  async function carregarSetoresDestino() {
+    try {
+      const res = await fetch('/api/usuarios/setores/destino', { headers: getAuthHeaders() });
+      const setores = await res.json();
+      const select = document.getElementById('setor-destino');
+      select.innerHTML = '<option value="">Selecione...</option>' + 
+        setores.map(s => `<option value="${s.nome}">${s.nome}</option>`).join('');
+    } catch(e) { console.error('Erro ao carregar destinos:', e); }
+  }
+  
   // ── Sanitização HTML ──────────────────────────────────────────────
   function esc(str) {
     if (str == null) return '';
@@ -839,8 +846,8 @@
     o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
   );
 
-  // 8D: inicializa setores e tickets em paralelo
   carregarSetoresOrigem();
+  carregarSetoresDestino();
   carregarTickets();
 </script>
 </body>

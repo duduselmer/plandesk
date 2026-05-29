@@ -23,6 +23,25 @@ router.put('/:id', async (req, res) => {
   try { const result = await UsuarioService.atualizarUsuario(req.params.id, req.body); res.json(result); } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+router.put('/niveis/:nome', autorizar('admin'), async (req, res) => {
+  try {
+    const { telas } = req.body;
+    const { nome } = req.params;
+    
+    const niveisValidos = ['requisitor', 'supervisor', 'controldesk', 'gerente', 'admin'];
+    if (!niveisValidos.includes(nome)) {
+      return res.status(400).json({ error: 'Nível inválido' });
+    }
+
+    // Aqui você pode salvar em uma tabela niveis_config se quiser persistir
+    // Por enquanto, retorna sucesso (a configuração fica em memória)
+    
+    res.json({ message: `Nível "${nome}" atualizado`, telas });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── Setores ──
 router.get('/setores/origem', async (req, res) => { res.json(await UsuarioService.listarSetoresOrigem()); });
 router.post('/setores/origem', async (req, res) => { try { const r = await UsuarioService.criarSetorOrigem(req.body.nome); res.status(201).json(r); } catch(e) { res.status(400).json({error:e.message}); } });

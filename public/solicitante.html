@@ -227,14 +227,11 @@
         <label>Descrição <span>*</span>
           <textarea id="descricao" class="fi" required></textarea>
         </label>
-        <label>Prioridade sugerida <span style="color:var(--muted);font-size:0.65rem;">(opcional)</span>
+        <label id="label-prioridade" style="display:none;">Prioridade necessária <span style="color:var(--muted);font-size:0.65rem;">(sugestão)</span>
           <select id="prioridade" class="fi">
-            <option value="">Sem sugestão</option>
-            <option value="Baixa">🟢 Baixa</option>
-            <option value="Média">🔵 Média</option>
-            <option value="Alta">🟡 Alta</option>
-            <option value="Crítica">🔴 Crítica</option>
+            <option value="">Carregando...</option>
           </select>
+          <small style="color:var(--muted);font-size:0.6rem;">O analista pode ajustar a prioridade se necessário</small>
         </label>
         <label>Anexar arquivo <span style="color:var(--muted);font-size:0.65rem;">(opcional, máx 2)</span>
           <input type="file" id="arquivo" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg" multiple
@@ -271,6 +268,12 @@
     </label>
     <label class="field">Descrição
       <textarea id="edit-descricao" class="fi"></textarea>
+    </label>
+    <label class="field" id="edit-label-prioridade">Prioridade sugerida <span style="color:var(--muted);font-size:0.6rem;">(sugestão)</span>
+      <select id="edit-prioridade" class="fi">
+        <option value="">Sem sugestão</option>
+      </select>
+      <small style="color:var(--muted);font-size:0.6rem;">O analista pode ajustar se necessário</small>
     </label>
     <div style="font-size:0.72rem;color:var(--muted);">📎 Anexos atuais:</div>
     <div id="edit-anexos-lista" class="anexos-lista"></div>
@@ -353,7 +356,7 @@
   const API_REAB = '/api/reabertura';
   const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
 
-  // ── 8A: Carregar setores de origem do usuário ─────────────────────
+  // ── Carregar setores de origem do usuário ─────────────────────────
   let setoresOrigemUsuario = [];
 
   async function carregarSetoresOrigem() {
@@ -361,20 +364,19 @@
       const tokenPayload = JSON.parse(atob(TOKEN.split('.')[1]));
       const res = await fetch(`/api/usuarios/${tokenPayload.id}/setores-origem`, { headers: getAuthHeaders() });
       setoresOrigemUsuario = await res.json();
-      
-      // Garantir que é um array
+
       if (!Array.isArray(setoresOrigemUsuario)) {
         setoresOrigemUsuario = [];
       }
-      
+
       if (setoresOrigemUsuario.length === 0) {
         const resTodos = await fetch('/api/usuarios/setores/origem', { headers: getAuthHeaders() });
         const todos = await resTodos.json();
         setoresOrigemUsuario = Array.isArray(todos) ? todos : [];
       }
-      
+
       preencherSelectSetores();
-    } catch(e) { 
+    } catch(e) {
       console.error('Erro ao carregar setores:', e);
       setoresOrigemUsuario = [];
       preencherSelectSetores();
@@ -396,11 +398,47 @@
       const res = await fetch('/api/usuarios/setores/destino', { headers: getAuthHeaders() });
       const setores = await res.json();
       const select = document.getElementById('setor-destino');
-      select.innerHTML = '<option value="">Selecione...</option>' + 
+      select.innerHTML = '<option value="">Selecione...</option>' +
         setores.map(s => `<option value="${s.nome}">${s.nome}</option>`).join('');
     } catch(e) { console.error('Erro ao carregar destinos:', e); }
   }
-  
+
+  // ── Opções de prioridade com SLA dinâmico ─────────────────────────
+  const ICONES_PRIORIDADE = { 'Baixa': '🟢', 'Média': '🔵', 'Alta': '🟡', 'Crítica': '🔴' };
+  const ORDEM_PRIORIDADE  = ['Baixa', 'Média', 'Alta', 'Crítica'];
+
+  async function carregarOpcoesPrioridade() {
+    try {
+      const res = await fetch('/api/sla/config', { headers: getAuthHeaders() });
+      const slaConfig = await res.json();
+      const opcoesHTML = '<option value="">Sem sugestão</option>' +
+        ORDEM_PRIORIDADE.map(p => {
+          const minutos = slaConfig[p] || 60;
+          const horas   = minutos >= 60 ? `${Math.floor(minutos / 60)}h` : '';
+          const mins    = minutos % 60  ? `${minutos % 60}min` : '';
+          const tempo   = horas && mins ? `${horas} ${mins}` : horas || mins || `${minutos}min`;
+          return `<option value="${p}">${ICONES_PRIORIDADE[p]} ${p} — ${tempo}</option>`;
+        }).join('');
+      // Preenche ambos os selects (formulário principal e modal editar)
+      document.getElementById('prioridade').innerHTML      = opcoesHTML;
+      document.getElementById('edit-prioridade').innerHTML = opcoesHTML;
+    } catch(e) {
+      console.error('Erro ao carregar SLA:', e);
+      // Fallback sem tempos
+      const fallback = '<option value="">Sem sugestão</option>' +
+        ORDEM_PRIORIDADE.map(p => `<option value="${p}">${ICONES_PRIORIDADE[p]} ${p}</option>`).join('');
+      document.getElementById('prioridade').innerHTML      = fallback;
+      document.getElementById('edit-prioridade').innerHTML = fallback;
+    }
+  }
+
+  // Mostra/esconde o campo de prioridade conforme o setor de destino selecionado (formulário principal)
+  document.getElementById('setor-destino').addEventListener('change', function() {
+    const label = document.getElementById('label-prioridade');
+    label.style.display = this.value ? 'flex' : 'none';
+    if (!this.value) document.getElementById('prioridade').value = '';
+  });
+
   // ── Sanitização HTML ──────────────────────────────────────────────
   function esc(str) {
     if (str == null) return '';
@@ -447,9 +485,9 @@
   }
 
   function _sincronizarInput(inputId, maxArquivos) {
-    const input    = document.getElementById(inputId);
-    const acumulado= arquivosAcumulados[inputId];
-    const dt       = new DataTransfer();
+    const input     = document.getElementById(inputId);
+    const acumulado = arquivosAcumulados[inputId];
+    const dt        = new DataTransfer();
     acumulado.forEach(f => dt.items.add(f));
     input.files = dt.files;
 
@@ -532,6 +570,7 @@
 
       toast('✓ Ticket criado!', 'success');
       document.getElementById('form-ticket').reset();
+      document.getElementById('label-prioridade').style.display = 'none';
       limparArquivos('arquivo');
       carregarTickets();
     } catch (err) {
@@ -578,7 +617,7 @@
     // Ações
     let acoes = '';
     if (t.status === 'aberto') {
-      acoes = `<button class="btn-sm" data-action="editar" data-id="${t.id}" data-setor="${esc(t.setor||'')}" data-desc="${esc(t.descricao||'')}">Editar</button>
+      acoes = `<button class="btn-sm" data-action="editar" data-id="${t.id}" data-setor="${esc(t.setor||'')}" data-desc="${esc(t.descricao||'')}" data-prio="${esc(t.prioridade_sugerida||'')}">Editar</button>
                <button class="btn-sm danger" data-action="excluir" data-id="${t.id}">Excluir</button>`;
     } else if (t.status === 'concluído') {
       acoes = `<button class="btn-sm success" data-action="receber" data-id="${esc(t.id)}">✅ Confirmar Recebimento</button>`;
@@ -605,7 +644,7 @@
       prioSugeridaHTML = `<span style="font-size:0.65rem;color:${cor};border:1px solid ${cor};border-radius:99px;padding:0.15rem 0.5rem;opacity:0.8;">💡 Sugerida: ${esc(t.prioridade_sugerida)}</span>`;
     }
 
-    // Anexos do solicitante — exibidos após a descrição
+    // Anexos do solicitante
     let anexosSolicitanteHTML = '';
     const anexosSolicitante = anexos.filter(a => a.tipo_upload === 'solicitante');
     if (anexosSolicitante.length > 0) {
@@ -618,7 +657,7 @@
       </div>`;
     }
 
-    // Anexos do analista — exibidos dentro da solucao-box
+    // Anexos do analista
     let anexosAnalistaHTML = '';
     const anexosAnalista = anexos.filter(a => a.tipo_upload === 'analista');
     if (anexosAnalista.length > 0) {
@@ -631,7 +670,7 @@
       </div>`;
     }
 
-    // Solução — inclui anexos do analista internamente
+    // Solução
     let solucao = '';
     if (t.descricao_final) {
       solucao = `<div class="solucao-box">
@@ -677,7 +716,7 @@
       </div>`;
     });
 
-    // Setor de destino no header (se disponível)
+    // Setor de destino no header
     const setorDestino = t.setor_destino ? ` → ${esc(t.setor_destino)}` : '';
 
     return `<div class="ticket-card">
@@ -706,8 +745,8 @@
   document.getElementById('tickets-container').addEventListener('click', async function (e) {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
-    const { action, id, setor, desc } = btn.dataset;
-    if      (action === 'editar')        abrirEditar(id, setor, desc);
+    const { action, id, setor, desc, prio } = btn.dataset;
+    if      (action === 'editar')        abrirEditar(id, setor, desc, prio);
     else if (action === 'excluir')       abrirExcluir(id);
     else if (action === 'reabrir')       abrirReabrir(id);
     else if (action === 'receber')       confirmarRecebimento(id);
@@ -715,10 +754,12 @@
   });
 
   // ── Modais ────────────────────────────────────────────────────────
-  async function abrirEditar(id, setor, desc) {
+  async function abrirEditar(id, setor, desc, prio) {
     document.getElementById('edit-id').value        = id;
     document.getElementById('edit-setor').value     = setor;
     document.getElementById('edit-descricao').value = desc;
+    // Aguarda carregarOpcoesPrioridade() já ter rodado; seta o valor salvo
+    document.getElementById('edit-prioridade').value = prio || '';
     limparArquivos('edit-arquivo');
 
     const anexosLista = document.getElementById('edit-anexos-lista');
@@ -757,16 +798,16 @@
       const res = await fetch(`/api/anexo/${anexoId}`, { method: 'DELETE', headers: getAuthHeaders() });
       if (!res.ok) throw new Error((await res.json()).error);
       toast('✓ Anexo removido', 'success');
-      const ticketId    = document.getElementById('edit-id').value;
-      const resLista    = await fetch(`/api/anexo/${ticketId}/listar`, { headers: getAuthHeaders() });
-      const anexos      = await resLista.json();
+      const ticketId = document.getElementById('edit-id').value;
+      const resLista = await fetch(`/api/anexo/${ticketId}/listar`, { headers: getAuthHeaders() });
+      const anexos   = await resLista.json();
       _renderAnexosEdicao(anexos, document.getElementById('edit-anexos-lista'));
     } catch (err) { toast('✗ ' + err.message, 'error'); }
   }
 
   function abrirExcluir(id) {
-    document.getElementById('excluir-id').value    = id;
-    document.getElementById('excluir-motivo').value= '';
+    document.getElementById('excluir-id').value     = id;
+    document.getElementById('excluir-motivo').value = '';
     document.getElementById('modal-excluir').classList.add('open');
   }
 
@@ -793,12 +834,17 @@
   async function salvarEdicao() {
     const id = document.getElementById('edit-id').value;
     try {
+      const editPrio    = document.getElementById('edit-prioridade').value;
+      const editPayload = {
+        setor:     document.getElementById('edit-setor').value,
+        descricao: document.getElementById('edit-descricao').value,
+      };
+      if (editPrio) editPayload.prioridade_sugerida = editPrio;
+      else editPayload.prioridade_sugerida = null; // limpa se removido
+
       const res = await fetch(`${API}/${id}`, {
         method: 'PUT', headers: getAuthHeaders(),
-        body: JSON.stringify({
-          setor:     document.getElementById('edit-setor').value,
-          descricao: document.getElementById('edit-descricao').value
-        })
+        body: JSON.stringify(editPayload)
       });
       if (!res.ok) throw new Error((await res.json()).error);
       await uploadArquivos(id, 'edit-arquivo');
@@ -823,8 +869,8 @@
   }
 
   async function confirmarReabertura() {
-    const id    = document.getElementById('reabrir-id').value;
-    const motivo= document.getElementById('reabrir-motivo').value;
+    const id     = document.getElementById('reabrir-id').value;
+    const motivo = document.getElementById('reabrir-motivo').value;
     if (!motivo.trim()) { toast('✗ Informe o motivo', 'error'); return; }
     try {
       const res = await fetch(`${API_REAB}/${id}/reaberturas/solicitar`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ motivo }) });
@@ -869,6 +915,7 @@
 
   carregarSetoresOrigem();
   carregarSetoresDestino();
+  carregarOpcoesPrioridade();
   carregarTickets();
 </script>
 </body>

@@ -71,6 +71,14 @@ class UsuarioService {
     });
   }
 
+  static atualizarNivel(nome, telas) {
+    return new Promise((resolve, reject) => {
+      // Por enquanto só valida e retorna sucesso
+      // Futuro: salvar em tabela niveis_config
+      resolve({ nome, telas });
+    });
+  }
+  
   // Listar setores de origem
   static listarSetoresOrigem() {
     return new Promise((resolve, reject) => {

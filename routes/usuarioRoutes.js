@@ -108,10 +108,18 @@ router.put('/niveis/:nome', autorizar('admin'), async (req, res) => {
   try {
     const { telas } = req.body;
     const { nome } = req.params;
-    const niveisValidos = ['requisitor', 'supervisor', 'controldesk', 'gerente', 'admin'];
-    if (!niveisValidos.includes(nome)) return res.status(400).json({ error: 'Nível inválido' });
-    res.json({ message: `Nível "${nome}" atualizado`, telas });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    
+    db.run(
+      "INSERT OR REPLACE INTO configuracoes (chave, valor) VALUES (?, ?)",
+      [`nivel_${nome}`, JSON.stringify(telas)],
+      function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: `Nível "${nome}" atualizado`, telas });
+      }
+    );
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;

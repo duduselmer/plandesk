@@ -1,4 +1,4 @@
-onst express = require('express');
+const express = require('express');
 const router = express.Router();
 const UsuarioService = require('../services/usuarioService');
 const { autenticar, autorizar } = require('../middleware/auth');

@@ -29,7 +29,7 @@
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
     th { text-align: left; padding: 0.5rem 0.75rem; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 400; }
-    td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+    td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
     .badge { padding: 0.18rem 0.55rem; border-radius: 99px; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
     .badge-ativo { background: rgba(79,247,160,0.15); color: var(--success); }
     .badge-inativo { background: rgba(247,79,79,0.15); color: var(--danger); }
@@ -48,6 +48,28 @@
     .btn-cancel { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0.6rem 1.2rem; font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer; } .btn-cancel:hover { border-color: var(--text); color: var(--text); }
     .btn-confirm { background: var(--accent); border: none; border-radius: 8px; color: #000; padding: 0.6rem 1.4rem; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; cursor: pointer; } .btn-confirm:hover { background: #e8b830; }
     .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface3); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.8rem; z-index: 999; transition: transform 0.3s ease; min-width: 280px; text-align: center; } .toast.show { transform: translateX(-50%) translateY(0); } .toast.success { border-color: var(--success); color: var(--success); } .toast.error { border-color: var(--danger); color: var(--danger); }
+
+    /* ── Vínculos painel (NOVO) ── */
+    .vinculos-panel { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; animation: fadeUp 0.2s ease; }
+    .vinculos-panel .vp-title { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.15rem; }
+    .vinculos-panel .vp-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; min-height: 1.5rem; }
+    .vinculos-panel .vp-empty { font-size: 0.72rem; color: var(--muted); font-style: italic; }
+
+    /* ── Aba Níveis (NOVO) ── */
+    .nivel-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1rem; transition: border-color 0.2s; }
+    .nivel-card:hover { border-color: rgba(247,201,79,0.3); }
+    .nivel-card-header { padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    .nivel-card-name { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+    .nivel-poder-badge { background: rgba(167,139,250,0.15); color: var(--purple); border-radius: 99px; padding: 0.2rem 0.65rem; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .nivel-card-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+    .telas-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tela-toggle { display: flex; align-items: center; gap: 0.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.85rem; font-size: 0.72rem; cursor: pointer; transition: all 0.18s; user-select: none; }
+    .tela-toggle input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+    .tela-toggle:has(input:checked) { border-color: rgba(247,201,79,0.4); background: var(--accent-dim); color: var(--accent); }
+    .nivel-save-btn { align-self: flex-start; background: var(--accent); border: none; border-radius: 8px; color: #000; padding: 0.45rem 1.2rem; font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .nivel-save-btn:hover { background: #e8b830; }
+    .nivel-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -69,6 +91,7 @@
       <button class="sidebar-btn" id="btn-niveis" onclick="mostrarAba('niveis', this)">🔐 Níveis</button>
     </div>
     <div class="content">
+
       <!-- ABA USUÁRIOS -->
       <div class="aba ativa" id="aba-usuarios">
         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -85,25 +108,35 @@
         <div class="section-title">Setores de Origem (Solicitantes)</div>
         <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;"><input class="mini" id="novo-setor-origem" placeholder="Nome do setor..." /><button class="btn-sm success" onclick="criarSetorOrigem()">+ Adicionar</button></div>
         <div class="chip-row" id="chips-origem"></div>
+
         <div class="section-title" style="margin-top:1.5rem;">Setores de Destino (Analistas)</div>
         <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;"><input class="mini" id="novo-setor-destino" placeholder="Nome do setor..." /><button class="btn-sm success" onclick="criarSetorDestino()">+ Adicionar</button></div>
         <div class="chip-row" id="chips-destino"></div>
+
         <div class="section-title" style="margin-top:1.5rem;">Vincular Setores a Usuários</div>
         <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
-          <select class="mini" id="vinculo-usuario"><option value="">Selecione usuário...</option></select>
+          <select class="mini" id="vinculo-usuario" onchange="onUsuarioChange(this.value)"><option value="">Selecione usuário...</option></select>
           <select class="mini" id="vinculo-setor-origem"><option value="">Setor origem...</option></select>
           <button class="btn-sm success" onclick="vincularSetorOrigem()">Vincular Origem</button>
           <select class="mini" id="vinculo-setor-destino"><option value="">Setor destino...</option></select>
           <button class="btn-sm success" onclick="vincularSetorDestino()">Vincular Destino</button>
         </div>
-        <div id="vinculos-usuario" style="margin-top:1rem;font-size:0.75rem;"></div>
+
+        <!-- Painel de vínculos do usuário selecionado (NOVO) -->
+        <div id="vinculos-usuario" style="margin-top:0.5rem;"></div>
       </div>
 
       <!-- ABA NÍVEIS -->
       <div class="aba" id="aba-niveis">
         <div class="section-title">Níveis de Acesso</div>
-        <div class="table-wrap"><table><thead><tr><th>Nível</th><th>Poder</th><th>Telas</th></tr></thead><tbody id="tb-niveis"></tbody></table></div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:-0.75rem;margin-bottom:0.5rem;">
+          Gerencie quais telas cada nível pode acessar. Alterações são salvas individualmente por nível.
+        </div>
+        <div id="niveis-container">
+          <div style="color:var(--muted);font-size:0.78rem;padding:2rem;text-align:center;">Carregando níveis...</div>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -120,6 +153,10 @@ document.getElementById('user-name').textContent=NOME||'Admin';
 function getAuthHeaders(){return{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN,'x-nivel':NIVEL};}
 function logout(){localStorage.clear();window.location.href='/login';}
 const API='/api/usuarios'; let abaAtual='usuarios';
+
+// ── Estado dos selects de vínculo (NOVO) ──
+// Guarda o uid selecionado para sobreviver ao recarregamento dos <select>
+let _vinculoUidAtivo = '';
 
 function mostrarAba(aba,btn){
   document.querySelectorAll('.aba').forEach(a=>a.classList.remove('ativa'));
@@ -143,6 +180,7 @@ async function salvarUsuario(){const id=document.getElementById('mu-id').value;c
 async function toggleUsuario(id,ativo){try{await fetch(`${API}/${id}`,{method:'PUT',headers:getAuthHeaders(),body:JSON.stringify({ativo:ativo?0:1})});toast('✓ '+(ativo?'Desativado':'Ativado'),'success');carregarUsuarios();}catch(e){toast('✗ '+e.message,'error');}}
 
 // ── SETORES ──
+// CORRIGIDO: preserva o usuário selecionado após vincular/desvincular
 async function carregarSetores(){
   try{
     const[o,d]=await Promise.all([fetch(`${API}/setores/origem`,{headers:getAuthHeaders()}),fetch(`${API}/setores/destino`,{headers:getAuthHeaders()})]);
@@ -150,24 +188,156 @@ async function carregarSetores(){
     document.getElementById('chips-origem').innerHTML=origens.map(s=>`<div class="chip">${s.nome}<button onclick="removerSetorOrigem(${s.id})">×</button></div>`).join('');
     document.getElementById('chips-destino').innerHTML=destinos.map(s=>`<div class="chip">${s.nome}<button onclick="removerSetorDestino(${s.id})">×</button></div>`).join('');
     const us=await(await fetch(API,{headers:getAuthHeaders()})).json();
-    document.getElementById('vinculo-usuario').innerHTML='<option value="">Selecione...</option>'+us.map(u=>`<option value="${u.id}">${u.nome}</option>`).join('');
+
+    // Reconstrói selects e restaura seleção anterior
+    const selU=document.getElementById('vinculo-usuario');
+    selU.innerHTML='<option value="">Selecione...</option>'+us.map(u=>`<option value="${u.id}">${u.nome}</option>`).join('');
+    if(_vinculoUidAtivo) selU.value=_vinculoUidAtivo;
+
     document.getElementById('vinculo-setor-origem').innerHTML='<option value="">Setor origem...</option>'+origens.map(s=>`<option value="${s.id}">${s.nome}</option>`).join('');
     document.getElementById('vinculo-setor-destino').innerHTML='<option value="">Setor destino...</option>'+destinos.map(s=>`<option value="${s.id}">${s.nome}</option>`).join('');
+
+    // Se tinha usuário selecionado, recarrega vínculos dele
+    if(_vinculoUidAtivo) carregarVinculos(_vinculoUidAtivo);
+
   }catch(e){toast('Erro ao carregar','error');}
 }
+
+// NOVO: handler do onchange do select de usuário
+function onUsuarioChange(uid){
+  _vinculoUidAtivo = uid;
+  carregarVinculos(uid);
+}
+
 async function criarSetorOrigem(){const n=document.getElementById('novo-setor-origem').value;if(!n)return;try{await fetch(`${API}/setores/origem`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({nome:n})});document.getElementById('novo-setor-origem').value='';carregarSetores();}catch(e){toast('✗ '+e.message,'error');}}
 async function criarSetorDestino(){const n=document.getElementById('novo-setor-destino').value;if(!n)return;try{await fetch(`${API}/setores/destino`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({nome:n})});document.getElementById('novo-setor-destino').value='';carregarSetores();}catch(e){toast('✗ '+e.message,'error');}}
 async function removerSetorOrigem(id){try{await fetch(`${API}/setores/origem/${id}`,{method:'DELETE',headers:getAuthHeaders()});carregarSetores();}catch(e){toast('✗ '+e.message,'error');}}
 async function removerSetorDestino(id){try{await fetch(`${API}/setores/destino/${id}`,{method:'DELETE',headers:getAuthHeaders()});carregarSetores();}catch(e){toast('✗ '+e.message,'error');}}
-async function vincularSetorOrigem(){const uid=document.getElementById('vinculo-usuario').value,sid=document.getElementById('vinculo-setor-origem').value;if(!uid||!sid)return;try{await fetch(`${API}/${uid}/setores-origem`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({setor_id:sid})});carregarSetores();carregarVinculos(uid);}catch(e){toast('✗ '+e.message,'error');}}
-async function vincularSetorDestino(){const uid=document.getElementById('vinculo-usuario').value,sid=document.getElementById('vinculo-setor-destino').value;if(!uid||!sid)return;try{await fetch(`${API}/${uid}/setores-destino`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({setor_id:sid})});carregarSetores();carregarVinculos(uid);}catch(e){toast('✗ '+e.message,'error');}}
-async function carregarVinculos(uid){if(!uid){document.getElementById('vinculos-usuario').innerHTML='';return;}try{const[o,d]=await Promise.all([fetch(`${API}/${uid}/setores-origem`,{headers:getAuthHeaders()}),fetch(`${API}/${uid}/setores-destino`,{headers:getAuthHeaders()})]);const or=await o.json(),de=await d.json();document.getElementById('vinculos-usuario').innerHTML=`<div style="margin-bottom:0.5rem;"><strong>Origens:</strong> ${or.length?or.map(s=>`<span class="chip">${s.nome}<button onclick="desvincularOrigem(${uid},${s.id})">×</button></span>`).join(' '):'Nenhum'}</div><div><strong>Destinos:</strong> ${de.length?de.map(s=>`<span class="chip">${s.nome}<button onclick="desvincularDestino(${uid},${s.id})">×</button></span>`).join(' '):'Nenhum'}</div>`;}catch(e){toast('Erro ao carregar vínculos','error');}}
-async function desvincularOrigem(uid,sid){try{await fetch(`${API}/${uid}/setores-origem/${sid}`,{method:'DELETE',headers:getAuthHeaders()});carregarVinculos(uid);}catch(e){toast('✗ '+e.message,'error');}}
-async function desvincularDestino(uid,sid){try{await fetch(`${API}/${uid}/setores-destino/${sid}`,{method:'DELETE',headers:getAuthHeaders()});carregarVinculos(uid);}catch(e){toast('✗ '+e.message,'error');}}
-document.getElementById('vinculo-usuario').addEventListener('change',function(){carregarVinculos(this.value);});
 
-// ── NÍVEIS ──
-async function carregarNiveis(){try{const r=await fetch(`${API}/niveis/lista`,{headers:getAuthHeaders()});const n=await r.json();document.getElementById('tb-niveis').innerHTML=n.map(n=>`<tr><td>${n.nome}</td><td>${n.poder}</td><td>${n.telas.join(', ')}</td></tr>`).join('');}catch(e){toast('Erro ao carregar','error');}}
+async function vincularSetorOrigem(){
+  const uid=document.getElementById('vinculo-usuario').value,sid=document.getElementById('vinculo-setor-origem').value;
+  if(!uid||!sid)return;
+  _vinculoUidAtivo = uid; // garante que o estado seja salvo antes do reload
+  try{await fetch(`${API}/${uid}/setores-origem`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({setor_id:sid})});toast('✓ Setor de origem vinculado','success');carregarSetores();}catch(e){toast('✗ '+e.message,'error');}
+}
+async function vincularSetorDestino(){
+  const uid=document.getElementById('vinculo-usuario').value,sid=document.getElementById('vinculo-setor-destino').value;
+  if(!uid||!sid)return;
+  _vinculoUidAtivo = uid; // garante que o estado seja salvo antes do reload
+  try{await fetch(`${API}/${uid}/setores-destino`,{method:'POST',headers:getAuthHeaders(),body:JSON.stringify({setor_id:sid})});toast('✓ Setor de destino vinculado','success');carregarSetores();}catch(e){toast('✗ '+e.message,'error');}
+}
+
+async function carregarVinculos(uid){
+  const el=document.getElementById('vinculos-usuario');
+  if(!uid){ el.innerHTML=''; return; }
+  try{
+    const[o,d]=await Promise.all([
+      fetch(`${API}/${uid}/setores-origem`,{headers:getAuthHeaders()}),
+      fetch(`${API}/${uid}/setores-destino`,{headers:getAuthHeaders()})
+    ]);
+    const or=await o.json(), de=await d.json();
+    el.innerHTML=`
+      <div class="vinculos-panel">
+        <div>
+          <div class="vp-title">Setores de Origem vinculados</div>
+          <div class="vp-chips">
+            ${or.length
+              ? or.map(s=>`<div class="chip">${s.nome}<button onclick="desvincularOrigem(${uid},${s.id})" title="Remover">×</button></div>`).join('')
+              : '<span class="vp-empty">Nenhum setor de origem vinculado</span>'}
+          </div>
+        </div>
+        <div>
+          <div class="vp-title">Setores de Destino vinculados</div>
+          <div class="vp-chips">
+            ${de.length
+              ? de.map(s=>`<div class="chip">${s.nome}<button onclick="desvincularDestino(${uid},${s.id})" title="Remover">×</button></div>`).join('')
+              : '<span class="vp-empty">Nenhum setor de destino vinculado</span>'}
+          </div>
+        </div>
+      </div>`;
+  }catch(e){toast('Erro ao carregar vínculos','error');}
+}
+
+async function desvincularOrigem(uid,sid){
+  _vinculoUidAtivo = String(uid);
+  try{await fetch(`${API}/${uid}/setores-origem/${sid}`,{method:'DELETE',headers:getAuthHeaders()});toast('✓ Vínculo removido','success');carregarSetores();}catch(e){toast('✗ '+e.message,'error');}
+}
+async function desvincularDestino(uid,sid){
+  _vinculoUidAtivo = String(uid);
+  try{await fetch(`${API}/${uid}/setores-destino/${sid}`,{method:'DELETE',headers:getAuthHeaders()});toast('✓ Vínculo removido','success');carregarSetores();}catch(e){toast('✗ '+e.message,'error');}
+}
+
+// ── NÍVEIS (NOVO: editável) ──
+// Lista completa de telas disponíveis no sistema
+const TODAS_TELAS = [
+  { id: 'dashboard',      label: '📊 Dashboard'      },
+  { id: 'tickets',        label: '🎫 Tickets'         },
+  { id: 'analista',       label: '🔧 Analista'        },
+  { id: 'gestao',         label: '📈 Gestão'          },
+  { id: 'historico',      label: '📜 Histórico'       },
+  { id: 'configuracoes',  label: '⚙️ Configurações'   },
+  { id: 'menu',           label: '🏠 Menu'            },
+  { id: 'relatorios',     label: '📋 Relatórios'      },
+];
+
+async function carregarNiveis(){
+  const container = document.getElementById('niveis-container');
+  container.innerHTML = '<div style="color:var(--muted);font-size:0.78rem;padding:2rem;text-align:center;">Carregando...</div>';
+  try{
+    const r = await fetch(`${API}/niveis/lista`, {headers:getAuthHeaders()});
+    const niveis = await r.json();
+    container.innerHTML = niveis.map(n => renderNivelCard(n)).join('');
+  }catch(e){
+    container.innerHTML = '<div style="color:var(--danger);font-size:0.78rem;padding:2rem;text-align:center;">Erro ao carregar níveis.</div>';
+    toast('Erro ao carregar níveis','error');
+  }
+}
+
+function renderNivelCard(n){
+  const telasAtivas = n.telas || [];
+  const checkboxes = TODAS_TELAS.map(t => `
+    <label class="tela-toggle">
+      <input type="checkbox" data-nivel="${n.nome}" data-tela="${t.id}" ${telasAtivas.includes(t.id)?'checked':''} />
+      ${t.label}
+    </label>`).join('');
+  return `
+    <div class="nivel-card">
+      <div class="nivel-card-header">
+        <span class="nivel-card-name">${n.nome}</span>
+        <span class="nivel-poder-badge">poder ${n.poder}</span>
+      </div>
+      <div class="nivel-card-body">
+        <div>
+          <div style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;">Telas com acesso</div>
+          <div class="telas-grid">${checkboxes}</div>
+        </div>
+        <button class="nivel-save-btn" onclick="salvarNivel('${n.nome}', this)">Salvar alterações</button>
+      </div>
+    </div>`;
+}
+
+async function salvarNivel(nomeNivel, btn){
+  // Coleta todos os checkboxes marcados para esse nível
+  const checkboxes = document.querySelectorAll(`input[type=checkbox][data-nivel="${nomeNivel}"]`);
+  const telas = Array.from(checkboxes).filter(c=>c.checked).map(c=>c.dataset.tela);
+
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  try{
+    const r = await fetch(`${API}/niveis/${nomeNivel}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ telas })
+    });
+    if(!r.ok){ const e=await r.json(); throw new Error(e.error||'Erro ao salvar'); }
+    toast(`✓ Nível "${nomeNivel}" atualizado`,'success');
+  }catch(e){
+    toast('✗ '+e.message,'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Salvar alterações';
+  }
+}
 
 // ── GERAIS ──
 function fecharModal(id){document.getElementById(id).classList.remove('open');}

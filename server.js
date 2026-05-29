@@ -5,6 +5,7 @@ const ticketRoutes = require('./routes/ticketRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const reaberturaRoutes = require('./routes/reaberturaRoutes');
 const anexoRoutes = require('./routes/anexoRoutes');
+const slaRoutes = require('./routes/slaRoutes');
 const authRoutes = require('./routes/authRoutes');
 const multer = require('multer');
 
@@ -56,6 +57,7 @@ app.use('/api/ticket', ticketRoutes);
 app.use('/api/reabertura', reaberturaRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/anexo', anexoRoutes);
+app.use('/api/sla', slaRoutes);
 
 // Rotas das páginas
 app.get('/', (req, res) => {

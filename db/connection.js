@@ -9,6 +9,7 @@ db.run('PRAGMA journal_mode=WAL');
 db.run('PRAGMA foreign_keys=ON');
 
 db.serialize(() => {
+  
   // ==========================================
   // Tabela de usuários
   // ==========================================
@@ -159,7 +160,17 @@ db.serialize(() => {
     )
   `);
 
-    // ==========================================
+  // ==========================================
+  // Tabela de configurações
+  // ==========================================
+  db.run(`
+    CREATE TABLE IF NOT EXISTS configuracoes (
+      chave TEXT PRIMARY KEY,
+      valor TEXT NOT NULL
+    )
+  `);
+  
+  // ==========================================
   // Tabela de anexos
   // ==========================================
   db.run(`

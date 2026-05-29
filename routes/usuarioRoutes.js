@@ -122,4 +122,13 @@ router.put('/niveis/:nome', autorizar('admin'), async (req, res) => {
   }
 });
 
+router.put('/setores/destino/:id/toggle-prioridade', autorizar('admin'), async (req, res) => {
+  try {
+    const result = await UsuarioService.togglePrioridadeSolicitante(req.params.id, req.body.valor);
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 module.exports = router;

@@ -8,27 +8,33 @@ router.use(autenticar);
 // Criar ticket
 router.post('/', async (req, res) => {
   try {
-    const { setor, setor_destino, nome, descricao } = req.body;
+    const { setor, setor_destino, nome, descricao, prioridade } = req.body;
 
     if (!setor || !descricao) {
       return res.status(400).json({ error: 'Setor de origem e descrição são obrigatórios' });
     }
 
-    // Validação dinâmica dos setores
     const UsuarioService = require('../services/usuarioService');
     const setoresOrigem = await UsuarioService.listarSetoresOrigem();
-    if (!setoresOrigem.some(s => s.nome === setor)) {
+    const setorOrigem = setoresOrigem.find(s => s.nome === setor);
+    if (!setorOrigem) {
       return res.status(400).json({ error: 'Setor de origem inválido' });
     }
 
-    if (setor_destino) {
-      const setoresDestino = await UsuarioService.listarSetoresDestino();
-      if (!setoresDestino.some(s => s.nome === setor_destino)) {
-        return res.status(400).json({ error: 'Setor de destino inválido' });
+    // Se veio prioridade, verificar se o setor de origem permite
+    if (prioridade) {
+      if (!setorOrigem.prioridade_solicitante) {
+        return res.status(400).json({ error: 'Este setor não permite sugerir prioridade' });
+      }
+      const prioridadesValidas = ['Baixa', 'Média', 'Alta', 'Crítica'];
+      if (!prioridadesValidas.includes(prioridade)) {
+        return res.status(400).json({ error: 'Prioridade inválida' });
       }
     }
 
-    const resultado = await TicketService.criarTicket(setor, setor_destino, nome, descricao, req.usuario.id);
+    const resultado = await TicketService.criarTicket(
+      setor, setor_destino, nome, descricao, req.usuario.id, prioridade || null
+    );
     res.status(201).json(resultado);
   } catch (error) {
     res.status(500).json({ error: error.message });

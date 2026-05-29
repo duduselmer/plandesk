@@ -31,7 +31,8 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS setores_origem (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nome TEXT UNIQUE NOT NULL
+      nome TEXT UNIQUE NOT NULL,
+      prioridade_solicitante INTEGER DEFAULT 0
     )
   `);
 
@@ -41,8 +42,7 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS setores_destino (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nome TEXT UNIQUE NOT NULL,
-      prioridade_solicitante INTEGER DEFAULT 0
+      nome TEXT UNIQUE NOT NULL
     )
   `);
 
@@ -97,6 +97,7 @@ db.serialize(() => {
       descricao TEXT NOT NULL,
       
       status TEXT NOT NULL DEFAULT 'aberto' CHECK(status IN ('aberto', 'em andamento', 'concluído', 'recebido')),
+      prioridade_sugerida TEXT CHECK(prioridade_sugerida IN ('Baixa', 'Média', 'Alta', 'Crítica')),
       prioridade TEXT CHECK(prioridade IN ('Baixa', 'Média', 'Alta', 'Crítica')),
       
       criado_em TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
@@ -210,9 +211,9 @@ db.serialize(() => {
   db.run('CREATE INDEX IF NOT EXISTS idx_reaberturas_ticket ON reaberturas(ticket_id)');
   db.run('CREATE INDEX IF NOT EXISTS idx_reaberturas_status ON reaberturas(status)');
 
-  db.run("ALTER TABLE setores_destino ADD COLUMN prioridade_solicitante INTEGER DEFAULT 0", (err) => {
-  // Ignora erro se coluna já existir
-});
+  db.run("ALTER TABLE tickets ADD COLUMN prioridade_sugerida TEXT", (err) => {});
+  db.run("ALTER TABLE setores_origem ADD COLUMN prioridade_solicitante INTEGER DEFAULT 0", (err) => {});
+  
 });
 
 module.exports = db;

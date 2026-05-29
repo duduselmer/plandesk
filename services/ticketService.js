@@ -15,36 +15,39 @@ class TicketService {
     });
   }
 
-  static iniciarTicket(id, prioridade, analista) {
+  static async iniciarTicket(id, prioridade, analista) {
     return new Promise((resolve, reject) => {
       const prioridadesValidas = ['Baixa', 'Média', 'Alta', 'Crítica'];
       if (!prioridadesValidas.includes(prioridade)) {
         return reject(new Error('Prioridade inválida'));
       }
-      const slaTotal = SLAService.calcularSLATotal(prioridade);
-      const agora = new Date().toISOString();
+      
+      // AGORA COM AWAIT
+      SLAService.calcularSLATotal(prioridade).then(slaTotal => {
+        const agora = new Date().toISOString();
 
-      db.serialize(() => {
-        db.run('BEGIN TRANSACTION');
-        db.get('SELECT id, status FROM tickets WHERE id = ? AND deletado = 0', [id], (err, ticket) => {
-          if (err) { db.run('ROLLBACK'); return reject(err); }
-          if (!ticket) { db.run('ROLLBACK'); return reject(new Error('Ticket não encontrado')); }
-          if (ticket.status !== 'aberto') { db.run('ROLLBACK'); return reject(new Error('Ticket não pode ser iniciado. Status: ' + ticket.status)); }
-
-          const sql = `
-            UPDATE tickets SET status = 'em andamento', prioridade = ?, iniciado_em = ?,
-            sla_total_min = ?, sla_consumido_min = 0, sla_estourado = 0,
-            analista_responsavel = ?, ultima_atualizacao = ?
-            WHERE id = ? AND deletado = 0
-          `;
-          db.run(sql, [prioridade, agora, slaTotal, analista, agora, id], function(err) {
+        db.serialize(() => {
+          db.run('BEGIN TRANSACTION');
+          db.get('SELECT id, status FROM tickets WHERE id = ? AND deletado = 0', [id], (err, ticket) => {
             if (err) { db.run('ROLLBACK'); return reject(err); }
-            if (this.changes === 0) { db.run('ROLLBACK'); return reject(new Error('Falha ao iniciar')); }
-            db.run('COMMIT');
-            resolve({ message: 'Ticket iniciado', sla_total_min: slaTotal, prioridade });
+            if (!ticket) { db.run('ROLLBACK'); return reject(new Error('Ticket não encontrado')); }
+            if (ticket.status !== 'aberto') { db.run('ROLLBACK'); return reject(new Error('Ticket não pode ser iniciado. Status: ' + ticket.status)); }
+
+            const sql = `
+              UPDATE tickets SET status = 'em andamento', prioridade = ?, iniciado_em = ?,
+              sla_total_min = ?, sla_consumido_min = 0, sla_estourado = 0,
+              analista_responsavel = ?, ultima_atualizacao = ?
+              WHERE id = ? AND deletado = 0
+            `;
+            db.run(sql, [prioridade, agora, slaTotal, analista, agora, id], function(err) {
+              if (err) { db.run('ROLLBACK'); return reject(err); }
+              if (this.changes === 0) { db.run('ROLLBACK'); return reject(new Error('Falha ao iniciar')); }
+              db.run('COMMIT');
+              resolve({ message: 'Ticket iniciado', sla_total_min: slaTotal, prioridade });
+            });
           });
         });
-      });
+      }).catch(reject);
     });
   }
 

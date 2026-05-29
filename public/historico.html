@@ -271,13 +271,33 @@
         </div>`;
 
         // Iniciado
-        if (c.numero === 1 && c.ticket.iniciado_em) {
-          eventos += `<div class="evento evento-iniciado">
-            <div class="evento-label" style="color:var(--warning);">▶ Atendimento Iniciado</div>
-            Analista: ${esc(c.ticket.analista_responsavel || 'N/D')}<br>
-            Prioridade: ${esc(c.ticket.prioridade || 'N/D')} · SLA: ${esc(c.ticket.sla_total_min || '?')} min<br>
-            Data: ${new Date(c.ticket.iniciado_em).toLocaleString('pt-BR')}
+        if (c.ticket.prioridade_sugerida) {
+          const mesma = c.ticket.prioridade === c.ticket.prioridade_sugerida;
+          eventos += `<div class="evento" style="background:rgba(247,201,79,0.05);border-left:3px solid var(--warning);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.72rem;">
+            <div class="evento-label" style="color:var(--warning);">💡 Prioridade Sugerida pelo Solicitante</div>
+            ${esc(c.ticket.prioridade_sugerida)}
           </div>`;
+        
+          if (!mesma && c.ticket.prioridade) {
+            eventos += `<div class="evento" style="background:rgba(247,79,79,0.05);border-left:3px solid var(--danger);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.72rem;">
+              <div class="evento-label" style="color:var(--danger);">🔄 Prioridade Alterada pelo Analista</div>
+              De ${esc(c.ticket.prioridade_sugerida)} → ${esc(c.ticket.prioridade)}
+              ${c.ticket.justificativa_prioridade ? `<br><strong>Justificativa:</strong> &ldquo;${esc(c.ticket.justificativa_prioridade)}&rdquo;` : ''}
+            </div>`;
+          } else if (mesma && c.ticket.prioridade) {
+            eventos += `<div class="evento" style="background:rgba(79,247,160,0.05);border-left:3px solid var(--success);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.72rem;">
+              <div class="evento-label" style="color:var(--success);">✅ Prioridade Mantida pelo Analista</div>
+              ${esc(c.ticket.prioridade)}
+            </div>`;
+          }
+        
+        // Iniciado (original)
+        eventos += `<div class="evento evento-iniciado">
+          <div class="evento-label" style="color:var(--warning);">▶ Atendimento Iniciado</div>
+          Analista: ${esc(c.ticket.analista_responsavel || 'N/D')}<br>
+          Prioridade final: ${esc(c.ticket.prioridade || 'N/D')} · SLA: ${esc(c.ticket.sla_total_min || '?')} min<br>
+          Data: ${new Date(c.ticket.iniciado_em).toLocaleString('pt-BR')}
+        </div>`;
         }
         if (c.numero > 1 && c.reab?.iniciado_em) {
           eventos += `<div class="evento evento-iniciado">

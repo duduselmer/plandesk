@@ -1,22 +1,27 @@
-const express = require('express');
-const router = express.Router();
-const { autenticar, autorizar } = require('../middleware/auth');
+const db = require('../db/connection');
 
-router.use(autenticar);
-router.use(autorizar('admin'));
-
-// Configurações padrão de SLA
-let slaConfig = {
-  'Crítica': 30,
-  'Alta': 60,
-  'Média': 120,
-  'Baixa': 240
-};
-
+// GET - Buscar SLA do banco
 router.get('/config', (req, res) => {
-  res.json(slaConfig);
+  db.all("SELECT chave, valor FROM configuracoes WHERE chave LIKE 'sla_%'", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    
+    const slaConfig = {
+      'Crítica': 30,
+      'Alta': 60,
+      'Média': 120,
+      'Baixa': 240
+    };
+    
+    rows.forEach(row => {
+      const prio = row.chave.replace('sla_', '');
+      slaConfig[prio] = parseInt(row.valor);
+    });
+    
+    res.json(slaConfig);
+  });
 });
 
+// PUT - Salvar SLA no banco
 router.put('/config', (req, res) => {
   const { prioridade, minutos } = req.body;
   
@@ -24,16 +29,12 @@ router.put('/config', (req, res) => {
     return res.status(400).json({ error: 'Prioridade e minutos são obrigatórios' });
   }
   
-  if (!slaConfig.hasOwnProperty(prioridade)) {
-    return res.status(400).json({ error: 'Prioridade inválida' });
-  }
-  
-  if (minutos < 1 || minutos > 9999) {
-    return res.status(400).json({ error: 'Minutos deve estar entre 1 e 9999' });
-  }
-  
-  slaConfig[prioridade] = minutos;
-  res.json({ message: `SLA "${prioridade}" atualizado para ${minutos} min`, config: slaConfig });
+  db.run(
+    "INSERT OR REPLACE INTO configuracoes (chave, valor) VALUES (?, ?)",
+    [`sla_${prioridade}`, String(minutos)],
+    function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: `SLA "${prioridade}" salvo: ${minutos} min` });
+    }
+  );
 });
-
-module.exports = router;

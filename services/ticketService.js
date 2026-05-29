@@ -8,7 +8,7 @@ class TicketService {
         INSERT INTO tickets (setor, setor_destino, nome, descricao, status, criado_em, criado_por)
         VALUES (?, ?, ?, ?, 'aberto', datetime('now', 'localtime'), ?)
       `;
-      db.run(sql, [setor, setorDestino || 'Control Desk', nome || null, descricao, criadoPor || null], function(err) {
+      db.run(sql, [setor, setorDestino || null, nome || null, descricao, criadoPor || null], function(err) {
         if (err) return reject(new Error('Erro ao criar ticket'));
         resolve({ id: this.lastID, message: 'Ticket criado com sucesso' });
       });

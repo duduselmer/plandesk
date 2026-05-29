@@ -226,7 +226,7 @@ class UsuarioService {
   static togglePrioridadeSolicitante(setorId, valor) {
     return new Promise((resolve, reject) => {
       db.run(
-        'UPDATE setores_destino SET prioridade_solicitante = ? WHERE id = ?',
+        'UPDATE setores_origem SET prioridade_solicitante = ? WHERE id = ?',
         [valor ? 1 : 0, setorId],
         function(err) {
           if (err) return reject(err);

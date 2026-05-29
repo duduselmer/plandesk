@@ -84,14 +84,6 @@ db.serialize(() => {
   db.run(`INSERT OR IGNORE INTO setores_destino (nome) VALUES ('Control Desk')`);
   db.run(`INSERT OR IGNORE INTO setores_destino (nome) VALUES ('Planejamento')`);
 
-  // Seeds: dar todos os setores de origem para admin (id=1)
-  db.run(`INSERT OR IGNORE INTO usuario_setores_origem (usuario_id, setor_id) 
-          SELECT 1, id FROM setores_origem`);
-  
-  // Seeds: dar setores de destino para controldesk e admin
-  db.run(`INSERT OR IGNORE INTO usuario_setores_destino (usuario_id, setor_id) 
-          SELECT id, (SELECT id FROM setores_destino WHERE nome = 'Control Desk') 
-          FROM usuarios WHERE nivel IN ('controldesk', 'admin', 'gerente')`);
   
   // ==========================================
   // Tabela de tickets
@@ -189,6 +181,11 @@ db.serialize(() => {
   `);
 
   db.run('CREATE INDEX IF NOT EXISTS idx_anexos_ticket ON anexos(ticket_id)');
+
+  // Seed: usuário admin padrão
+  const hash = bcrypt.hashSync('Iaf@2026', 10);
+  db.run('INSERT OR IGNORE INTO usuarios (nome, email, senha_hash, nivel) VALUES (?, ?, ?, ?)', 
+    ['Admin', 'admin@iaf.com', hash, 'admin']);
 
   // Índices
   db.run('CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email)');

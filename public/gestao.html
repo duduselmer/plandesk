@@ -143,11 +143,16 @@
         </table>
       </div>
 
-      <!-- Tickets críticos / em risco -->
+    <!-- Tickets críticos / em risco -->
       <div class="panel">
         <div class="panel-title">🔴 Tickets em Risco ou Críticos</div>
         <div id="criticos-list"><div class="empty">Carregando...</div></div>
       </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">🚩 Prioridades Revisadas</div>
+      <div id="prioridades-revisadas"><div class="empty">Carregando...</div></div>
     </div>
 
     <!-- Todos os tickets -->
@@ -235,6 +240,28 @@ function renderKPIs(stats, tickets) {
   animCount('k-reaberto', reaberto);
 }
 
+function renderPrioridadesRevisadas(tickets) {
+  const revisados = tickets.filter(t => 
+    t.prioridade_sugerida && t.prioridade && t.prioridade !== t.prioridade_sugerida
+  );
+  
+  if (!revisados.length) {
+    document.getElementById('prioridades-revisadas').innerHTML = 
+      '<div class="empty">✓ Nenhuma divergência de prioridade</div>';
+    return;
+  }
+  
+  document.getElementById('prioridades-revisadas').innerHTML = revisados.map(t => `
+    <div class="ticket-row">
+      <span class="id">#${t.id}</span>
+      <span>${t.prioridade_sugerida} → ${t.prioridade}</span>
+      <span class="desc">${t.descricao}</span>
+      <span class="setor-tag">${t.setor} → ${t.setor_destino}</span>
+      ${t.justificativa_prioridade ? `<span style="font-size:0.65rem;color:var(--muted);">${t.justificativa_prioridade}</span>` : ''}
+    </div>
+  `).join('');
+}
+  
 function animCount(id, target) {
   const el = document.getElementById(id);
   let cur = 0;
